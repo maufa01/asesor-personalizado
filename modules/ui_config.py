@@ -53,6 +53,20 @@ def apply_custom_css():
         padding: 0 2rem 4rem !important;
         max-width: 1280px !important;
     }
+    
+    /* ── Responsive Container ─────────────────────────────────────── */
+    @media (max-width: 1024px) {
+        .block-container {
+            padding: 0 1.5rem 3rem !important;
+            max-width: 100% !important;
+        }
+    }
+    
+    @media (max-width: 640px) {
+        .block-container {
+            padding: 0 1rem 2rem !important;
+        }
+    }
 
     /* ── Scrollbar ────────────────────────────────────────────────── */
     ::-webkit-scrollbar { width: 6px; background: var(--bg-1); }
@@ -66,7 +80,19 @@ def apply_custom_css():
         padding: 1.6rem 0 1.2rem;
         border-bottom: 1px solid var(--border);
         margin-bottom: 2.5rem;
+        flex-wrap: wrap;
+        gap: 1rem;
     }
+    
+    @media (max-width: 640px) {
+        .app-header {
+            padding: 1rem 0 0.8rem;
+            margin-bottom: 1.5rem;
+            justify-content: center;
+            text-align: center;
+        }
+    }
+    
     .app-logo {
         font-family: var(--font-display);
         font-size: 1.5rem;
@@ -74,6 +100,13 @@ def apply_custom_css():
         letter-spacing: -0.03em;
         color: var(--text-1);
     }
+    
+    @media (max-width: 640px) {
+        .app-logo {
+            font-size: 1.2rem;
+        }
+    }
+    
     .app-logo span { color: var(--gold); }
     .app-badge {
         font-size: 0.72rem;
@@ -85,6 +118,13 @@ def apply_custom_css():
         border: 1px solid var(--border);
         padding: 0.3rem 0.8rem;
         border-radius: 99px;
+    }
+    
+    @media (max-width: 640px) {
+        .app-badge {
+            font-size: 0.65rem;
+            padding: 0.25rem 0.6rem;
+        }
     }
 
     /* ── Hero Card ────────────────────────────────────────────────── */
@@ -98,6 +138,20 @@ def apply_custom_css():
         position: relative;
         overflow: hidden;
         margin: 1rem 0 2rem;
+    }
+    
+    @media (max-width: 768px) {
+        .hero-card {
+            padding: 2.5rem 2rem;
+            margin: 0.5rem 0 1.5rem;
+        }
+    }
+    
+    @media (max-width: 640px) {
+        .hero-card {
+            padding: 1.8rem 1.5rem;
+            margin: 0.5rem 0 1rem;
+        }
     }
     .hero-card::before {
         content: '';
@@ -113,6 +167,14 @@ def apply_custom_css():
         margin-bottom: 1rem;
         filter: drop-shadow(0 0 20px rgba(240,180,41,0.4));
     }
+    
+    @media (max-width: 640px) {
+        .hero-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.8rem;
+        }
+    }
+    
     .hero-title {
         font-family: var(--font-display);
         font-size: 2.1rem;
@@ -122,6 +184,20 @@ def apply_custom_css():
         color: var(--text-1);
         margin-bottom: 1rem;
     }
+    
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 1.6rem;
+        }
+    }
+    
+    @media (max-width: 640px) {
+        .hero-title {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+        }
+    }
+    
     .hero-subtitle {
         font-size: 1.05rem;
         font-weight: 300;
@@ -129,12 +205,43 @@ def apply_custom_css():
         line-height: 1.7;
         margin-bottom: 2rem;
     }
+    
+    @media (max-width: 768px) {
+        .hero-subtitle {
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+        }
+    }
+    
+    @media (max-width: 640px) {
+        .hero-subtitle {
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+    }
+    
     .feature-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 0.7rem;
         margin-top: 1.5rem;
     }
+    
+    @media (max-width: 768px) {
+        .feature-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.6rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .feature-grid {
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+        }
+    }
+    
     .feature-item {
         background: var(--bg-3);
         border: 1px solid var(--border);
@@ -143,6 +250,13 @@ def apply_custom_css():
         font-size: 0.83rem;
         font-weight: 500;
         color: var(--text-2);
+    }
+    
+    @media (max-width: 640px) {
+        .feature-item {
+            padding: 0.5rem 0.6rem;
+            font-size: 0.75rem;
+        }
     }
 
     /* ── Buttons ──────────────────────────────────────────────────── */
@@ -158,7 +272,16 @@ def apply_custom_css():
         padding: 0.7rem 1.5rem !important;
         transition: all 0.2s ease !important;
         box-shadow: 0 2px 12px rgba(79,163,255,0.15) !important;
+        width: 100% !important;
     }
+    
+    @media (max-width: 640px) {
+        .stButton > button {
+            font-size: 0.8rem !important;
+            padding: 0.6rem 1.2rem !important;
+        }
+    }
+    
     .stButton > button:hover {
         border-color: var(--blue) !important;
         box-shadow: 0 4px 20px rgba(79,163,255,0.3) !important;
@@ -182,6 +305,19 @@ def apply_custom_css():
         transition: border-color 0.2s;
         height: 100%;
     }
+    
+    @media (max-width: 1024px) {
+        .metric-card {
+            padding: 1rem 1.2rem;
+        }
+    }
+    
+    @media (max-width: 640px) {
+        .metric-card {
+            padding: 0.8rem 1rem;
+        }
+    }
+    
     .metric-card:hover { border-color: var(--border-glow); }
     .metric-label {
         font-size: 0.78rem;
@@ -191,12 +327,32 @@ def apply_custom_css():
         color: var(--text-3);
         margin-bottom: 0.6rem;
     }
+    
+    @media (max-width: 640px) {
+        .metric-label {
+            font-size: 0.65rem;
+            margin-bottom: 0.4rem;
+        }
+    }
+    
     .metric-value {
         font-family: var(--font-numbers);
         font-size: 2rem;
         font-weight: 400;
         letter-spacing: 0.01em;
         line-height: 1;
+    }
+    
+    @media (max-width: 768px) {
+        .metric-value {
+            font-size: 1.5rem;
+        }
+    }
+    
+    @media (max-width: 640px) {
+        .metric-value {
+            font-size: 1.2rem;
+        }
     }
 
     /* ── Section Title ────────────────────────────────────────────── */
@@ -209,6 +365,20 @@ def apply_custom_css():
         margin-bottom: 1rem;
         padding-bottom: 0.5rem;
         border-bottom: 1px solid var(--border);
+    }
+    
+    @media (max-width: 768px) {
+        .section-title {
+            font-size: 0.95rem;
+            margin-bottom: 0.8rem;
+        }
+    }
+    
+    @media (max-width: 640px) {
+        .section-title {
+            font-size: 0.85rem;
+            margin-bottom: 0.6rem;
+        }
     }
 
     /* ── Results Header ───────────────────────────────────────────── */
@@ -375,6 +545,14 @@ def apply_custom_css():
         gap: 4px !important;
         border: 1px solid var(--border) !important;
     }
+    
+    @media (max-width: 640px) {
+        .stTabs [data-baseweb="tab-list"] {
+            padding: 2px !important;
+            gap: 2px !important;
+        }
+    }
+    
     .stTabs [data-baseweb="tab"] {
         background: transparent !important;
         color: var(--text-3) !important;
@@ -383,6 +561,14 @@ def apply_custom_css():
         font-size: 0.85rem !important;
         font-weight: 500 !important;
     }
+    
+    @media (max-width: 640px) {
+        .stTabs [data-baseweb="tab"] {
+            font-size: 0.7rem !important;
+            padding: 0.3rem 0.5rem !important;
+        }
+    }
+    
     .stTabs [aria-selected="true"] {
         background: var(--bg-3) !important;
         color: var(--text-1) !important;
@@ -442,7 +628,33 @@ def apply_custom_css():
         box-shadow: var(--shadow-card);
         margin-bottom: 1.5rem;
     }
-    .q-emoji { font-size: 2.2rem; margin-bottom: 0.6rem; }
+    
+    @media (max-width: 768px) {
+        .profiler-card {
+            padding: 1.5rem 1.5rem 1.2rem;
+            margin-bottom: 1rem;
+        }
+    }
+    
+    @media (max-width: 640px) {
+        .profiler-card {
+            padding: 1.2rem 1rem 1rem;
+            margin-bottom: 0.8rem;
+        }
+    }
+    
+    .q-emoji { 
+        font-size: 2.2rem;
+        margin-bottom: 0.6rem;
+    }
+    
+    @media (max-width: 640px) {
+        .q-emoji {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+    }
+    
     .q-title {
         font-family: var(--font-display);
         font-size: 1.25rem;
@@ -450,10 +662,29 @@ def apply_custom_css():
         margin-bottom: 0.4rem;
         color: var(--text-1);
     }
+    
+    @media (max-width: 768px) {
+        .q-title {
+            font-size: 1.1rem;
+        }
+    }
+    
+    @media (max-width: 640px) {
+        .q-title {
+            font-size: 0.95rem;
+        }
+    }
+    
     .profiler-card p.hint {
         font-size: 0.84rem;
         color: var(--text-3);
         margin-bottom: 0;
+    }
+    
+    @media (max-width: 640px) {
+        .profiler-card p.hint {
+            font-size: 0.75rem;
+        }
     }
 
     /* ── Summary panel ────────────────────────────────────────── */
@@ -491,12 +722,47 @@ def apply_custom_css():
         margin: 0 auto;
         line-height: 1.65;
     }
+    
+    @media (max-width: 768px) {
+        .summary-explain {
+            font-size: 0.88rem;
+        }
+    }
+    
+    @media (max-width: 640px) {
+        .summary-explain {
+            font-size: 0.8rem;
+        }
+    }
+    
     .summary-grid {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         gap: 1rem;
         margin-bottom: 1.5rem;
     }
+    
+    @media (max-width: 1024px) {
+        .summary-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.8rem;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .summary-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.6rem;
+        }
+    }
+    
+    @media (max-width: 640px) {
+        .summary-grid {
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+        }
+    }
+    
     .summary-item {
         background: var(--bg-3);
         border: 1px solid var(--border);
@@ -504,6 +770,13 @@ def apply_custom_css():
         padding: 1rem;
         text-align: center;
     }
+    
+    @media (max-width: 640px) {
+        .summary-item {
+            padding: 0.8rem;
+        }
+    }
+    
     .si-label {
         font-size: 0.72rem;
         font-weight: 600;
@@ -512,6 +785,13 @@ def apply_custom_css():
         color: var(--text-3);
         margin-bottom: 0.4rem;
     }
+    
+    @media (max-width: 640px) {
+        .si-label {
+            font-size: 0.65rem;
+        }
+    }
+    
     .si-value {
         font-family: var(--font-display);
         font-size: 1.3rem;
@@ -558,6 +838,41 @@ def apply_custom_css():
     }
     .stRadio [data-baseweb="radio"]:hover {
         border-color: var(--blue) !important;
+    }
+
+    /* ── Responsive Columns ───────────────────────────────────────── */
+    [data-testid="column"] {
+        min-width: 100% !important;
+    }
+    
+    @media (max-width: 1024px) {
+        [data-testid="column"] {
+            width: 100% !important;
+        }
+    }
+    
+    /* ── Make Streamlit containers responsive ───────────────────── */
+    @media (max-width: 640px) {
+        [data-testid="stMetricContainer"] {
+            margin-bottom: 0.5rem !important;
+        }
+    }
+    
+    /* ── Mobile form elements ──────────────────────────────────────– */
+    @media (max-width: 640px) {
+        input, textarea, select, [data-baseweb="select"] {
+            font-size: 16px !important;
+        }
+        .stSlider > div {
+            padding: 0.5rem 0 !important;
+        }
+    }
+    
+    /* ── Ensure text doesn't overflow ──────────────────────────────– */
+    @media (max-width: 640px) {
+        p, span, div {
+            word-break: break-word !important;
+        }
     }
     </style>
     """, unsafe_allow_html=True)

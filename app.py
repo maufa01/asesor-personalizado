@@ -43,9 +43,7 @@ step = st.session_state.step
 # INTRO
 # ══════════════════════════════════════════════════════════════════════════════
 if step == "intro":
-    col_l, col_c, col_r = st.columns([1, 2.2, 1])
-    with col_c:
-        st.markdown("""<div class="hero-card">
+    st.markdown("""<div class="hero-card">
 <div class="hero-icon">📊</div>
 <h1 class="hero-title">Invertí mejor tu plata<br>con inteligencia artificial</h1>
 <p class="hero-subtitle">
@@ -62,19 +60,19 @@ una cartera de inversión adaptada a vos, explicada en lenguaje simple.
 </div>
 </div>""", unsafe_allow_html=True)
 
-        st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
 
-        st.markdown("""<div class="audience-note">
+    st.markdown("""<div class="audience-note">
 <strong>¿Para quién es esto?</strong> Para cualquier persona en Argentina que quiera invertir mejor su plata,
 aunque nunca haya invertido antes. No necesitás saber nada de finanzas.
 </div>""", unsafe_allow_html=True)
 
-        st.markdown("<br>", unsafe_allow_html=True)
-        if st.button("🚀 Empezar ahora — son solo 6 preguntas", key="start_btn", use_container_width=True):
-            st.session_state.step = "profiling"
-            st.rerun()
+    st.markdown("<br>", unsafe_allow_html=True)
+    if st.button("🚀 Empezar ahora — son solo 6 preguntas", key="start_btn", use_container_width=True):
+        st.session_state.step = "profiling"
+        st.rerun()
 
-        st.markdown("""<p class="disclaimer">
+    st.markdown("""<p class="disclaimer">
 ⚠️ Esta aplicación es educativa y no constituye asesoramiento financiero profesional.
 Consultá siempre con un asesor habilitado antes de invertir dinero real.
 </p>""", unsafe_allow_html=True)
