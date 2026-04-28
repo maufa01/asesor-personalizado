@@ -304,7 +304,6 @@ def render_bar_simulation(portfolio: dict, initial_capital: float):
         ),
         margin=dict(l=0, r=0, t=40, b=0),
         height=420,
-        uniformtext=dict(minsize=9, mode="hide"),
     )
 
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
