@@ -302,9 +302,9 @@ def render_bar_simulation(portfolio: dict, initial_capital: float):
             font=dict(size=11),
             bgcolor="rgba(0,0,0,0)",
         ),
-        margin=dict(l=0, r=0, t=40, b=0),
         height=420,
     )
+    fig.update_layout(margin=dict(l=0, r=0, t=40, b=0))
 
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
