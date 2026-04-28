@@ -891,10 +891,11 @@ def apply_custom_css():
     }
     .summary-explain {
         color: var(--text-2);
-        font-size: 0.95rem;
+        font-size: 1.05rem;
         max-width: 600px;
         margin: 0 auto;
-        line-height: 1.65;
+        line-height: 1.7;
+        text-align: center;
     }
     
     @media (max-width: 768px) {
@@ -975,15 +976,15 @@ def apply_custom_css():
         color: var(--text-1);
     }
     .summary-desc {
-        font-size: 0.97rem;
         background: rgba(79,163,255,0.06);
         border: 1px solid rgba(79,163,255,0.15);
         border-left: 3px solid var(--blue);
         border-radius: var(--radius-md);
         padding: 1rem 1.4rem;
-        font-size: 0.91rem;
+        font-size: 1rem;
         color: var(--text-2);
-        line-height: 1.7;
+        line-height: 1.75;
+        text-align: center;
     }
 
     /* ── Metric card sub ──────────────────────────────────────── */
