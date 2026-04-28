@@ -416,7 +416,7 @@ def apply_custom_css():
         padding: 1.5rem 1.75rem;
         line-height: 1.8;
         color: var(--text-2);
-        font-size: 0.93rem;
+        font-size: 1rem;
     }
     .ai-response p { margin: 0 0 0.9rem 0; }
     .ai-section { margin-bottom: 1.6rem; }
@@ -458,8 +458,8 @@ def apply_custom_css():
         letter-spacing: 0.03em;
     }
     .asset-row {
-        font-size: 0.88rem;
-        margin-bottom: 0.35rem;
+        font-size: 0.94rem;
+        margin-bottom: 0.4rem;
         color: var(--text-2);
     }
     .asset-row strong { color: var(--text-1); margin-right: 4px; }
@@ -513,7 +513,7 @@ def apply_custom_css():
         opacity: 0.6;
         text-transform: uppercase;
     }
-    .chat-text { color: var(--text-1); white-space: pre-wrap; }
+    .chat-text { color: var(--text-1); white-space: pre-wrap; font-size: 0.97rem; line-height: 1.7; }
     .chat-user {
         background: rgba(96,165,250,0.1);
         border: 1px solid rgba(96,165,250,0.25);
@@ -557,7 +557,7 @@ def apply_custom_css():
     .stSlider [data-baseweb="slider"] [data-testid="stThumbValue"] {
         background: var(--blue) !important;
     }
-    .stRadio > label { font-size: 0.9rem !important; color: var(--text-2) !important; }
+    .stRadio > label { font-size: 1rem !important; color: var(--text-2) !important; }
     .stSelectbox > div > div {
         background: var(--bg-2) !important;
         border-color: var(--border) !important;
@@ -594,7 +594,7 @@ def apply_custom_css():
     /* ── Native table (column-based) ─────────────────────────────── */
     .tbl-header {
         font-family: var(--font-display);
-        font-size: 0.7rem;
+        font-size: 0.75rem;
         font-weight: 700;
         letter-spacing: 0.09em;
         text-transform: uppercase;
@@ -606,15 +606,15 @@ def apply_custom_css():
         margin: 0 0 0.15rem;
     }
     .tbl-cell {
-        font-size: 0.87rem;
+        font-size: 0.93rem;
         color: var(--text-2);
-        padding: 0.55rem 0.3rem;
+        padding: 0.65rem 0.3rem;
         border-bottom: 1px solid rgba(99,120,180,0.08);
-        min-height: 52px;
+        min-height: 56px;
     }
-    .tbl-text { color: var(--text-2); font-size: 0.82rem; }
-    .asset-name { color: #eef2ff; font-weight: 600; font-size: 0.88rem; }
-    .asset-sub  { color: var(--text-3); font-size: 0.73rem; }
+    .tbl-text { color: var(--text-2); font-size: 0.9rem; }
+    .asset-name { color: #eef2ff; font-weight: 600; font-size: 0.95rem; }
+    .asset-sub  { color: var(--text-3); font-size: 0.8rem; }
     .asset-dot {
         display: inline-block;
         width: 10px; height: 10px;
@@ -975,6 +975,7 @@ def apply_custom_css():
         color: var(--text-1);
     }
     .summary-desc {
+        font-size: 0.97rem;
         background: rgba(79,163,255,0.06);
         border: 1px solid rgba(79,163,255,0.15);
         border-left: 3px solid var(--blue);
