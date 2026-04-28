@@ -9,7 +9,7 @@ import streamlit as st
 def apply_custom_css():
     st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=Cormorant+Garamond:wght@300;400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
     /* ── Reset & Base ─────────────────────────────────────────────── */
     :root {
@@ -33,7 +33,7 @@ def apply_custom_css():
         --accent:     #4fa3ff;
         --font-display: 'Syne', sans-serif;
         --font-body:    'DM Sans', sans-serif;
-        --font-numbers: 'Cormorant Garamond', Georgia, serif;
+        --font-numbers: 'Space Grotesk', sans-serif;
         --radius-sm:  8px;
         --radius-md:  14px;
         --radius-lg:  20px;
@@ -338,9 +338,10 @@ def apply_custom_css():
     .metric-value {
         font-family: var(--font-numbers);
         font-size: 2rem;
-        font-weight: 400;
-        letter-spacing: 0.01em;
+        font-weight: 600;
+        letter-spacing: -0.02em;
         line-height: 1;
+        font-variant-numeric: tabular-nums;
     }
     
     @media (max-width: 768px) {
@@ -412,11 +413,117 @@ def apply_custom_css():
         border: 1px solid var(--border);
         border-left: 3px solid var(--blue);
         border-radius: var(--radius-md);
-        padding: 1.5rem;
-        line-height: 1.75;
+        padding: 1.5rem 1.75rem;
+        line-height: 1.8;
         color: var(--text-2);
         font-size: 0.93rem;
-        white-space: pre-wrap;
+    }
+    .ai-response p { margin: 0 0 0.9rem 0; }
+    .ai-section { margin-bottom: 1.6rem; }
+    .ai-section-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--text-1);
+        margin: 0 0 1rem 0;
+        padding-bottom: 0.45rem;
+        border-bottom: 1px solid var(--border);
+        letter-spacing: 0.01em;
+    }
+    .asset-card {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid var(--border);
+        border-left: 3px solid var(--blue);
+        border-radius: 8px;
+        padding: 1rem 1.2rem;
+        margin-bottom: 0.85rem;
+    }
+    .asset-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.6rem;
+    }
+    .asset-name {
+        font-weight: 700;
+        font-size: 0.97rem;
+        color: var(--text-1);
+    }
+    .asset-weight {
+        background: var(--blue);
+        color: #fff;
+        font-size: 0.78rem;
+        font-weight: 700;
+        padding: 2px 10px;
+        border-radius: 20px;
+        letter-spacing: 0.03em;
+    }
+    .asset-row {
+        font-size: 0.88rem;
+        margin-bottom: 0.35rem;
+        color: var(--text-2);
+    }
+    .asset-row strong { color: var(--text-1); margin-right: 4px; }
+    .asset-row-risk { color: rgba(248,113,113,0.85) !important; }
+    .asset-row-risk strong { color: #f87171 !important; }
+    .ai-intro {
+        background: rgba(96,165,250,0.07);
+        border: 1px solid rgba(96,165,250,0.2);
+        border-radius: 8px;
+        padding: 0.9rem 1.1rem;
+        margin-bottom: 1.4rem;
+        font-size: 0.91rem;
+        color: var(--text-2);
+        line-height: 1.7;
+    }
+    .ai-tip-list { list-style: none; padding: 0; margin: 0; }
+    .ai-tip-list li {
+        padding: 0.55rem 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.9rem;
+        color: var(--text-2);
+        display: flex;
+        gap: 0.6rem;
+        align-items: flex-start;
+    }
+    .ai-tip-list li:last-child { border-bottom: none; }
+    .ai-tip-list li span.tip-icon { font-size: 1rem; flex-shrink: 0; padding-top: 1px; }
+    .rebalance-block {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.9rem 1.1rem;
+        margin-bottom: 0.85rem;
+    }
+    .rebalance-block strong { color: var(--text-1); display: block; margin-bottom: 0.3rem; font-size: 0.9rem; }
+
+    /* ── Chat ─────────────────────────────────────────────────────────── */
+    .chat-bubble {
+        max-width: 82%;
+        margin-bottom: 0.75rem;
+        padding: 0.75rem 1rem;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        line-height: 1.65;
+    }
+    .chat-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        margin-bottom: 0.3rem;
+        opacity: 0.6;
+        text-transform: uppercase;
+    }
+    .chat-text { color: var(--text-1); white-space: pre-wrap; }
+    .chat-user {
+        background: rgba(96,165,250,0.1);
+        border: 1px solid rgba(96,165,250,0.25);
+        margin-left: auto;
+        text-align: right;
+    }
+    .chat-advisor {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid var(--border);
+        margin-right: auto;
     }
     .ai-placeholder {
         background: var(--bg-card);
@@ -680,12 +787,79 @@ def apply_custom_css():
         color: var(--text-3);
         margin-bottom: 0;
     }
-    
+
     @media (max-width: 640px) {
         .profiler-card p.hint {
             font-size: 0.75rem;
         }
     }
+
+    .q-step {
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--blue);
+        margin-bottom: 0.6rem;
+    }
+
+    /* ── Profile Reveal ───────────────────────────────────────── */
+    .reveal-card {
+        background: linear-gradient(135deg, var(--bg-card) 0%, #0a1628 100%);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 2.5rem 2.2rem 2rem;
+        text-align: center;
+        box-shadow: var(--shadow-card);
+        margin-bottom: 1.5rem;
+    }
+    .reveal-badge {
+        display: inline-block;
+        font-family: var(--font-display);
+        font-size: 1.4rem;
+        font-weight: 800;
+        border: 2px solid;
+        border-radius: 99px;
+        padding: 0.5rem 1.6rem;
+        margin-bottom: 1rem;
+        letter-spacing: -0.01em;
+    }
+    .reveal-tagline {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-1);
+        margin-bottom: 0.8rem;
+    }
+    .reveal-explanation {
+        font-size: 0.93rem;
+        color: var(--text-2);
+        line-height: 1.75;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .reveal-section {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 1.2rem 1.4rem;
+        text-align: left;
+    }
+    .reveal-section-title {
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--text-3);
+        margin-bottom: 0.85rem;
+    }
+    .reveal-item {
+        font-size: 0.88rem;
+        color: var(--text-2);
+        padding: 0.4rem 0;
+        border-bottom: 1px solid rgba(99,120,180,0.1);
+        line-height: 1.5;
+    }
+    .reveal-item:last-child { border-bottom: none; }
 
     /* ── Summary panel ────────────────────────────────────────── */
     .summary-panel {
@@ -793,9 +967,11 @@ def apply_custom_css():
     }
     
     .si-value {
-        font-family: var(--font-display);
+        font-family: var(--font-numbers);
         font-size: 1.3rem;
-        font-weight: 800;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        font-variant-numeric: tabular-nums;
         color: var(--text-1);
     }
     .summary-desc {
@@ -882,7 +1058,7 @@ def render_header():
     st.markdown("""
     <div class="app-header">
         <div class="app-logo">Finanzas<span>IA</span></div>
-        <div class="app-badge">⚡ Powered by Claude AI</div>
+        <div class="app-badge">⚡ Powered by Google Gemini</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -891,6 +1067,6 @@ def render_footer():
     st.markdown("""
     <div class="app-footer">
         FinanzasIA · Solo para fines educativos · No constituye asesoramiento financiero profesional<br>
-        Construido con Streamlit + Claude AI · Argentina 🇦🇷
+        Construido con Streamlit + Google Gemini · Argentina 🇦🇷
     </div>
     """, unsafe_allow_html=True)

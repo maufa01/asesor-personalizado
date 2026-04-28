@@ -6,9 +6,9 @@ import streamlit as st
 from modules.ui_config import apply_custom_css, render_header, render_footer
 from modules.profiler import render_profiler
 from modules.portfolio import build_portfolio
-from modules.charts import render_pie_chart, render_evolution_chart, render_allocation_table
+from modules.charts import render_pie_chart, render_evolution_chart, render_bar_simulation, render_allocation_table
 from modules.simulator import simulate_portfolio
-from modules.ai_advisor import get_ai_analysis, get_rebalancing_advice
+from modules.ai_advisor import get_ai_analysis, get_rebalancing_advice, chat_with_advisor
 
 st.set_page_config(
     page_title="FinanzasIA · Tu asesor financiero",
@@ -27,6 +27,7 @@ def init_state():
         "portfolio":   None,
         "simulation":  None,
         "ai_analysis": None,
+        "chat_history": [],
         "answers":     {},
     }
     for k, v in defaults.items():
@@ -218,30 +219,7 @@ elif step == "results":
 
     with col_evo:
         st.markdown('<div class="section-title">📈 ¿Cuánto puede crecer tu plata?</div>', unsafe_allow_html=True)
-        with st.expander("⚙️ Ajustar supuestos de simulación"):
-            col_s1, col_s2 = st.columns(2)
-            with col_s1:
-                custom_return = st.slider(
-                    "Retorno anual (%)", min_value=-5, max_value=30,
-                    value=int(cagr * 100), step=1, key="custom_return"
-                )
-            with col_s2:
-                custom_vol = st.slider(
-                    "Volatilidad (%)", min_value=1, max_value=50,
-                    value=int(vol * 100), step=1, key="custom_vol"
-                )
-            if st.button("🔄 Recalcular", key="recalc"):
-                new_sim = simulate_portfolio(
-                    portfolio,
-                    years=profile["horizon"],
-                    initial_capital=profile["capital"],
-                    custom_cagr=custom_return / 100,
-                    custom_vol=custom_vol / 100,
-                )
-                st.session_state.simulation = new_sim
-                st.rerun()
-
-        render_evolution_chart(simulation, profile["capital"], profile["horizon"])
+        render_bar_simulation(portfolio, profile["capital"])
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -296,6 +274,47 @@ elif step == "results":
 <p>Hacé clic en <strong>"Generar análisis IA"</strong> para recibir una explicación personalizada
 de tu cartera en lenguaje simple, con alertas y consejos concretos.</p>
 </div>""", unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # ── Chat con el asesor ────────────────────────────────────────────────────
+    st.markdown('<div class="section-title">💬 Preguntale al asesor</div>', unsafe_allow_html=True)
+
+    chat_history = st.session_state.chat_history
+
+    if chat_history:
+        for msg in chat_history:
+            is_user = msg["role"] == "user"
+            align   = "chat-user" if is_user else "chat-advisor"
+            label   = "Vos" if is_user else "Lucas · Asesor IA"
+            st.markdown(
+                f'<div class="chat-bubble {align}"><div class="chat-label">{label}</div>'
+                f'<div class="chat-text">{msg["content"]}</div></div>',
+                unsafe_allow_html=True,
+            )
+
+    with st.form("chat_form", clear_on_submit=True):
+        col_inp, col_btn = st.columns([5, 1])
+        with col_inp:
+            user_input = st.text_input(
+                "Pregunta",
+                placeholder="Ej: ¿Qué es exactamente una LECAP? ¿Cómo compro el dólar MEP?",
+                label_visibility="collapsed",
+            )
+        with col_btn:
+            send = st.form_submit_button("Enviar", use_container_width=True)
+
+    if send and user_input.strip():
+        with st.spinner("Lucas está respondiendo..."):
+            answer = chat_with_advisor(user_input.strip(), chat_history, profile, portfolio)
+        st.session_state.chat_history.append({"role": "user",      "content": user_input.strip()})
+        st.session_state.chat_history.append({"role": "assistant", "content": answer})
+        st.rerun()
+
+    if chat_history:
+        if st.button("🗑️ Limpiar chat", key="clear_chat"):
+            st.session_state.chat_history = []
+            st.rerun()
 
     st.markdown("<br>", unsafe_allow_html=True)
 

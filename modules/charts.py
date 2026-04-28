@@ -3,6 +3,7 @@ Módulo de visualizaciones
 """
 
 import re
+import math
 import plotly.graph_objects as go
 import streamlit as st
 
@@ -53,7 +54,7 @@ def _remove_asset(portfolio: dict, asset_id: str) -> dict:
 def render_pie_chart(portfolio: dict):
     positions = portfolio["positions"]
 
-    labels = [p["name"] for p in positions]
+    labels = [p["name"].split("(")[0].split("—")[0].strip() for p in positions]
     values = [round(p["weight"] * 100, 1) for p in positions]
     colors = [p["color"] for p in positions]
     hovers = [
@@ -192,6 +193,149 @@ def render_evolution_chart(simulation: dict, initial_capital: float, years: int)
 <div class="metric-label">Chances de duplicar</div>
 <div class="metric-value" style="color:#60a5fa;">{prob_d:.0f}%</div>
 <div class="metric-sub">De terminar con el doble o más</div>
+</div>""", unsafe_allow_html=True)
+
+
+# ─── Gráfico de barras: proyección a 1, 5 y 10 años ──────────────────────────
+
+def render_bar_simulation(portfolio: dict, initial_capital: float):
+    cagr = portfolio["expected_cagr"]
+    vol  = portfolio["expected_volatility"]
+
+    cagr_opt  = cagr + vol * 0.5
+    cagr_pess = max(cagr - vol * 0.7, -0.30)
+
+    years     = [1, 5, 10]
+    labels    = ["1 año", "5 años", "10 años"]
+
+    def proj(c, y): return initial_capital * math.exp(c * y)
+    def pct(v):     return (v / initial_capital - 1) * 100
+
+    vals_pess = [proj(cagr_pess, y) for y in years]
+    vals_base = [proj(cagr,      y) for y in years]
+    vals_opt  = [proj(cagr_opt,  y) for y in years]
+
+    def fmt(v): return f"${v:,.0f}"
+    def fmt_pct(v):
+        p = pct(v)
+        sign = "+" if p >= 0 else ""
+        return f"{sign}{p:.0f}%"
+
+    fig = go.Figure()
+
+    # Pésimo
+    fig.add_trace(go.Bar(
+        name="😟 Pésimo",
+        x=labels,
+        y=vals_pess,
+        marker_color="#ef4444",
+        marker_line_width=0,
+        opacity=0.85,
+        text=[f"{fmt(v)}<br><span style='font-size:11px'>{fmt_pct(v)}</span>" for v in vals_pess],
+        textposition="outside",
+        textfont=dict(size=11, color="#ef4444"),
+        hovertemplate="<b>%{x} — Pésimo</b><br>Capital: %{y:$,.0f}<extra></extra>",
+    ))
+
+    # Base
+    fig.add_trace(go.Bar(
+        name="📊 Base",
+        x=labels,
+        y=vals_base,
+        marker_color="#f0b429",
+        marker_line_width=0,
+        opacity=0.9,
+        text=[f"{fmt(v)}<br><span style='font-size:11px'>{fmt_pct(v)}</span>" for v in vals_base],
+        textposition="outside",
+        textfont=dict(size=11, color="#f0b429"),
+        hovertemplate="<b>%{x} — Base</b><br>Capital: %{y:$,.0f}<extra></extra>",
+    ))
+
+    # Optimista
+    fig.add_trace(go.Bar(
+        name="🚀 Excelente",
+        x=labels,
+        y=vals_opt,
+        marker_color="#10d98a",
+        marker_line_width=0,
+        opacity=0.9,
+        text=[f"{fmt(v)}<br><span style='font-size:11px'>{fmt_pct(v)}</span>" for v in vals_opt],
+        textposition="outside",
+        textfont=dict(size=11, color="#10d98a"),
+        hovertemplate="<b>%{x} — Excelente</b><br>Capital: %{y:$,.0f}<extra></extra>",
+    ))
+
+    # Línea de capital inicial
+    fig.add_hline(
+        y=initial_capital,
+        line_dash="dot",
+        line_color="rgba(148,163,184,0.4)",
+        line_width=1.5,
+        annotation_text=f"Capital inicial ${initial_capital:,.0f}",
+        annotation_position="top left",
+        annotation_font=dict(size=10, color="#64748b"),
+    )
+
+    fig.update_layout(
+        **PLOTLY_LAYOUT,
+        barmode="group",
+        bargap=0.22,
+        bargroupgap=0.06,
+        yaxis=dict(
+            showgrid=True,
+            gridcolor="rgba(99,120,180,0.07)",
+            zeroline=False,
+            tickformat="$,.0f",
+            tickfont=dict(size=10),
+            title="",
+        ),
+        xaxis=dict(
+            showgrid=False,
+            tickfont=dict(size=13, family="Space Grotesk, sans-serif", color="#eef2ff"),
+        ),
+        legend=dict(
+            orientation="h",
+            yanchor="top",
+            y=-0.12,
+            xanchor="center",
+            x=0.5,
+            font=dict(size=11),
+            bgcolor="rgba(0,0,0,0)",
+        ),
+        margin=dict(l=0, r=0, t=40, b=0),
+        height=420,
+        uniformtext=dict(minsize=9, mode="hide"),
+    )
+
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+
+    # Métricas clave debajo
+    col1, col2, col3 = st.columns(3)
+    gain_1  = vals_base[0] - initial_capital
+    gain_10 = vals_base[2] - initial_capital
+
+    with col1:
+        st.markdown(f"""<div class="metric-card" style="text-align:center;">
+<div class="metric-label">Ganancia en 1 año (base)</div>
+<div class="metric-value" style="color:#f0b429;">+${gain_1:,.0f}</div>
+<div class="metric-sub">Escenario más probable</div>
+</div>""", unsafe_allow_html=True)
+    with col2:
+        gain_10_pct = pct(vals_base[2])
+        st.markdown(f"""<div class="metric-card" style="text-align:center;">
+<div class="metric-label">Ganancia en 10 años (base)</div>
+<div class="metric-value" style="color:#10d98a;">+{gain_10_pct:.0f}%</div>
+<div class="metric-sub">${gain_10:,.0f} sobre lo invertido</div>
+</div>""", unsafe_allow_html=True)
+    with col3:
+        worst = vals_pess[2]
+        worst_pct = pct(worst)
+        color = "#22c55e" if worst_pct >= 0 else "#ef4444"
+        sign  = "+" if worst_pct >= 0 else ""
+        st.markdown(f"""<div class="metric-card" style="text-align:center;">
+<div class="metric-label">Peor escenario a 10 años</div>
+<div class="metric-value" style="color:{color};">{sign}{worst_pct:.0f}%</div>
+<div class="metric-sub">${worst:,.0f} en el peor caso</div>
 </div>""", unsafe_allow_html=True)
 
 
