@@ -3,12 +3,59 @@ FinanzasIA — Asesor Financiero Inteligente
 """
 
 import streamlit as st
+import streamlit.components.v1 as components
 from modules.ui_config import apply_custom_css, render_header, render_footer
 from modules.profiler import render_profiler
 from modules.portfolio import build_portfolio
 from modules.charts import render_pie_chart, render_evolution_chart, render_bar_simulation, render_allocation_table
 from modules.simulator import simulate_portfolio
 from modules.ai_advisor import get_ai_analysis, get_rebalancing_advice, chat_with_advisor
+
+_CELEBRATION_HTML = """<!DOCTYPE html><html><head><meta charset="utf-8">
+<style>
+@keyframes confettiFall {
+    0%   { transform: translateY(-10px) rotate(0deg);   opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}
+@keyframes celebFadeIn  { from { opacity:0; transform:scale(0.92); } to { opacity:1; transform:scale(1); } }
+@keyframes celebFadeOut { from { opacity:1; } to { opacity:0; } }
+</style>
+</head><body style="margin:0;background:transparent;">
+<script>
+(function() {
+    var LS_KEY = 'asesor_celebration_v1';
+    try { if (window.parent.localStorage.getItem(LS_KEY)) return; } catch(e) {}
+    var doc = window.parent.document;
+    var overlay = doc.createElement('div');
+    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(5,8,16,0.93);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;animation:celebFadeIn 0.4s ease-out both';
+    var style = doc.createElement('style');
+    style.textContent = '@keyframes confettiFall{0%{transform:translateY(-10px) rotate(0deg);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}@keyframes celebFadeIn{from{opacity:0;transform:scale(0.92)}to{opacity:1;transform:scale(1)}}@keyframes celebFadeOut{from{opacity:1}to{opacity:0}}';
+    doc.head.appendChild(style);
+    var colors = ['#4fa3ff','#10d98a','#f0b429','#ff4d6a','#a78bfa','#ffffff','#38bdf8'];
+    for (var i = 0; i < 70; i++) {
+        var p = doc.createElement('div');
+        var left = Math.random() * 100;
+        var delay = Math.random() * 2.2;
+        var dur = 2.2 + Math.random() * 1.8;
+        var size = 5 + Math.random() * 9;
+        var isRect = Math.random() > 0.5;
+        p.style.cssText = 'position:absolute;left:' + left + '%;top:-20px;width:' + size + 'px;height:' + (isRect ? size * 0.4 : size) + 'px;background:' + colors[i % colors.length] + ';border-radius:' + (isRect ? '2px' : '50%') + ';animation:confettiFall ' + dur + 's ' + delay + 's ease-in forwards;pointer-events:none;';
+        overlay.appendChild(p);
+    }
+    var box = doc.createElement('div');
+    box.style.cssText = 'text-align:center;padding:2rem;position:relative;z-index:2;';
+    box.innerHTML = '<div style="font-size:4rem;margin-bottom:1rem;filter:drop-shadow(0 0 20px rgba(240,180,41,0.6))">🎉</div><h1 style="font-family:Syne,sans-serif;font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;color:#eef2ff;margin:0 0 0.8rem;line-height:1.2;letter-spacing:-0.02em;">¡Ya está! Ahora sabés dónde poner tu plata 🎉</h1><p style="font-family:DM Sans,sans-serif;font-size:clamp(0.95rem,2vw,1.15rem);color:#94a3b8;margin:0 0 1.5rem;">Tu cartera está lista. Tomó menos de 2 minutos.</p><p style="font-size:0.8rem;color:#475569;">Tocá en cualquier lugar para continuar</p>';
+    overlay.appendChild(box);
+    doc.body.appendChild(overlay);
+    try { window.parent.localStorage.setItem(LS_KEY, '1'); } catch(e) {}
+    function dismiss() {
+        overlay.style.animation = 'celebFadeOut 0.4s ease-in forwards';
+        setTimeout(function() { overlay.remove(); style.remove(); }, 420);
+    }
+    overlay.addEventListener('click', dismiss);
+    setTimeout(dismiss, 3000);
+})();
+</script></body></html>"""
 
 st.set_page_config(
     page_title="FinanzasIA · Tu asesor financiero",
@@ -97,7 +144,8 @@ elif step == "profiling":
             st.session_state.portfolio  = portfolio
             st.session_state.simulation = simulation
 
-        st.session_state.step = "results"
+        st.session_state.step             = "results"
+        st.session_state.show_celebration = True
         st.rerun()
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -112,6 +160,11 @@ elif step == "results":
 onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smooth'});return false;">
 💬 Preguntale al asesor
 </a>""", unsafe_allow_html=True)
+
+    # ── Pantalla de celebración (primera vez) ─────────────────────────────────
+    if st.session_state.get("show_celebration"):
+        st.session_state.show_celebration = False
+        components.html(_CELEBRATION_HTML, height=0)
 
     risk_colors = {"conservador": "#22c55e", "moderado": "#f59e0b", "agresivo": "#ef4444"}
     risk_emojis = {"conservador": "🟢", "moderado": "🟡", "agresivo": "🔴"}
@@ -304,6 +357,53 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
                 analysis = get_ai_analysis(profile, portfolio)
                 st.session_state.ai_analysis = analysis
                 st.rerun()
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # ── ¿Y ahora qué? ─────────────────────────────────────────────────────────
+    st.markdown('<div class="section-title">❓ ¿Y ahora qué?</div>', unsafe_allow_html=True)
+    st.markdown("""<div class="action-guide">
+<div class="action-step">
+  <div class="action-step-number">1</div>
+  <div class="action-step-body">
+    <div class="action-step-title">Abrí una cuenta en IOL o Balanz</div>
+    <div class="action-step-copy">Es gratis y tarda 10 minutos.</div>
+    <details class="action-step-help"><summary>¿Cómo hago esto?</summary>
+      <div>Elegí la plataforma, completá los datos personales y verificá tu identidad con DNI y selfie.</div>
+    </details>
+  </div>
+</div>
+<div class="action-step">
+  <div class="action-step-number">2</div>
+  <div class="action-step-body">
+    <div class="action-step-title">Depositá el dinero que querés invertir</div>
+    <div class="action-step-copy">Transferí desde tu cuenta bancaria o billetera digital.</div>
+    <details class="action-step-help"><summary>¿Cómo hago esto?</summary>
+      <div>Buscá la opción de depósito o transferencia en la app y seguí los pasos para enviar pesos o dólares.</div>
+    </details>
+  </div>
+</div>
+<div class="action-step">
+  <div class="action-step-number">3</div>
+  <div class="action-step-body">
+    <div class="action-step-title">Comprá los activos de tu cartera uno por uno</div>
+    <div class="action-step-copy">Seguí la proporción recomendada en cada activo.</div>
+    <details class="action-step-help"><summary>¿Cómo hago esto?</summary>
+      <div>Seleccioná cada activo, ingresá la cantidad y confirmá la compra. Si no estás seguro, empezá con el activo más seguro.</div>
+    </details>
+  </div>
+</div>
+<div class="action-step">
+  <div class="action-step-number">4</div>
+  <div class="action-step-body">
+    <div class="action-step-title">Revisá cómo va tu plata una vez por mes</div>
+    <div class="action-step-copy">No hace falta mirar todos los días.</div>
+    <details class="action-step-help"><summary>¿Cómo hago esto?</summary>
+      <div>Entrá a tu cuenta cada 30 días, verificá el rendimiento y ajustá solo si cambió tu objetivo o tu presupuesto.</div>
+    </details>
+  </div>
+</div>
+</div>""", unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
 
