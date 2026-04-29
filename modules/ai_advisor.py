@@ -13,7 +13,7 @@ from google.genai import types
 from typing import Dict, Any
 import streamlit as st
 
-_MODELS = ["gemini-2.5-flash", "gemini-1.5-flash"]
+_MODELS = ["gemini-2.5-flash", "gemini-2.0-flash"]
 
 
 def _get_client() -> genai.Client:

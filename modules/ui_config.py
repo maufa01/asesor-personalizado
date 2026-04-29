@@ -775,6 +775,45 @@ def apply_custom_css():
         .asc-pct  { font-size: 1.1rem; }
     }
 
+    /* ── Floating Action Button ───────────────────────────────────── */
+    @keyframes fabSlideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .fab-btn {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dim) 100%);
+        color: #fff !important;
+        padding: 0.85rem 1.4rem;
+        border-radius: 99px;
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 0.88rem;
+        text-decoration: none !important;
+        box-shadow: 0 4px 24px rgba(79,163,255,0.45);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        animation: fabSlideUp 0.45s ease-out 1.5s both;
+        white-space: nowrap;
+    }
+    .fab-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 32px rgba(79,163,255,0.6);
+    }
+    @media (max-width: 640px) {
+        .fab-btn {
+            bottom: 1.2rem;
+            right: 1rem;
+            font-size: 0.8rem;
+            padding: 0.7rem 1.1rem;
+        }
+    }
+
     /* ── Remove Confirm Banner ────────────────────────────────────── */
     .remove-confirm {
         background: rgba(239,68,68,0.08);

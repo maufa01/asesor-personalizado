@@ -108,6 +108,11 @@ elif step == "results":
     portfolio  = st.session_state.portfolio
     simulation = st.session_state.simulation
 
+    st.markdown("""<a class="fab-btn" href="#chat-section"
+onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smooth'});return false;">
+💬 Preguntale al asesor
+</a>""", unsafe_allow_html=True)
+
     risk_colors = {"conservador": "#22c55e", "moderado": "#f59e0b", "agresivo": "#ef4444"}
     risk_emojis = {"conservador": "🟢", "moderado": "🟡", "agresivo": "🔴"}
     risk_labels = {
@@ -303,6 +308,7 @@ elif step == "results":
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── Chat con el asesor ────────────────────────────────────────────────────
+    st.markdown('<div id="chat-section"></div>', unsafe_allow_html=True)
     st.markdown('<div class="section-title">💬 Preguntale al asesor</div>', unsafe_allow_html=True)
 
     chat_history = st.session_state.chat_history
