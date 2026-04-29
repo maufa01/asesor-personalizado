@@ -52,6 +52,14 @@ Respondé 6 preguntas simples. En menos de 2 minutos te armamos<br>
 una cartera de inversión adaptada a vos, explicada en lenguaje simple.
 </p>
 <p class="hero-human-copy">No importa si nunca invertiste antes — te explicamos todo en lenguaje simple.</p>
+<div class="hero-features">
+<div class="hero-feature-pill"><span class="hero-feature-icon">🎯</span>Perfil personalizado</div>
+<div class="hero-feature-pill"><span class="hero-feature-icon">💼</span>Cartera sugerida</div>
+<div class="hero-feature-pill"><span class="hero-feature-icon">🤖</span>Análisis con IA</div>
+<div class="hero-feature-pill"><span class="hero-feature-icon">📈</span>Simulación de crecimiento</div>
+<div class="hero-feature-pill"><span class="hero-feature-icon">🇦🇷</span>Activos argentinos</div>
+<div class="hero-feature-pill"><span class="hero-feature-icon">💱</span>Opciones en pesos y USD</div>
+</div>
 </div>""", unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
@@ -238,23 +246,15 @@ elif step == "results":
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── Análisis IA ───────────────────────────────────────────────────────────
-    st.markdown('<div class="section-title">🤖 Análisis del asesor IA</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">💬 Tu análisis personalizado</div>', unsafe_allow_html=True)
 
-    col_ai1, col_ai2 = st.columns([3, 1])
-    with col_ai2:
-        run_ai = st.button("✨ Generar análisis IA", key="run_ai", use_container_width=True)
-        if st.session_state.ai_analysis:
+    if st.session_state.ai_analysis:
+        col_ai1, col_ai2 = st.columns([3, 1])
+        with col_ai2:
             if st.button("🗑️ Limpiar análisis", key="clear_ai", use_container_width=True):
                 st.session_state.ai_analysis = None
                 st.rerun()
 
-    if run_ai:
-        with st.spinner("La IA está analizando tu cartera..."):
-            analysis = get_ai_analysis(profile, portfolio)
-            st.session_state.ai_analysis = analysis
-            st.rerun()
-
-    if st.session_state.ai_analysis:
         analysis = st.session_state.ai_analysis
         tabs = st.tabs(["📝 Por qué esta cartera", "⚠️ Alertas de riesgo", "🔄 Cuándo rebalancear", "💡 Consejos"])
 
@@ -277,11 +277,28 @@ elif step == "results":
         with tabs[3]:
             st.markdown(f'<div class="ai-response">{analysis["tips"]}</div>', unsafe_allow_html=True)
     else:
-        st.markdown("""<div class="ai-placeholder">
-<div class="ai-placeholder-icon">🤖</div>
-<p>Hacé clic en <strong>"Generar análisis IA"</strong> para recibir una explicación personalizada
-de tu cartera en lenguaje simple, con alertas y consejos concretos.</p>
+        st.markdown("""<div class="ai-empty-state">
+<div class="ai-empty-icon">✨</div>
+<p class="ai-empty-title">Tu asesor personal está listo para ayudarte</p>
+<div class="ai-empty-bullets">
+<div class="ai-bullet">✓ Por qué esta cartera se adapta a vos</div>
+<div class="ai-bullet">✓ Qué hacer primero cuando estés listo para invertir</div>
+<div class="ai-bullet">✓ Alertas sobre riesgos que deberías saber</div>
+</div>
 </div>""", unsafe_allow_html=True)
+
+        st.markdown('<div class="ai-cta-marker"></div>', unsafe_allow_html=True)
+
+        _, col_cta, _ = st.columns([1, 2, 1])
+        with col_cta:
+            run_ai = st.button("✨ Generar mi análisis personalizado",
+                               key="run_ai", use_container_width=True)
+
+        if run_ai:
+            with st.spinner("Analizando tu cartera..."):
+                analysis = get_ai_analysis(profile, portfolio)
+                st.session_state.ai_analysis = analysis
+                st.rerun()
 
     st.markdown("<br>", unsafe_allow_html=True)
 

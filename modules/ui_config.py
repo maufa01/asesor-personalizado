@@ -547,15 +547,57 @@ def apply_custom_css():
         border: 1px solid var(--border);
         margin-right: auto;
     }
-    .ai-placeholder {
-        background: var(--bg-card);
-        border: 1px dashed var(--border);
-        border-radius: var(--radius-md);
-        padding: 3rem 2rem;
-        text-align: center;
-        color: var(--text-3);
+    /* ── AI Empty State ───────────────────────────────────────────── */
+    @keyframes aiIconPulse {
+        0%, 100% { transform: scale(1);    filter: drop-shadow(0 0 10px rgba(79,163,255,0.4)); }
+        50%       { transform: scale(1.1);  filter: drop-shadow(0 0 22px rgba(79,163,255,0.75)); }
     }
-    .ai-placeholder-icon { font-size: 2.5rem; margin-bottom: 0.8rem; }
+    @keyframes aiBtnGlow {
+        0%, 100% { box-shadow: 0 2px 12px rgba(79,163,255,0.15) !important; }
+        50%       { box-shadow: 0 2px 28px rgba(79,163,255,0.55), 0 0 48px rgba(79,163,255,0.2) !important; }
+    }
+    .ai-empty-state {
+        background: linear-gradient(135deg, var(--bg-card) 0%, #0a1628 100%);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 2.5rem 2rem 2rem;
+        text-align: center;
+        margin-bottom: 1.2rem;
+    }
+    .ai-empty-icon {
+        font-size: 3rem;
+        display: inline-block;
+        margin-bottom: 1rem;
+        animation: aiIconPulse 2.5s ease-in-out infinite;
+    }
+    .ai-empty-title {
+        font-family: var(--font-display);
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--text-1);
+        margin-bottom: 1.2rem;
+    }
+    .ai-empty-bullets {
+        display: inline-flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: left;
+        margin: 0 auto;
+    }
+    .ai-bullet {
+        font-size: 0.88rem;
+        color: var(--text-2);
+        padding: 0.35rem 0.8rem;
+        background: rgba(79,163,255,0.06);
+        border-left: 2px solid var(--blue);
+        border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    }
+    /* Glow on the CTA button that follows the marker div */
+    div[data-testid="stMarkdownContainer"]:has(.ai-cta-marker) + div[data-testid="stHorizontalBlock"] button,
+    div[data-testid="stMarkdownContainer"]:has(.ai-cta-marker) ~ div[data-testid="stHorizontalBlock"] button {
+        animation: aiBtnGlow 2s ease-in-out infinite !important;
+        border-color: var(--blue) !important;
+    }
 
     /* ── Alert Cards ──────────────────────────────────────────────── */
     .alert-card {
