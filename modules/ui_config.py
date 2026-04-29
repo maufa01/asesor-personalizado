@@ -173,6 +173,12 @@ def apply_custom_css():
         gap: 0.9rem;
         margin-top: 2rem;
     }
+    @media (max-width: 768px) {
+        .hero-features { grid-template-columns: repeat(2, 1fr); gap: 0.7rem; }
+    }
+    @media (max-width: 480px) {
+        .hero-features { grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 1.2rem; }
+    }
     .hero-feature-pill {
         display: flex;
         align-items: center;
@@ -190,8 +196,17 @@ def apply_custom_css():
         border-color: rgba(79,163,255,0.3);
         color: var(--text-1);
     }
+    @media (max-width: 768px) {
+        .hero-feature-pill { padding: 0.8rem 0.9rem; font-size: 0.88rem; gap: 0.55rem; }
+    }
+    @media (max-width: 480px) {
+        .hero-feature-pill { padding: 0.65rem 0.7rem; font-size: 0.78rem; gap: 0.4rem; }
+    }
     .hero-feature-icon {
         font-size: 1.2rem;
+    }
+    @media (max-width: 480px) {
+        .hero-feature-icon { font-size: 1rem; }
     }
     
     @media (max-width: 640px) {
@@ -427,6 +442,8 @@ def apply_custom_css():
         letter-spacing: -0.03em;
         margin-bottom: 0.3rem;
     }
+    @media (max-width: 768px) { .results-title { font-size: 1.4rem; } }
+    @media (max-width: 480px) { .results-title { font-size: 1.15rem; } }
     .results-sub { color: var(--text-2); font-size: 0.9rem; }
 
     /* ── AI Response ──────────────────────────────────────────────── */
@@ -526,6 +543,9 @@ def apply_custom_css():
         border-radius: 12px;
         font-size: 0.9rem;
         line-height: 1.65;
+    }
+    @media (max-width: 640px) {
+        .chat-bubble { max-width: 96%; font-size: 0.85rem; padding: 0.65rem 0.85rem; }
     }
     .chat-label {
         font-size: 0.72rem;
@@ -782,8 +802,8 @@ def apply_custom_css():
     }
     .fab-btn {
         position: fixed;
-        bottom: 2rem;
-        right: 2rem;
+        bottom: calc(2rem + env(safe-area-inset-bottom));
+        right: calc(2rem + env(safe-area-inset-right));
         z-index: 9999;
         display: flex;
         align-items: center;
@@ -800,6 +820,8 @@ def apply_custom_css():
         transition: transform 0.2s ease, box-shadow 0.2s ease;
         animation: fabSlideUp 0.45s ease-out 1.5s both;
         white-space: nowrap;
+        -webkit-tap-highlight-color: transparent;
+        min-height: 44px; /* touch target iOS */
     }
     .fab-btn:hover {
         transform: translateY(-3px);
@@ -807,8 +829,8 @@ def apply_custom_css():
     }
     @media (max-width: 640px) {
         .fab-btn {
-            bottom: 1.2rem;
-            right: 1rem;
+            bottom: calc(1.2rem + env(safe-area-inset-bottom));
+            right: calc(1rem + env(safe-area-inset-right));
             font-size: 0.8rem;
             padding: 0.7rem 1.1rem;
         }
@@ -840,9 +862,12 @@ def apply_custom_css():
         .stTabs [data-baseweb="tab-list"] {
             padding: 2px !important;
             gap: 2px !important;
+            overflow-x: auto !important;
+            flex-wrap: nowrap !important;
+            -webkit-overflow-scrolling: touch;
         }
     }
-    
+
     .stTabs [data-baseweb="tab"] {
         background: transparent !important;
         color: var(--text-3) !important;
@@ -1013,6 +1038,8 @@ def apply_custom_css():
         box-shadow: var(--shadow-card);
         margin-bottom: 1.5rem;
     }
+    @media (max-width: 768px) { .reveal-card { padding: 1.8rem 1.5rem 1.5rem; } }
+    @media (max-width: 480px) { .reveal-card { padding: 1.2rem 1rem; margin-bottom: 1rem; } }
     .reveal-badge {
         display: inline-block;
         font-family: var(--font-display);
@@ -1024,12 +1051,14 @@ def apply_custom_css():
         margin-bottom: 1rem;
         letter-spacing: -0.01em;
     }
+    @media (max-width: 480px) { .reveal-badge { font-size: 1.1rem; padding: 0.4rem 1.1rem; } }
     .reveal-tagline {
         font-size: 1.1rem;
         font-weight: 600;
         color: var(--text-1);
         margin-bottom: 0.8rem;
     }
+    @media (max-width: 480px) { .reveal-tagline { font-size: 0.95rem; } }
     .reveal-explanation {
         font-size: 0.93rem;
         color: var(--text-2);
@@ -1037,6 +1066,7 @@ def apply_custom_css():
         max-width: 600px;
         margin: 0 auto;
     }
+    @media (max-width: 480px) { .reveal-explanation { font-size: 0.82rem; line-height: 1.6; } }
     .reveal-columns {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -1100,6 +1130,8 @@ def apply_custom_css():
         margin-bottom: 0.5rem;
         color: var(--text-1);
     }
+    @media (max-width: 768px) { .summary-title { font-size: 1.25rem; } }
+    @media (max-width: 480px) { .summary-title { font-size: 1.05rem; } }
     .summary-explain {
         color: var(--text-2);
         font-size: 1.05rem;
@@ -1347,34 +1379,53 @@ def apply_custom_css():
         border-color: var(--blue) !important;
     }
 
-    /* ── Responsive Columns ───────────────────────────────────────── */
-    [data-testid="column"] {
-        min-width: 100% !important;
-    }
-    
-    @media (max-width: 1024px) {
-        [data-testid="column"] {
+    /* ── Responsive Columns: stack on tablet & mobile ────────────── */
+    @media (max-width: 768px) {
+        [data-testid="stHorizontalBlock"] {
+            flex-direction: column !important;
+            gap: 0.75rem !important;
+        }
+        [data-testid="stHorizontalBlock"] > [data-testid="column"] {
             width: 100% !important;
+            min-width: 100% !important;
+            flex: unset !important;
         }
     }
-    
+
+    /* ── Metrics grid (4 KPIs responsive) ─────────────────────────── */
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    @media (max-width: 1024px) {
+        .metrics-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+    }
+    @media (max-width: 480px) {
+        .metrics-grid { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+    }
+    @media (max-width: 360px) {
+        .metrics-grid { grid-template-columns: 1fr; }
+    }
+
     /* ── Make Streamlit containers responsive ───────────────────── */
     @media (max-width: 640px) {
         [data-testid="stMetricContainer"] {
             margin-bottom: 0.5rem !important;
         }
     }
-    
+
     /* ── Mobile form elements ──────────────────────────────────────– */
     @media (max-width: 640px) {
         input, textarea, select, [data-baseweb="select"] {
-            font-size: 16px !important;
+            font-size: 16px !important; /* evita zoom automático en iOS */
         }
         .stSlider > div {
             padding: 0.5rem 0 !important;
         }
     }
-    
+
     /* ── Ensure text doesn't overflow ──────────────────────────────– */
     @media (max-width: 640px) {
         p, span, div {

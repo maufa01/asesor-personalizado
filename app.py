@@ -245,32 +245,29 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
     cagr        = portfolio["expected_cagr"]
     vol         = portfolio["expected_volatility"]
 
-    m1, m2, m3, m4 = st.columns(4)
-    with m1:
-        st.markdown(f"""<div class="metric-card">
-<div class="metric-label">Retorno anual estimado</div>
-<div class="metric-value" style="color:#22c55e;">{cagr*100:.1f}%</div>
-<div class="metric-sub">Rendimiento esperado en USD</div>
-</div>""", unsafe_allow_html=True)
-    with m2:
-        st.markdown(f"""<div class="metric-card">
-<div class="metric-label">¿Cuánto puede variar?</div>
-<div class="metric-value" style="color:#f59e0b;">{vol*100:.1f}%</div>
-<div class="metric-sub">Fluctuación anual estimada</div>
-</div>""", unsafe_allow_html=True)
-    with m3:
-        st.markdown(f"""<div class="metric-card">
-<div class="metric-label">Capital proyectado en {profile['horizon']}a</div>
-<div class="metric-value" style="color:#60a5fa;">USD {total_end:,.0f}</div>
-<div class="metric-sub">Escenario base</div>
-</div>""", unsafe_allow_html=True)
-    with m4:
-        gain_color = "#22c55e" if total_gain >= 0 else "#ef4444"
-        sign = "+" if total_gain >= 0 else ""
-        st.markdown(f"""<div class="metric-card">
-<div class="metric-label">Ganancia estimada</div>
-<div class="metric-value" style="color:{gain_color};">{sign}USD {total_gain:,.0f}</div>
-<div class="metric-sub">Sobre el capital inicial</div>
+    gain_color = "#22c55e" if total_gain >= 0 else "#ef4444"
+    sign = "+" if total_gain >= 0 else ""
+    st.markdown(f"""<div class="metrics-grid">
+<div class="metric-card">
+  <div class="metric-label">Retorno anual estimado</div>
+  <div class="metric-value" style="color:#22c55e;">{cagr*100:.1f}%</div>
+  <div class="metric-sub">Rendimiento esperado en USD</div>
+</div>
+<div class="metric-card">
+  <div class="metric-label">¿Cuánto puede variar?</div>
+  <div class="metric-value" style="color:#f59e0b;">{vol*100:.1f}%</div>
+  <div class="metric-sub">Fluctuación anual estimada</div>
+</div>
+<div class="metric-card">
+  <div class="metric-label">Capital proyectado en {profile['horizon']}a</div>
+  <div class="metric-value" style="color:#60a5fa;">USD {total_end:,.0f}</div>
+  <div class="metric-sub">Escenario base</div>
+</div>
+<div class="metric-card">
+  <div class="metric-label">Ganancia estimada</div>
+  <div class="metric-value" style="color:{gain_color};">{sign}USD {total_gain:,.0f}</div>
+  <div class="metric-sub">Sobre el capital inicial</div>
+</div>
 </div>""", unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
