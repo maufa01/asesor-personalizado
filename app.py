@@ -217,7 +217,14 @@ elif step == "results":
         render_pie_chart(portfolio)
 
     with col_evo:
+        _scenario_headlines = {
+            "conservador": "En el peor caso, tu plata sigue valiendo lo mismo.",
+            "moderado":    "Tu plata tiene chances reales de crecer.",
+            "agresivo":    "El riesgo tiene su recompensa a largo plazo.",
+        }
+        _headline = _scenario_headlines.get(profile["risk_profile"], "")
         st.markdown('<div class="section-title">📈 ¿Cuánto puede crecer tu plata?</div>', unsafe_allow_html=True)
+        st.markdown(f'<h3 class="chart-headline">{_headline}</h3>', unsafe_allow_html=True)
         render_bar_simulation(portfolio, profile["capital"])
 
     st.markdown("<br>", unsafe_allow_html=True)

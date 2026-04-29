@@ -359,6 +359,18 @@ def apply_custom_css():
         }
     }
 
+    .chart-headline {
+        font-family: var(--font-display);
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: var(--green);
+        margin: 0 0 0.75rem 0;
+        line-height: 1.4;
+    }
+    @media (max-width: 768px) {
+        .chart-headline { font-size: 0.95rem; }
+    }
+
     /* ── Results Header ───────────────────────────────────────────── */
     .results-header {
         text-align: center;
