@@ -46,19 +46,12 @@ step = st.session_state.step
 if step == "intro":
     st.markdown("""<div class="hero-card">
 <div class="hero-icon">📊</div>
-<h1 class="hero-title">Invertí mejor tu plata<br>con inteligencia artificial</h1>
+<h1 class="hero-title">Invertí mejor tu plata<br>con un asesor que te escucha</h1>
 <p class="hero-subtitle">
 Respondé 6 preguntas simples. En menos de 2 minutos te armamos<br>
 una cartera de inversión adaptada a vos, explicada en lenguaje simple.
 </p>
-<div class="feature-grid">
-<div class="feature-item">🎯 Perfil personalizado</div>
-<div class="feature-item">💼 Cartera sugerida</div>
-<div class="feature-item">🤖 Análisis con IA</div>
-<div class="feature-item">📈 Simulación de crecimiento</div>
-<div class="feature-item">🇦🇷 Activos argentinos</div>
-<div class="feature-item">💵 Opciones en pesos y USD</div>
-</div>
+<p class="hero-human-copy">No importa si nunca invertiste antes — te explicamos todo en lenguaje simple.</p>
 </div>""", unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)

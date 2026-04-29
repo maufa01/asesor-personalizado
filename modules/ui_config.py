@@ -221,41 +221,18 @@ def apply_custom_css():
         }
     }
     
-    .feature-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 0.7rem;
-        margin-top: 1.5rem;
-    }
-    
-    @media (max-width: 768px) {
-        .feature-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.6rem;
-        }
-    }
-    
-    @media (max-width: 480px) {
-        .feature-grid {
-            grid-template-columns: 1fr;
-            gap: 0.5rem;
-        }
-    }
-    
-    .feature-item {
-        background: var(--bg-3);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-sm);
-        padding: 0.6rem 0.8rem;
-        font-size: 0.83rem;
-        font-weight: 500;
+    .hero-human-copy {
+        font-size: 1rem;
+        font-weight: 400;
         color: var(--text-2);
+        margin-top: 1.2rem;
+        opacity: 0.85;
+        font-style: italic;
     }
-    
+
     @media (max-width: 640px) {
-        .feature-item {
-            padding: 0.5rem 0.6rem;
-            font-size: 0.75rem;
+        .hero-human-copy {
+            font-size: 0.9rem;
         }
     }
 
@@ -558,6 +535,17 @@ def apply_custom_css():
         background: var(--blue) !important;
     }
     .stRadio > label { font-size: 1rem !important; color: var(--text-2) !important; }
+    div[data-testid="stRadio"] div[role="radiogroup"] label,
+    div[data-testid="stRadio"] div[role="radiogroup"] label p {
+        color: #d0d5e0 !important;
+        font-size: 1rem !important;
+    }
+    @media (max-width: 640px) {
+        div[data-testid="stRadio"] div[role="radiogroup"] label,
+        div[data-testid="stRadio"] div[role="radiogroup"] label p {
+            font-size: 1rem !important;
+        }
+    }
     .stSelectbox > div > div {
         background: var(--bg-2) !important;
         border-color: var(--border) !important;
@@ -794,13 +782,30 @@ def apply_custom_css():
         }
     }
 
-    .q-step {
+    .progress-wrap {
+        margin-bottom: 1.2rem;
+    }
+    .progress-label {
         font-size: 0.72rem;
-        font-weight: 700;
-        letter-spacing: 0.1em;
+        font-weight: 600;
+        letter-spacing: 0.08em;
         text-transform: uppercase;
-        color: var(--blue);
-        margin-bottom: 0.6rem;
+        color: var(--text-2);
+        margin-bottom: 0.4rem;
+        opacity: 0.7;
+    }
+    .progress-track {
+        width: 100%;
+        height: 6px;
+        background: var(--bg-3);
+        border-radius: 99px;
+        overflow: hidden;
+    }
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--blue-dim), var(--blue));
+        border-radius: 99px;
+        transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     /* ── Profile Reveal ───────────────────────────────────────── */

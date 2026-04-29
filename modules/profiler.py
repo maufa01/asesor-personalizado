@@ -216,15 +216,17 @@ def render_profiler() -> dict | None:
 
     # ── Barra de progreso ──────────────────────────────────────────────────────
     if not has_reveal:
-        progress = (answered + (1 if has_capital else 0)) / total_steps
-        st.progress(min(progress, 1.0))
+        progress_pct = int(min((answered + (1 if has_capital else 0)) / total_steps, 1.0) * 100)
+        st.markdown(f"""<div class="progress-wrap">
+<div class="progress-label">Tu progreso</div>
+<div class="progress-track"><div class="progress-fill" style="width:{progress_pct}%"></div></div>
+</div>""", unsafe_allow_html=True)
 
     # ── Preguntas del cuestionario ─────────────────────────────────────────────
     if answered < len(QUESTIONS):
         q = QUESTIONS[answered]
 
         st.markdown(f"""<div class="profiler-card">
-<div class="q-step">Paso {q['step']}</div>
 <div class="q-emoji">{q['emoji']}</div>
 <h3 class="q-title">{q['title']}</h3>
 <p class="hint">{q['hint']}</p>
@@ -259,7 +261,6 @@ def render_profiler() -> dict | None:
     # ── Pregunta de capital ────────────────────────────────────────────────────
     if not has_capital:
         st.markdown("""<div class="profiler-card">
-<div class="q-step">Último paso</div>
 <div class="q-emoji">💵</div>
 <h3 class="q-title">¿Con cuánta plata querés empezar?</h3>
 <p class="hint">No hay mínimo perfecto. Con poco también se puede invertir bien. Podés cambiar esto después.</p>
