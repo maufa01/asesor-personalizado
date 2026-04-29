@@ -6,11 +6,14 @@ La IA devuelve datos estructurados (texto puro); Python construye el HTML.
 
 import os
 import json
+import time
 import html as html_lib
 from google import genai
 from google.genai import types
 from typing import Dict, Any
 import streamlit as st
+
+_MODELS = ["gemini-2.5-flash", "gemini-1.5-flash"]
 
 
 def _get_client() -> genai.Client:
@@ -21,6 +24,30 @@ def _get_client() -> genai.Client:
     if not api_key:
         raise RuntimeError("GOOGLE_API_KEY no configurada en secrets.toml ni en variables de entorno.")
     return genai.Client(api_key=api_key)
+
+
+def _generate_with_retry(contents, config: types.GenerateContentConfig, retries: int = 2) -> str:
+    """Intenta generar contenido con fallback de modelo y reintentos ante 503."""
+    client = _get_client()
+    last_err = None
+    for model in _MODELS:
+        for attempt in range(retries + 1):
+            try:
+                response = client.models.generate_content(
+                    model=model,
+                    contents=contents,
+                    config=config,
+                )
+                return response.text.strip()
+            except Exception as e:
+                last_err = e
+                msg = str(e)
+                is_503 = "503" in msg or "UNAVAILABLE" in msg
+                if is_503 and attempt < retries:
+                    time.sleep(2 ** attempt)  # 1s, 2s
+                    continue
+                break  # error no recuperable o agotados los reintentos → probar modelo siguiente
+    raise last_err
 
 
 def _build_portfolio_summary(portfolio: dict, profile: dict) -> str:
@@ -206,9 +233,7 @@ Recordá:
 
     raw_text = ""
     try:
-        client = _get_client()
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
+        raw_text = _generate_with_retry(
             contents=user_prompt,
             config=types.GenerateContentConfig(
                 system_instruction=_SYSTEM_PROMPT,
@@ -217,8 +242,6 @@ Recordá:
                 max_output_tokens=8192,
             ),
         )
-
-        raw_text = response.text.strip()
         data = json.loads(raw_text)
 
         return {
@@ -276,9 +299,7 @@ REGLAS:
     contents.append(types.Content(role="user", parts=[types.Part(text=message)]))
 
     try:
-        client = _get_client()
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
+        return _generate_with_retry(
             contents=contents,
             config=types.GenerateContentConfig(
                 system_instruction=system,
@@ -286,7 +307,6 @@ REGLAS:
                 max_output_tokens=1024,
             ),
         )
-        return response.text.strip()
     except Exception as e:
         return f"Error al conectar con la IA: {e}"
 
@@ -296,9 +316,7 @@ def get_rebalancing_advice(portfolio: dict, profile: dict) -> str:
         f"{p['name']} ({p['weight']*100:.0f}%)" for p in portfolio["positions"][:5]
     )
     try:
-        client = _get_client()
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
+        return _generate_with_retry(
             contents=(
                 f"En 2-3 párrafos en español argentino, "
                 f"dame consejos de rebalanceo para una cartera {profile['risk_profile']} "
@@ -307,6 +325,5 @@ def get_rebalancing_advice(portfolio: dict, profile: dict) -> str:
             ),
             config=types.GenerateContentConfig(temperature=0.85, max_output_tokens=500),
         )
-        return response.text
     except Exception as e:
         return f"Error: {e}"
