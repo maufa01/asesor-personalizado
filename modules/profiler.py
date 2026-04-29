@@ -342,17 +342,17 @@ def render_profiler() -> dict | None:
 <p class="reveal-explanation">{p['explanation']}</p>
 </div>""", unsafe_allow_html=True)
 
-        col_l, col_r = st.columns(2)
-        with col_l:
-            st.markdown(f"""<div class="reveal-section">
+        what_means_html  = "".join(f'<div class="reveal-item">{item}</div>' for item in p['what_means'])
+        first_steps_html = "".join(f'<div class="reveal-item">✅ {step}</div>' for step in p['first_steps'])
+        st.markdown(f"""<div class="reveal-columns">
+<div class="reveal-section">
 <div class="reveal-section-title">📋 Lo que esto significa para tu cartera</div>
-{"".join(f'<div class="reveal-item">{item}</div>' for item in p['what_means'])}
-</div>""", unsafe_allow_html=True)
-
-        with col_r:
-            st.markdown(f"""<div class="reveal-section">
+{what_means_html}
+</div>
+<div class="reveal-section">
 <div class="reveal-section-title">🚀 Por dónde empezar</div>
-{"".join(f'<div class="reveal-item">✅ {step}</div>' for step in p['first_steps'])}
+{first_steps_html}
+</div>
 </div>""", unsafe_allow_html=True)
 
         st.markdown("<br>", unsafe_allow_html=True)

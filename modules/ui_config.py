@@ -842,6 +842,17 @@ def apply_custom_css():
         max-width: 600px;
         margin: 0 auto;
     }
+    .reveal-columns {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    @media (max-width: 768px) {
+        .reveal-columns {
+            grid-template-columns: 1fr;
+        }
+    }
     .reveal-section {
         background: rgba(255,255,255,0.03);
         border: 1px solid var(--border);
