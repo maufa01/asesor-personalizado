@@ -287,8 +287,10 @@ def render_profiler() -> dict | None:
                     label_visibility="collapsed",
                 )
                 st.caption(f"💵 Aproximadamente USD {amount_ars / 1100:,.0f} al tipo de cambio MEP (~$1.100/USD)")
-                capital_usd     = amount_ars / 1100
-                capital_display = f"${amount_ars:,.0f} ARS"
+                capital_usd      = amount_ars / 1100
+                capital_display  = f"${amount_ars:,.0f} ARS"
+                currency         = "ARS"
+                capital_original = float(amount_ars)
             else:
                 capital_usd = st.number_input(
                     "Monto en USD",
@@ -300,7 +302,9 @@ def render_profiler() -> dict | None:
                     label_visibility="collapsed",
                 )
                 st.caption(f"💵 USD {capital_usd:,.0f}")
-                capital_display = f"USD {capital_usd:,.0f}"
+                capital_display  = f"USD {capital_usd:,.0f}"
+                currency         = "USD"
+                capital_original = float(capital_usd)
 
             col_b1, col_b2 = st.columns([1, 2])
             with col_b1:
@@ -311,9 +315,11 @@ def render_profiler() -> dict | None:
                     st.rerun()
             with col_b2:
                 if st.button("🎯 Ver mi perfil de inversor", key="finish_btn", use_container_width=True):
-                    answers["capital"]         = float(capital_usd)
-                    answers["capital_display"] = capital_display
-                    st.session_state.answers   = answers
+                    answers["capital"]          = float(capital_usd)
+                    answers["capital_display"]  = capital_display
+                    answers["currency"]         = currency
+                    answers["capital_original"] = capital_original
+                    st.session_state.answers    = answers
                     st.rerun()
 
         return None
@@ -377,6 +383,8 @@ def render_profiler() -> dict | None:
         "horizon":            horizon_years,
         "capital":            capital,
         "capital_display":    answers.get("capital_display", f"USD {capital:,.0f}"),
+        "currency":           answers.get("currency", "USD"),
+        "capital_original":   answers.get("capital_original", capital),
         "income_stability":   answers.get("income_stability", ""),
         "loss_tolerance":     answers.get("loss_reaction", ""),
         "objective":          answers.get("motivation", ""),

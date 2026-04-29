@@ -198,26 +198,45 @@ def render_evolution_chart(simulation: dict, initial_capital: float, years: int)
 
 # ─── Gráfico de barras: proyección a 1, 5 y 10 años ──────────────────────────
 
-def render_bar_simulation(portfolio: dict, initial_capital: float):
+def render_bar_simulation(portfolio: dict, initial_capital: float,
+                          currency: str = "USD", capital_original: float = None):
     cagr = portfolio["expected_cagr"]
     vol  = portfolio["expected_volatility"]
 
     cagr_opt  = cagr + vol * 0.5
     cagr_pess = max(cagr - vol * 0.7, -0.30)
 
-    years     = [1, 5, 10]
-    labels    = ["1 año", "5 años", "10 años"]
+    years  = [1, 5, 10]
+    labels = ["1 año", "5 años", "10 años"]
 
-    def proj(c, y): return initial_capital * math.exp(c * y)
-    def pct(v):     return (v / initial_capital - 1) * 100
+    # factor de conversión para mostrar en la moneda del usuario
+    if capital_original is None:
+        capital_original = initial_capital
+    display_factor = capital_original / initial_capital if initial_capital else 1.0
+
+    def proj(c, y):    return initial_capital * math.exp(c * y)
+    def proj_d(c, y):  return proj(c, y) * display_factor
+    def pct(v):        return (v / initial_capital - 1) * 100
 
     vals_pess = [proj(cagr_pess, y) for y in years]
     vals_base = [proj(cagr,      y) for y in years]
     vals_opt  = [proj(cagr_opt,  y) for y in years]
 
-    def fmt(v): return f"${v:,.0f}"
+    # valores escalados a la moneda del usuario para display
+    disp_pess = [proj_d(cagr_pess, y) for y in years]
+    disp_base = [proj_d(cagr,      y) for y in years]
+    disp_opt  = [proj_d(cagr_opt,  y) for y in years]
+
+    currency_label = "ARS" if currency == "ARS" else "USD"
+    currency_note  = (
+        "Los montos están expresados en pesos argentinos (ARS)"
+        if currency == "ARS"
+        else "Los montos están expresados en dólares (USD)"
+    )
+
+    def fmt(v):     return f"${v:,.0f}"
     def fmt_pct(v):
-        p = pct(v)
+        p    = pct(v)
         sign = "+" if p >= 0 else ""
         return f"{sign}{p:.0f}%"
 
@@ -227,51 +246,51 @@ def render_bar_simulation(portfolio: dict, initial_capital: float):
     fig.add_trace(go.Bar(
         name="😟 Pésimo",
         x=labels,
-        y=vals_pess,
+        y=disp_pess,
         marker_color="#ef4444",
         marker_line_width=0,
         opacity=0.85,
-        text=[f"{fmt(v)}<br><span style='font-size:11px'>{fmt_pct(v)}</span>" for v in vals_pess],
+        text=[f"{fmt(d)}<br><span style='font-size:11px'>{fmt_pct(v)}</span>" for d, v in zip(disp_pess, vals_pess)],
         textposition="outside",
         textfont=dict(size=11, color="#ef4444"),
-        hovertemplate="<b>%{x} — Pésimo</b><br>Capital: %{y:$,.0f}<extra></extra>",
+        hovertemplate=f"<b>%{{x}} — Pésimo</b><br>Capital: $%{{y:,.0f}} {currency_label}<extra></extra>",
     ))
 
     # Base
     fig.add_trace(go.Bar(
         name="📊 Base",
         x=labels,
-        y=vals_base,
+        y=disp_base,
         marker_color="#f0b429",
         marker_line_width=0,
         opacity=0.9,
-        text=[f"{fmt(v)}<br><span style='font-size:11px'>{fmt_pct(v)}</span>" for v in vals_base],
+        text=[f"{fmt(d)}<br><span style='font-size:11px'>{fmt_pct(v)}</span>" for d, v in zip(disp_base, vals_base)],
         textposition="outside",
         textfont=dict(size=11, color="#f0b429"),
-        hovertemplate="<b>%{x} — Base</b><br>Capital: %{y:$,.0f}<extra></extra>",
+        hovertemplate=f"<b>%{{x}} — Base</b><br>Capital: $%{{y:,.0f}} {currency_label}<extra></extra>",
     ))
 
     # Optimista
     fig.add_trace(go.Bar(
         name="🚀 Excelente",
         x=labels,
-        y=vals_opt,
+        y=disp_opt,
         marker_color="#10d98a",
         marker_line_width=0,
         opacity=0.9,
-        text=[f"{fmt(v)}<br><span style='font-size:11px'>{fmt_pct(v)}</span>" for v in vals_opt],
+        text=[f"{fmt(d)}<br><span style='font-size:11px'>{fmt_pct(v)}</span>" for d, v in zip(disp_opt, vals_opt)],
         textposition="outside",
         textfont=dict(size=11, color="#10d98a"),
-        hovertemplate="<b>%{x} — Excelente</b><br>Capital: %{y:$,.0f}<extra></extra>",
+        hovertemplate=f"<b>%{{x}} — Excelente</b><br>Capital: $%{{y:,.0f}} {currency_label}<extra></extra>",
     ))
 
     # Línea de capital inicial
     fig.add_hline(
-        y=initial_capital,
+        y=capital_original,
         line_dash="dot",
         line_color="rgba(148,163,184,0.4)",
         line_width=1.5,
-        annotation_text=f"Capital inicial ${initial_capital:,.0f}",
+        annotation_text=f"Capital inicial ${capital_original:,.0f}",
         annotation_position="top left",
         annotation_font=dict(size=10, color="#64748b"),
     )
@@ -308,15 +327,20 @@ def render_bar_simulation(portfolio: dict, initial_capital: float):
 
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
+    st.markdown(
+        f'<p class="chart-currency-note">{currency_note}</p>',
+        unsafe_allow_html=True,
+    )
+
     # Métricas clave debajo
     col1, col2, col3 = st.columns(3)
-    gain_1  = vals_base[0] - initial_capital
-    gain_10 = vals_base[2] - initial_capital
+    gain_1_d  = disp_base[0] - capital_original
+    gain_10_d = disp_base[2] - capital_original
 
     with col1:
         st.markdown(f"""<div class="metric-card" style="text-align:center;">
 <div class="metric-label">Ganancia en 1 año (base)</div>
-<div class="metric-value" style="color:#f0b429;">+${gain_1:,.0f}</div>
+<div class="metric-value" style="color:#f0b429;">+${gain_1_d:,.0f}</div>
 <div class="metric-sub">Escenario más probable</div>
 </div>""", unsafe_allow_html=True)
     with col2:
@@ -324,17 +348,18 @@ def render_bar_simulation(portfolio: dict, initial_capital: float):
         st.markdown(f"""<div class="metric-card" style="text-align:center;">
 <div class="metric-label">Ganancia en 10 años (base)</div>
 <div class="metric-value" style="color:#10d98a;">+{gain_10_pct:.0f}%</div>
-<div class="metric-sub">${gain_10:,.0f} sobre lo invertido</div>
+<div class="metric-sub">${gain_10_d:,.0f} sobre lo invertido</div>
 </div>""", unsafe_allow_html=True)
     with col3:
-        worst = vals_pess[2]
+        worst     = vals_pess[2]
+        worst_d   = disp_pess[2]
         worst_pct = pct(worst)
         color = "#22c55e" if worst_pct >= 0 else "#ef4444"
         sign  = "+" if worst_pct >= 0 else ""
         st.markdown(f"""<div class="metric-card" style="text-align:center;">
 <div class="metric-label">Peor escenario a 10 años</div>
 <div class="metric-value" style="color:{color};">{sign}{worst_pct:.0f}%</div>
-<div class="metric-sub">${worst:,.0f} en el peor caso</div>
+<div class="metric-sub">${worst_d:,.0f} en el peor caso</div>
 </div>""", unsafe_allow_html=True)
 
 

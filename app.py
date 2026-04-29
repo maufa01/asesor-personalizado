@@ -225,7 +225,9 @@ elif step == "results":
         _headline = _scenario_headlines.get(profile["risk_profile"], "")
         st.markdown('<div class="section-title">📈 ¿Cuánto puede crecer tu plata?</div>', unsafe_allow_html=True)
         st.markdown(f'<h3 class="chart-headline">{_headline}</h3>', unsafe_allow_html=True)
-        render_bar_simulation(portfolio, profile["capital"])
+        render_bar_simulation(portfolio, profile["capital"],
+                              currency=profile.get("currency", "USD"),
+                              capital_original=profile.get("capital_original", profile["capital"]))
 
     st.markdown("<br>", unsafe_allow_html=True)
 

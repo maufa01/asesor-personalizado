@@ -370,6 +370,13 @@ def apply_custom_css():
     @media (max-width: 768px) {
         .chart-headline { font-size: 0.95rem; }
     }
+    .chart-currency-note {
+        font-size: 0.72rem;
+        color: var(--text-3);
+        text-align: center;
+        margin: -0.25rem 0 0.75rem 0;
+        font-style: italic;
+    }
 
     /* ── Results Header ───────────────────────────────────────────── */
     .results-header {
