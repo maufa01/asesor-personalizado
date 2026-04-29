@@ -26,6 +26,10 @@ def _get_client() -> genai.Client:
     return genai.Client(api_key=api_key)
 
 
+class QuotaExhaustedError(Exception):
+    pass
+
+
 def _generate_with_retry(contents, config: types.GenerateContentConfig, retries: int = 2) -> str:
     """Intenta generar contenido con fallback de modelo y reintentos ante 503."""
     client = _get_client()
@@ -42,6 +46,8 @@ def _generate_with_retry(contents, config: types.GenerateContentConfig, retries:
             except Exception as e:
                 last_err = e
                 msg = str(e)
+                if "429" in msg or "RESOURCE_EXHAUSTED" in msg:
+                    raise QuotaExhaustedError(msg)
                 is_503 = "503" in msg or "UNAVAILABLE" in msg
                 if is_503 and attempt < retries:
                     time.sleep(2 ** attempt)  # 1s, 2s
@@ -253,17 +259,25 @@ Recordá:
 
     except json.JSONDecodeError as e:
         return {
-            "justification": f"<p>Error al procesar respuesta: {_e(str(e))}</p><pre>{_e(raw_text[:500])}</pre>",
-            "alerts": [{"title": "Error de parseo", "message": str(e), "severity": "high"}],
+            "justification": "<p>Hubo un problema al procesar la respuesta de la IA. Intentá de nuevo en unos segundos.</p>",
+            "alerts": [{"title": "Error temporal", "message": "No se pudo leer la respuesta. Intentá de nuevo.", "severity": "medium"}],
             "rebalancing": "<p>No disponible.</p>",
             "tips": "<p>No disponible.</p>",
         }
+    except QuotaExhaustedError:
+        msg_quota = "Alcanzaste el límite gratuito de la IA por hoy. Podés habilitar facturación en Google Cloud Console o volver a intentarlo mañana."
+        return {
+            "justification": f"<p>⚠️ {_e(msg_quota)}</p>",
+            "alerts": [{"title": "Cuota de IA agotada", "message": msg_quota, "severity": "medium"}],
+            "rebalancing": "<p>No disponible hasta que se restablezca la cuota.</p>",
+            "tips": "<p>No disponible hasta que se restablezca la cuota.</p>",
+        }
     except Exception as e:
         return {
-            "justification": f"<p>Error al conectar con la IA: {_e(str(e))}</p>",
-            "alerts": [{"title": "Error de conexión", "message": str(e), "severity": "high"}],
+            "justification": "<p>No se pudo conectar con la IA. Verificá tu conexión e intentá de nuevo.</p>",
+            "alerts": [{"title": "Error de conexión", "message": "No se pudo conectar con la IA. Intentá de nuevo.", "severity": "high"}],
             "rebalancing": "<p>No disponible por error de conexión.</p>",
-            "tips": "<p>Verificá tu conectividad y la API key.</p>",
+            "tips": "<p>Verificá tu conectividad e intentá de nuevo.</p>",
         }
 
 
@@ -307,8 +321,10 @@ REGLAS:
                 max_output_tokens=1024,
             ),
         )
+    except QuotaExhaustedError:
+        return "Llegaste al límite gratuito de la IA por hoy. Podés volver a intentarlo mañana o habilitar facturación en Google Cloud Console."
     except Exception as e:
-        return f"Error al conectar con la IA: {e}"
+        return "No pude conectarme con la IA. Verificá tu conexión e intentá de nuevo."
 
 
 def get_rebalancing_advice(portfolio: dict, profile: dict) -> str:
