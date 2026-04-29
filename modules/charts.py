@@ -366,8 +366,41 @@ def render_bar_simulation(portfolio: dict, initial_capital: float,
 # ─── Tabla de activos con botón de eliminar ───────────────────────────────────
 
 def render_allocation_table(portfolio: dict, capital: float):
-    positions = portfolio["positions"]
+    positions  = portfolio["positions"]
     can_remove = len(positions) > 2
+
+    if "show_detail_table" not in st.session_state:
+        st.session_state.show_detail_table = False
+
+    # ── Vista simple (por defecto) ─────────────────────────────────────────────
+    if not st.session_state.show_detail_table:
+        for p in positions[:3]:
+            pct       = p["weight"] * 100
+            desc      = p.get("simple_desc") or p.get("description", "")[:90]
+            st.markdown(
+                f'<div class="asset-simple-card">'
+                f'<span class="asc-dot" style="background:{p["color"]};"></span>'
+                f'<div class="asc-content">'
+                f'<div class="asc-name">{p["name"]}</div>'
+                f'<div class="asc-desc">{desc}</div>'
+                f'</div>'
+                f'<div class="asc-pct">{pct:.0f}%'
+                f'<span class="asc-pct-sub">de tu plata</span></div>'
+                f'</div>',
+                unsafe_allow_html=True,
+            )
+
+        remaining = len(positions) - 3
+        extra     = f" ({remaining} más)" if remaining > 0 else ""
+        if st.button(f"Ver todos los activos{extra} →", key="toggle_detail_on", use_container_width=True):
+            st.session_state.show_detail_table = True
+            st.rerun()
+        return
+
+    # ── Vista detallada ────────────────────────────────────────────────────────
+    if st.button("↑ Ver resumen", key="toggle_detail_off"):
+        st.session_state.show_detail_table = False
+        st.rerun()
 
     tag_bg = {
         "mínimo":     ("#064e3b", "#34d399"),

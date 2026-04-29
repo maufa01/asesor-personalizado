@@ -167,6 +167,32 @@ def apply_custom_css():
         margin-bottom: 1rem;
         filter: drop-shadow(0 0 20px rgba(240,180,41,0.4));
     }
+    .hero-features {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.9rem;
+        margin-top: 2rem;
+    }
+    .hero-feature-pill {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 1.1rem;
+        border-radius: var(--radius-md);
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.07);
+        color: var(--text-2);
+        font-weight: 600;
+        transition: transform 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+    .hero-feature-pill:hover {
+        transform: translateY(-1px);
+        border-color: rgba(79,163,255,0.3);
+        color: var(--text-1);
+    }
+    .hero-feature-icon {
+        font-size: 1.2rem;
+    }
     
     @media (max-width: 640px) {
         .hero-icon {
@@ -649,6 +675,62 @@ def apply_custom_css():
         padding: 0.2rem 0.6rem;
         border-radius: 4px;
         text-transform: uppercase;
+    }
+
+    /* ── Asset Simple View ────────────────────────────────────────── */
+    .asset-simple-card {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: var(--bg-3);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 1rem 1.2rem;
+        margin-bottom: 0.6rem;
+        transition: border-color 0.2s;
+    }
+    .asset-simple-card:hover { border-color: rgba(79,163,255,0.3); }
+    .asc-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+    .asc-content { flex: 1; min-width: 0; }
+    .asc-name {
+        font-weight: 600;
+        color: var(--text-1);
+        font-size: 0.9rem;
+        margin-bottom: 0.2rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .asc-desc {
+        font-size: 0.78rem;
+        color: var(--text-2);
+        line-height: 1.4;
+    }
+    .asc-pct {
+        font-family: var(--font-numbers);
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--text-1);
+        text-align: right;
+        flex-shrink: 0;
+        line-height: 1.1;
+    }
+    .asc-pct-sub {
+        display: block;
+        font-size: 0.6rem;
+        font-weight: 400;
+        color: var(--text-3);
+        font-family: var(--font-body);
+    }
+    @media (max-width: 640px) {
+        .asc-name { font-size: 0.82rem; }
+        .asc-desc { font-size: 0.72rem; }
+        .asc-pct  { font-size: 1.1rem; }
     }
 
     /* ── Tabs ─────────────────────────────────────────────────────── */
