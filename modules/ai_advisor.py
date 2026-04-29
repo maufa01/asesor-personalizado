@@ -11,7 +11,7 @@ from google import genai
 from google.genai import types
 from typing import Dict, Any
 
-_DEFAULT_API_KEY = "AIzaSyApMyn7rGs6uZ3FkwnMiZtf1Y_SUyNn0RA"
+_DEFAULT_API_KEY = "AIzaSyDhpCJmjni-GgMhd6lrxPee67RRVreOlnk"
 
 
 def _get_client() -> genai.Client:
