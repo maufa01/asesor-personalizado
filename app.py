@@ -127,7 +127,7 @@ elif step == "results":
 <h2 class="summary-title">Tu cartera sugerida está lista</h2>
 <p class="summary-explain">{rex}</p>
 </div>
-<div class="summary-grid">
+<div class="summary-grid summary-main-grid">
 <div class="summary-item">
 <div class="si-label">Capital a invertir</div>
 <div class="si-value">{profile.get('capital_display', f"USD {profile['capital']:,.0f}")}</div>
@@ -141,6 +141,10 @@ elif step == "results":
 <div class="si-value" style="color:#22c55e;">{portfolio['expected_cagr']*100:.1f}%</div>
 <div class="si-sub">Promedio ponderado de tu cartera en USD</div>
 </div>
+</div>
+<details class="summary-detail">
+<summary class="summary-detail-btn">Ver detalle completo</summary>
+<div class="summary-grid summary-detail-grid">
 <div class="summary-item">
 <div class="si-label">Activos en la cartera</div>
 <div class="si-value">{len(portfolio['positions'])}</div>
@@ -162,6 +166,7 @@ elif step == "results":
 <div class="si-value" style="color:#f59e0b;">{portfolio['expected_volatility']*100:.1f}%</div>
 </div>
 </div>
+</details>
 <div class="summary-desc">{portfolio['summary']}</div>
 </div>""", unsafe_allow_html=True)
 

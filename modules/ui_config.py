@@ -928,30 +928,76 @@ def apply_custom_css():
     
     .summary-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
         gap: 1rem;
-        margin-bottom: 1.5rem;
+        margin-bottom: 1rem;
     }
-    
-    @media (max-width: 1024px) {
-        .summary-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.8rem;
-        }
+    .summary-main-grid {
+        grid-template-columns: repeat(3, 1fr);
     }
-    
+    .summary-detail-grid {
+        grid-template-columns: repeat(3, 1fr);
+        margin-top: 0.75rem;
+    }
+
     @media (max-width: 768px) {
-        .summary-grid {
+        .summary-main-grid,
+        .summary-detail-grid {
             grid-template-columns: repeat(2, 1fr);
             gap: 0.6rem;
         }
     }
-    
-    @media (max-width: 640px) {
-        .summary-grid {
+
+    @media (max-width: 480px) {
+        .summary-main-grid,
+        .summary-detail-grid {
             grid-template-columns: 1fr;
             gap: 0.5rem;
         }
+    }
+
+    .summary-detail {
+        margin-bottom: 1rem;
+    }
+    .summary-detail-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        list-style: none;
+        cursor: pointer;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--blue);
+        padding: 0.5rem 1rem;
+        border: 1px solid rgba(79,163,255,0.25);
+        border-radius: var(--radius-sm);
+        background: rgba(79,163,255,0.05);
+        transition: background 0.2s, border-color 0.2s;
+        user-select: none;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .summary-detail-btn::-webkit-details-marker { display: none; }
+    .summary-detail-btn::marker { display: none; }
+    .summary-detail-btn::after {
+        content: "↓";
+        display: inline-block;
+        transition: transform 0.3s ease;
+    }
+    .summary-detail[open] .summary-detail-btn::after {
+        transform: rotate(180deg);
+    }
+    .summary-detail-btn:hover {
+        background: rgba(79,163,255,0.1);
+        border-color: rgba(79,163,255,0.45);
+    }
+
+    @keyframes detailSlideDown {
+        from { opacity: 0; transform: translateY(-6px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .summary-detail[open] .summary-detail-grid {
+        animation: detailSlideDown 0.25s ease-out;
     }
     
     .summary-item {
