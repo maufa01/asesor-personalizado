@@ -139,6 +139,7 @@ elif step == "results":
 <div class="summary-item">
 <div class="si-label">Retorno estimado/año</div>
 <div class="si-value" style="color:#22c55e;">{portfolio['expected_cagr']*100:.1f}%</div>
+<div class="si-sub">Promedio ponderado de tu cartera en USD</div>
 </div>
 <div class="summary-item">
 <div class="si-label">Activos en la cartera</div>
@@ -157,7 +158,7 @@ elif step == "results":
 <div class="si-value">{portfolio['diversification'].upper()}</div>
 </div>
 <div class="summary-item">
-<div class="si-label">Volatilidad estimada</div>
+<div class="si-label">¿Cuánto puede variar tu plata?</div>
 <div class="si-value" style="color:#f59e0b;">{portfolio['expected_volatility']*100:.1f}%</div>
 </div>
 </div>
@@ -178,13 +179,13 @@ elif step == "results":
         st.markdown(f"""<div class="metric-card">
 <div class="metric-label">Retorno anual estimado</div>
 <div class="metric-value" style="color:#22c55e;">{cagr*100:.1f}%</div>
-<div class="metric-sub">Promedio histórico esperado</div>
+<div class="metric-sub">Rendimiento esperado en USD</div>
 </div>""", unsafe_allow_html=True)
     with m2:
         st.markdown(f"""<div class="metric-card">
-<div class="metric-label">Volatilidad</div>
+<div class="metric-label">¿Cuánto puede variar?</div>
 <div class="metric-value" style="color:#f59e0b;">{vol*100:.1f}%</div>
-<div class="metric-sub">Cuánto puede fluctuar</div>
+<div class="metric-sub">Fluctuación anual estimada</div>
 </div>""", unsafe_allow_html=True)
     with m3:
         st.markdown(f"""<div class="metric-card">

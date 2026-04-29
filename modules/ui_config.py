@@ -991,6 +991,12 @@ def apply_custom_css():
         font-variant-numeric: tabular-nums;
         color: var(--text-1);
     }
+    .si-sub {
+        font-size: 0.65rem;
+        color: var(--text-3);
+        margin-top: 0.25rem;
+        line-height: 1.3;
+    }
     .summary-desc {
         background: rgba(79,163,255,0.06);
         border: 1px solid rgba(79,163,255,0.15);
