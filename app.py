@@ -10,6 +10,7 @@ from modules.portfolio import build_portfolio
 from modules.charts import render_pie_chart, render_evolution_chart, render_bar_simulation, render_allocation_table
 from modules.simulator import simulate_portfolio
 from modules.ai_advisor import get_ai_analysis, get_rebalancing_advice, chat_with_advisor
+from modules.glossary import render_glossary
 
 _CELEBRATION_HTML = """<!DOCTYPE html><html><head><meta charset="utf-8">
 <style>
@@ -468,12 +469,30 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # ── Reiniciar ─────────────────────────────────────────────────────────────
-    _, col_r2, _ = st.columns([1, 1, 1])
+    # ── Glosario CTA ──────────────────────────────────────────────────────────
+    st.markdown("""<div class="glosario-cta">
+<div class="glosario-cta-title">📚 ¿Hay algún término que no conoce?</div>
+<p class="glosario-cta-sub">Consulte el Glosario Financiero con definiciones claras y ejemplos prácticos.</p>
+</div>""", unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    col_glos, col_r2, _ = st.columns([1, 1, 1])
+    with col_glos:
+        if st.button("📚 Ver Glosario", key="glosario_from_results", use_container_width=True):
+            st.session_state._prev_step = "results"
+            st.session_state.step = "glosario"
+            st.rerun()
     with col_r2:
         if st.button("Nueva Evaluación", key="restart", use_container_width=True):
             for key in list(st.session_state.keys()):
                 del st.session_state[key]
             st.rerun()
+
+# ══════════════════════════════════════════════════════════════════════════════
+# GLOSARIO
+# ══════════════════════════════════════════════════════════════════════════════
+elif step == "glosario":
+    render_glossary()
 
 render_footer()

@@ -1432,17 +1432,162 @@ def apply_custom_css():
             word-break: break-word !important;
         }
     }
+
+    /* ── Header nav button ───────────────────────────────────────── */
+    .header-nav-spacer { padding-top: 1.1rem; }
+
+    /* ── Glosario ─────────────────────────────────────────────────── */
+    .glosario-header {
+        text-align: center;
+        padding: 2.5rem 1rem 1.5rem;
+    }
+    .glosario-icon { font-size: 3rem; margin-bottom: 0.8rem; }
+    .glosario-title {
+        font-family: var(--font-display);
+        font-size: clamp(1.8rem, 4vw, 2.6rem);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        color: var(--text-1);
+        margin: 0 0 0.8rem;
+    }
+    .glosario-sub {
+        font-size: 1rem;
+        color: var(--text-2);
+        line-height: 1.7;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .glosario-cat-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        border-left: 3px solid var(--border);
+        padding: 0.6rem 0.8rem 0.6rem 1rem;
+        margin-bottom: 0.75rem;
+        background: rgba(255,255,255,0.02);
+        border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    }
+    .glosario-cat-icon { font-size: 1.2rem; }
+    .glosario-cat-title {
+        font-family: var(--font-display);
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--text-1);
+        flex: 1;
+    }
+    .glosario-cat-count {
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-3);
+        background: var(--bg-3);
+        padding: 0.2rem 0.6rem;
+        border-radius: 99px;
+    }
+
+    .risk-badge {
+        display: inline-block;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 0.25rem 0.7rem;
+        border-radius: 99px;
+    }
+
+    .glosario-definition {
+        background: var(--bg-2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 1rem 1.2rem;
+        margin-bottom: 0.8rem;
+    }
+    .glosario-def-label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--text-3);
+        margin-bottom: 0.5rem;
+    }
+    .glosario-def-text {
+        font-size: 0.93rem;
+        color: var(--text-2);
+        line-height: 1.7;
+        margin: 0;
+    }
+
+    .glosario-example {
+        background: rgba(79,163,255,0.06);
+        border: 1px solid rgba(79,163,255,0.18);
+        border-radius: var(--radius-md);
+        padding: 1rem 1.2rem;
+    }
+    .glosario-example-label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: #4fa3ff;
+        margin-bottom: 0.5rem;
+    }
+    .glosario-example-text {
+        font-size: 0.9rem;
+        color: var(--text-2);
+        line-height: 1.7;
+        margin: 0;
+    }
+
+    .glosario-empty {
+        text-align: center;
+        padding: 3rem 2rem;
+        color: var(--text-2);
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+    }
+
+    .glosario-cta {
+        background: linear-gradient(135deg, rgba(79,163,255,0.08) 0%, rgba(16,217,138,0.05) 100%);
+        border: 1px solid rgba(79,163,255,0.2);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem 2rem;
+        text-align: center;
+        margin-top: 1rem;
+    }
+    .glosario-cta-title {
+        font-family: var(--font-display);
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-1);
+        margin-bottom: 0.4rem;
+    }
+    .glosario-cta-sub {
+        font-size: 0.88rem;
+        color: var(--text-2);
+        margin: 0;
+    }
     </style>
     """, unsafe_allow_html=True)
 
 
 def render_header():
-    st.markdown("""
-    <div class="app-header">
-        <div class="app-logo">Finanzas<span>IA</span></div>
-        <div class="app-badge">Asesoramiento Financiero Digital</div>
-    </div>
-    """, unsafe_allow_html=True)
+    col_logo, col_nav = st.columns([5, 1])
+    with col_logo:
+        st.markdown("""
+        <div class="app-header">
+            <div class="app-logo">Finanzas<span>IA</span></div>
+            <div class="app-badge">Asesoramiento Financiero Digital</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with col_nav:
+        st.markdown('<div class="header-nav-spacer"></div>', unsafe_allow_html=True)
+        if st.button("📚 Glosario", key="header_glosario", use_container_width=True):
+            st.session_state._prev_step = st.session_state.get("step", "intro")
+            st.session_state.step = "glosario"
+            st.rerun()
 
 
 def render_footer():
