@@ -10,12 +10,16 @@ import html as html_lib
 from google import genai
 from google.genai import types
 from typing import Dict, Any
-
-_DEFAULT_API_KEY = "AIzaSyDhpCJmjni-GgMhd6lrxPee67RRVreOlnk"
+import streamlit as st
 
 
 def _get_client() -> genai.Client:
-    api_key = os.environ.get("GOOGLE_API_KEY", _DEFAULT_API_KEY)
+    api_key = (
+        st.secrets.get("GOOGLE_API_KEY")
+        or os.environ.get("GOOGLE_API_KEY")
+    )
+    if not api_key:
+        raise RuntimeError("GOOGLE_API_KEY no configurada en secrets.toml ni en variables de entorno.")
     return genai.Client(api_key=api_key)
 
 
