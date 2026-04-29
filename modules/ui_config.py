@@ -1250,6 +1250,72 @@ def apply_custom_css():
         text-align: center;
     }
 
+    .action-guide {
+        display: grid;
+        gap: 1rem;
+        margin-top: 1rem;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem 1.6rem;
+    }
+    .action-step {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 1rem;
+        align-items: start;
+        padding: 1rem 0;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .action-step:last-child { border-bottom: none; }
+    .action-step-number {
+        width: 2.7rem;
+        height: 2.7rem;
+        min-width: 2.7rem;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-weight: 700;
+        color: var(--bg-0);
+        background: var(--gold);
+        font-size: 1rem;
+    }
+    .action-step-body {
+        display: grid;
+        gap: 0.3rem;
+    }
+    .action-step-title {
+        font-family: var(--font-display);
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-1);
+    }
+    .action-step-copy {
+        color: var(--text-2);
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+    .action-step-help {
+        margin-top: 0.55rem;
+        border: 1px solid rgba(79,163,255,0.15);
+        border-radius: var(--radius-sm);
+        background: rgba(79,163,255,0.04);
+        padding: 0.75rem 1rem;
+    }
+    .action-step-help summary {
+        cursor: pointer;
+        font-weight: 600;
+        color: var(--blue);
+        list-style: none;
+    }
+    .action-step-help summary::-webkit-details-marker { display: none; }
+    .action-step-help div {
+        margin-top: 0.7rem;
+        color: var(--text-2);
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+
     /* ── Metric card sub ──────────────────────────────────────── */
     .metric-sub {
         font-size: 0.72rem;
