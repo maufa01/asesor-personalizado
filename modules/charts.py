@@ -371,6 +371,9 @@ def render_allocation_table(portfolio: dict, capital: float):
 
     if "show_detail_table" not in st.session_state:
         st.session_state.show_detail_table = False
+    if "pending_remove_id" not in st.session_state:
+        st.session_state.pending_remove_id   = None
+        st.session_state.pending_remove_name = None
 
     # ── Vista simple (por defecto) ─────────────────────────────────────────────
     if not st.session_state.show_detail_table:
@@ -400,7 +403,33 @@ def render_allocation_table(portfolio: dict, capital: float):
     # ── Vista detallada ────────────────────────────────────────────────────────
     if st.button("↑ Ver resumen", key="toggle_detail_off"):
         st.session_state.show_detail_table = False
+        st.session_state.pending_remove_id   = None
+        st.session_state.pending_remove_name = None
         st.rerun()
+
+    # Panel de confirmación de eliminación
+    if st.session_state.pending_remove_id:
+        pname = st.session_state.pending_remove_name
+        st.markdown(
+            f'<div class="remove-confirm">'
+            f'¿Querés sacar <strong>{pname}</strong> de tu cartera? '
+            f'Podés agregarlo de nuevo después.'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+        col_yes, col_no, _ = st.columns([1, 1, 4])
+        with col_yes:
+            if st.button("Sí, sacarlo", key="confirm_remove", type="primary"):
+                updated = _remove_asset(portfolio, st.session_state.pending_remove_id)
+                st.session_state.portfolio         = updated
+                st.session_state.pending_remove_id   = None
+                st.session_state.pending_remove_name = None
+                st.rerun()
+        with col_no:
+            if st.button("Cancelar", key="cancel_remove"):
+                st.session_state.pending_remove_id   = None
+                st.session_state.pending_remove_name = None
+                st.rerun()
 
     tag_bg = {
         "mínimo":     ("#064e3b", "#34d399"),
@@ -419,7 +448,6 @@ def render_allocation_table(portfolio: dict, capital: float):
 
     st.markdown('<div class="tbl-divider"></div>', unsafe_allow_html=True)
 
-    to_remove = None
     for p in positions:
         pct    = p["weight"] * 100
         amount = p["weight"] * capital
@@ -466,8 +494,12 @@ def render_allocation_table(portfolio: dict, capital: float):
         with cols[6]:
             st.markdown('<div style="padding-top:6px;">', unsafe_allow_html=True)
             if can_remove:
-                if st.button("✕", key=f"rm_{p['id']}", help=f"Quitar {p['name']}"):
-                    to_remove = p["id"]
+                is_pending = st.session_state.pending_remove_id == p["id"]
+                btn_style  = "primary" if is_pending else "secondary"
+                if st.button("✕", key=f"rm_{p['id']}", help="Sacar de mi cartera", type=btn_style):
+                    st.session_state.pending_remove_id   = p["id"]
+                    st.session_state.pending_remove_name = p["name"]
+                    st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
 
     # Fila de total
@@ -477,12 +509,6 @@ def render_allocation_table(portfolio: dict, capital: float):
     t_cols[2].markdown('<div class="tbl-cell"><strong style="color:#eef2ff;">100%</strong></div>', unsafe_allow_html=True)
     t_cols[3].markdown(f'<div class="tbl-cell"><strong style="color:#eef2ff;">${capital:,.0f}</strong></div>', unsafe_allow_html=True)
     t_cols[4].markdown(f'<div class="tbl-cell"><strong style="color:#10d98a;">{portfolio["expected_cagr"]*100:.1f}%</strong></div>', unsafe_allow_html=True)
-
-    # Procesar eliminación
-    if to_remove:
-        updated = _remove_asset(portfolio, to_remove)
-        st.session_state.portfolio = updated
-        st.rerun()
 
     # Exposición por categoría y moneda
     st.markdown("<br>", unsafe_allow_html=True)

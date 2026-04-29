@@ -733,6 +733,19 @@ def apply_custom_css():
         .asc-pct  { font-size: 1.1rem; }
     }
 
+    /* ── Remove Confirm Banner ────────────────────────────────────── */
+    .remove-confirm {
+        background: rgba(239,68,68,0.08);
+        border: 1px solid rgba(239,68,68,0.3);
+        border-radius: var(--radius-sm);
+        padding: 0.75rem 1rem;
+        font-size: 0.88rem;
+        color: var(--text-2);
+        margin-bottom: 0.75rem;
+        line-height: 1.5;
+    }
+    .remove-confirm strong { color: var(--text-1); }
+
     /* ── Tabs ─────────────────────────────────────────────────────── */
     .stTabs [data-baseweb="tab-list"] {
         background: var(--bg-1) !important;
