@@ -1440,7 +1440,7 @@ def render_header():
     st.markdown("""
     <div class="app-header">
         <div class="app-logo">Finanzas<span>IA</span></div>
-        <div class="app-badge">⚡ Powered by Google Gemini</div>
+        <div class="app-badge">Asesoramiento Financiero Digital</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -1448,7 +1448,6 @@ def render_header():
 def render_footer():
     st.markdown("""
     <div class="app-footer">
-        FinanzasIA · Solo para fines educativos · No constituye asesoramiento financiero profesional<br>
-        Construido con Streamlit + Google Gemini · Argentina 🇦🇷
+        FinanzasIA · Herramienta educativa de planificación financiera · No constituye asesoramiento regulado por la CNV · Argentina
     </div>
     """, unsafe_allow_html=True)

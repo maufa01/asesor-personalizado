@@ -439,7 +439,7 @@ def render_allocation_table(portfolio: dict, capital: float):
 
     # Header
     h = st.columns([2.8, 1.2, 1.5, 1.4, 3.0, 1.0, 0.55])
-    for col, label in zip(h, ["Activo", "Categoría", "Peso", "Monto (USD)", "¿Para qué sirve?", "Liquidez", ""]):
+    for col, label in zip(h, ["Instrumento", "Categoría", "Ponderación", "Importe Sugerido", "¿Para qué sirve?", "Liquidez", ""]):
         col.markdown(f'<div class="tbl-header">{label}</div>', unsafe_allow_html=True)
 
     st.markdown('<div class="tbl-divider"></div>', unsafe_allow_html=True)

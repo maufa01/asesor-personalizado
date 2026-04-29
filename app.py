@@ -44,7 +44,7 @@ _CELEBRATION_HTML = """<!DOCTYPE html><html><head><meta charset="utf-8">
     }
     var box = doc.createElement('div');
     box.style.cssText = 'text-align:center;padding:2rem;position:relative;z-index:2;';
-    box.innerHTML = '<div style="font-size:4rem;margin-bottom:1rem;filter:drop-shadow(0 0 20px rgba(240,180,41,0.6))">🎉</div><h1 style="font-family:Syne,sans-serif;font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;color:#eef2ff;margin:0 0 0.8rem;line-height:1.2;letter-spacing:-0.02em;">¡Ya está! Ahora sabés dónde poner tu plata 🎉</h1><p style="font-family:DM Sans,sans-serif;font-size:clamp(0.95rem,2vw,1.15rem);color:#94a3b8;margin:0 0 1.5rem;">Tu cartera está lista. Tomó menos de 2 minutos.</p><p style="font-size:0.8rem;color:#475569;">Tocá en cualquier lugar para continuar</p>';
+    box.innerHTML = '<div style="font-size:4rem;margin-bottom:1rem;filter:drop-shadow(0 0 20px rgba(240,180,41,0.6))">🎉</div><h1 style="font-family:Syne,sans-serif;font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;color:#eef2ff;margin:0 0 0.8rem;line-height:1.2;letter-spacing:-0.02em;">¡Su cartera personalizada está lista!</h1><p style="font-family:DM Sans,sans-serif;font-size:clamp(0.95rem,2vw,1.15rem);color:#94a3b8;margin:0 0 1.5rem;">Análisis completado en menos de 2 minutos.</p><p style="font-size:0.8rem;color:#475569;">Toque en cualquier lugar para continuar</p>';
     overlay.appendChild(box);
     doc.body.appendChild(overlay);
     try { window.parent.localStorage.setItem(LS_KEY, '1'); } catch(e) {}
@@ -93,12 +93,12 @@ step = st.session_state.step
 if step == "intro":
     st.markdown("""<div class="hero-card">
 <div class="hero-icon">📊</div>
-<h1 class="hero-title">Invertí mejor tu plata<br>con un asesor que te escucha</h1>
+<h1 class="hero-title">Su asesor financiero digital<br>personalizado para Argentina</h1>
 <p class="hero-subtitle">
-Respondé 6 preguntas simples. En menos de 2 minutos te armamos<br>
-una cartera de inversión adaptada a vos, explicada en lenguaje simple.
+Respondá un breve cuestionario sobre sus objetivos financieros.<br>
+Nuestro sistema analizará su perfil y le sugerirá una cartera<br>
+diversificada acorde a su situación.
 </p>
-<p class="hero-human-copy">No importa si nunca invertiste antes — te explicamos todo en lenguaje simple.</p>
 <div class="hero-features">
 <div class="hero-feature-pill"><span class="hero-feature-icon">🎯</span>Perfil personalizado</div>
 <div class="hero-feature-pill"><span class="hero-feature-icon">💼</span>Cartera sugerida</div>
@@ -112,18 +112,18 @@ una cartera de inversión adaptada a vos, explicada en lenguaje simple.
     st.markdown("<br>", unsafe_allow_html=True)
 
     st.markdown("""<div class="audience-note">
-<strong>¿Para quién es esto?</strong> Para cualquier persona en Argentina que quiera invertir mejor su plata,
-aunque nunca haya invertido antes. No necesitás saber nada de finanzas.
+<strong>¿Para quién es esta herramienta?</strong> Para cualquier persona en Argentina que desee optimizar su estrategia de inversión,
+independientemente de su experiencia previa en el mercado de capitales.
 </div>""", unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("🚀 Empezar ahora — son solo 6 preguntas", key="start_btn", use_container_width=True):
+    if st.button("Iniciar Evaluación", key="start_btn", use_container_width=True):
         st.session_state.step = "profiling"
         st.rerun()
 
     st.markdown("""<p class="disclaimer">
-⚠️ Esta aplicación es educativa y no constituye asesoramiento financiero profesional.
-Consultá siempre con un asesor habilitado antes de invertir dinero real.
+⚠️ Esta herramienta es de carácter educativo y no constituye asesoramiento financiero regulado por la CNV.
+Consulte siempre con un asesor habilitado antes de tomar decisiones de inversión.
 </p>""", unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -134,7 +134,7 @@ elif step == "profiling":
 
     if profile_data:
         st.session_state.profile = profile_data
-        with st.spinner("Armando tu cartera personalizada..."):
+        with st.spinner("Construyendo su cartera personalizada..."):
             portfolio  = build_portfolio(profile_data)
             simulation = simulate_portfolio(
                 portfolio,
@@ -158,7 +158,7 @@ elif step == "results":
 
     st.markdown("""<a class="fab-btn" href="#chat-section"
 onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smooth'});return false;">
-💬 Preguntale al asesor
+💬 Consultar al Asesor
 </a>""", unsafe_allow_html=True)
 
     # ── Pantalla de celebración (primera vez) ─────────────────────────────────
@@ -180,10 +180,10 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
         "agresivo":    "Inversor Agresivo",
     }
     risk_explanations = {
-        "conservador": "Priorizás la seguridad de tu plata por encima del crecimiento. Tu cartera apunta a proteger el capital con bajo riesgo.",
-        "estable":     "Querés algo mejor que un plazo fijo sin exponerte a grandes caídas. Tu cartera combina dólares, bonos sólidos y algo de acciones globales.",
-        "moderado":    "Buscás un equilibrio entre hacer crecer tu plata y no arriesgar demasiado. Tu cartera mezcla seguridad con crecimiento.",
-        "agresivo":    "Estás dispuesto a asumir riesgo para buscar mayor crecimiento a largo plazo. Tu cartera apunta al máximo rendimiento posible.",
+        "conservador": "Usted prioriza la preservación del capital por encima del crecimiento. Su cartera apunta a proteger el patrimonio con bajo riesgo.",
+        "estable":     "Usted desea un rendimiento superior al plazo fijo sin exponerse a caídas significativas. Su cartera combina dólares, bonos sólidos y algo de renta variable global.",
+        "moderado":    "Usted busca un equilibrio entre crecimiento y protección patrimonial. Su cartera combina instrumentos seguros con activos de mayor rendimiento.",
+        "agresivo":    "Usted está dispuesto a asumir mayor riesgo para maximizar el crecimiento a largo plazo. Su cartera apunta al mayor rendimiento posible.",
     }
 
     rc  = risk_colors.get(profile["risk_profile"], "#60a5fa")
@@ -197,7 +197,7 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
 <div class="profile-pill" style="background:{rc}22;border:1.5px solid {rc};color:{rc};">
 {re} {rl}
 </div>
-<h2 class="summary-title">Tu cartera sugerida está lista</h2>
+<h2 class="summary-title">Cartera Sugerida</h2>
 <p class="summary-explain">{rex}</p>
 </div>
 <div class="summary-grid summary-main-grid">
@@ -212,7 +212,7 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
 <div class="summary-item">
 <div class="si-label">Retorno estimado/año</div>
 <div class="si-value" style="color:#22c55e;">{portfolio['expected_cagr']*100:.1f}%</div>
-<div class="si-sub">Promedio ponderado de tu cartera en USD</div>
+<div class="si-sub">Promedio ponderado de la cartera en USD</div>
 </div>
 </div>
 <details class="summary-detail">
@@ -235,7 +235,7 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
 <div class="si-value">{portfolio['diversification'].upper()}</div>
 </div>
 <div class="summary-item">
-<div class="si-label">¿Cuánto puede variar tu plata?</div>
+<div class="si-label">Volatilidad estimada</div>
 <div class="si-value" style="color:#f59e0b;">{portfolio['expected_volatility']*100:.1f}%</div>
 </div>
 </div>
@@ -283,18 +283,18 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
     col_pie, col_evo = st.columns([1, 1.6])
 
     with col_pie:
-        st.markdown('<div class="section-title">📊 ¿Cómo se distribuye tu cartera?</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-title">📊 Distribución de la Cartera</div>', unsafe_allow_html=True)
         render_pie_chart(portfolio)
 
     with col_evo:
         _scenario_headlines = {
-            "conservador": "En el peor caso, tu plata sigue valiendo lo mismo.",
-            "estable":     "Más que un plazo fijo, menos sustos que la bolsa.",
-            "moderado":    "Tu plata tiene chances reales de crecer.",
-            "agresivo":    "El riesgo tiene su recompensa a largo plazo.",
+            "conservador": "Preservación del capital con rendimiento consistente.",
+            "estable":     "Rendimiento superior al plazo fijo con volatilidad controlada.",
+            "moderado":    "Su capital tiene posibilidades reales de crecer a mediano plazo.",
+            "agresivo":    "El riesgo asumido tiene su recompensa en el largo plazo.",
         }
         _headline = _scenario_headlines.get(profile["risk_profile"], "")
-        st.markdown('<div class="section-title">📈 ¿Cuánto puede crecer tu plata?</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-title">📈 Proyección de Crecimiento</div>', unsafe_allow_html=True)
         st.markdown(f'<h3 class="chart-headline">{_headline}</h3>', unsafe_allow_html=True)
         render_bar_simulation(portfolio, profile["capital"],
                               currency=profile.get("currency", "USD"),
@@ -303,7 +303,7 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── Tabla de activos ──────────────────────────────────────────────────────
-    st.markdown('<div class="section-title">📋 Activos de tu cartera</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">📋 Instrumentos de la Cartera</div>', unsafe_allow_html=True)
     render_allocation_table(portfolio, profile["capital"])
 
     # ── Advertencias de solapamiento ──────────────────────────────────────────
@@ -323,7 +323,7 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── Análisis IA ───────────────────────────────────────────────────────────
-    st.markdown('<div class="section-title">💬 Tu análisis personalizado</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">💬 Análisis Profesional</div>', unsafe_allow_html=True)
 
     if st.session_state.ai_analysis:
         col_ai1, col_ai2 = st.columns([3, 1])
@@ -356,11 +356,11 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
     else:
         st.markdown("""<div class="ai-empty-state">
 <div class="ai-empty-icon">✨</div>
-<p class="ai-empty-title">Tu asesor personal está listo para ayudarte</p>
+<p class="ai-empty-title">El análisis profesional de su cartera está disponible</p>
 <div class="ai-empty-bullets">
-<div class="ai-bullet">✓ Por qué esta cartera se adapta a vos</div>
-<div class="ai-bullet">✓ Qué hacer primero cuando estés listo para invertir</div>
-<div class="ai-bullet">✓ Alertas sobre riesgos que deberías saber</div>
+<div class="ai-bullet">✓ Por qué esta cartera se adapta a su perfil</div>
+<div class="ai-bullet">✓ Qué hacer cuando esté listo para invertir</div>
+<div class="ai-bullet">✓ Alertas sobre riesgos que debe conocer</div>
 </div>
 </div>""", unsafe_allow_html=True)
 
@@ -368,11 +368,11 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
 
         _, col_cta, _ = st.columns([1, 2, 1])
         with col_cta:
-            run_ai = st.button("✨ Generar mi análisis personalizado",
+            run_ai = st.button("Generar Análisis",
                                key="run_ai", use_container_width=True)
 
         if run_ai:
-            with st.spinner("Analizando tu cartera..."):
+            with st.spinner("Generando análisis profesional..."):
                 analysis = get_ai_analysis(profile, portfolio)
                 st.session_state.ai_analysis = analysis
                 st.rerun()
@@ -380,45 +380,45 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── ¿Y ahora qué? ─────────────────────────────────────────────────────────
-    st.markdown('<div class="section-title">❓ ¿Y ahora qué?</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">❓ Próximos Pasos</div>', unsafe_allow_html=True)
     st.markdown("""<div class="action-guide">
 <div class="action-step">
   <div class="action-step-number">1</div>
   <div class="action-step-body">
-    <div class="action-step-title">Abrí una cuenta en IOL o Balanz</div>
-    <div class="action-step-copy">Es gratis y tarda 10 minutos.</div>
-    <details class="action-step-help"><summary>¿Cómo hago esto?</summary>
-      <div>Elegí la plataforma, completá los datos personales y verificá tu identidad con DNI y selfie.</div>
+    <div class="action-step-title">Abra una cuenta en IOL o Balanz</div>
+    <div class="action-step-copy">El proceso es gratuito y demora aproximadamente 10 minutos.</div>
+    <details class="action-step-help"><summary>¿Cómo hacerlo?</summary>
+      <div>Seleccione la plataforma, complete sus datos personales y verifique su identidad con DNI y selfie.</div>
     </details>
   </div>
 </div>
 <div class="action-step">
   <div class="action-step-number">2</div>
   <div class="action-step-body">
-    <div class="action-step-title">Depositá el dinero que querés invertir</div>
-    <div class="action-step-copy">Transferí desde tu cuenta bancaria o billetera digital.</div>
-    <details class="action-step-help"><summary>¿Cómo hago esto?</summary>
-      <div>Buscá la opción de depósito o transferencia en la app y seguí los pasos para enviar pesos o dólares.</div>
+    <div class="action-step-title">Deposite el capital que desea invertir</div>
+    <div class="action-step-copy">Transfiera desde su cuenta bancaria o billetera digital.</div>
+    <details class="action-step-help"><summary>¿Cómo hacerlo?</summary>
+      <div>Acceda a la opción de depósito o transferencia en la app y siga los pasos para enviar pesos o dólares.</div>
     </details>
   </div>
 </div>
 <div class="action-step">
   <div class="action-step-number">3</div>
   <div class="action-step-body">
-    <div class="action-step-title">Comprá los activos de tu cartera uno por uno</div>
-    <div class="action-step-copy">Seguí la proporción recomendada en cada activo.</div>
-    <details class="action-step-help"><summary>¿Cómo hago esto?</summary>
-      <div>Seleccioná cada activo, ingresá la cantidad y confirmá la compra. Si no estás seguro, empezá con el activo más seguro.</div>
+    <div class="action-step-title">Adquiera los instrumentos de su cartera</div>
+    <div class="action-step-copy">Respete la ponderación sugerida para cada instrumento.</div>
+    <details class="action-step-help"><summary>¿Cómo hacerlo?</summary>
+      <div>Seleccione cada instrumento, ingrese la cantidad y confirme la operación. Si tiene dudas, comience por el activo más conservador.</div>
     </details>
   </div>
 </div>
 <div class="action-step">
   <div class="action-step-number">4</div>
   <div class="action-step-body">
-    <div class="action-step-title">Revisá cómo va tu plata una vez por mes</div>
-    <div class="action-step-copy">No hace falta mirar todos los días.</div>
-    <details class="action-step-help"><summary>¿Cómo hago esto?</summary>
-      <div>Entrá a tu cuenta cada 30 días, verificá el rendimiento y ajustá solo si cambió tu objetivo o tu presupuesto.</div>
+    <div class="action-step-title">Revise el rendimiento de su cartera mensualmente</div>
+    <div class="action-step-copy">No es necesario monitorear la cartera a diario.</div>
+    <details class="action-step-help"><summary>¿Cómo hacerlo?</summary>
+      <div>Ingrese a su cuenta cada 30 días, verifique el rendimiento y ajuste solo si cambiaron sus objetivos o su situación financiera.</div>
     </details>
   </div>
 </div>
@@ -428,7 +428,7 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
 
     # ── Chat con el asesor ────────────────────────────────────────────────────
     st.markdown('<div id="chat-section"></div>', unsafe_allow_html=True)
-    st.markdown('<div class="section-title">💬 Preguntale al asesor</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">💬 Consultas al Asesor</div>', unsafe_allow_html=True)
 
     chat_history = st.session_state.chat_history
 
@@ -436,7 +436,7 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
         for msg in chat_history:
             is_user = msg["role"] == "user"
             align   = "chat-user" if is_user else "chat-advisor"
-            label   = "Vos" if is_user else "Lucas · Asesor IA"
+            label   = "Usted" if is_user else "Lucas · Asesor IA"
             st.markdown(
                 f'<div class="chat-bubble {align}"><div class="chat-label">{label}</div>'
                 f'<div class="chat-text">{msg["content"]}</div></div>',
@@ -455,7 +455,7 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
             send = st.form_submit_button("Enviar", use_container_width=True)
 
     if send and user_input.strip():
-        with st.spinner("Lucas está respondiendo..."):
+        with st.spinner("El asesor está procesando su consulta..."):
             answer = chat_with_advisor(user_input.strip(), chat_history, profile, portfolio)
         st.session_state.chat_history.append({"role": "user",      "content": user_input.strip()})
         st.session_state.chat_history.append({"role": "assistant", "content": answer})
@@ -471,7 +471,7 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
     # ── Reiniciar ─────────────────────────────────────────────────────────────
     _, col_r2, _ = st.columns([1, 1, 1])
     with col_r2:
-        if st.button("🔁 Empezar de nuevo", key="restart", use_container_width=True):
+        if st.button("Nueva Evaluación", key="restart", use_container_width=True):
             for key in list(st.session_state.keys()):
                 del st.session_state[key]
             st.rerun()

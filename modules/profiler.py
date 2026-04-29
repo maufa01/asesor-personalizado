@@ -10,9 +10,9 @@ QUESTIONS = [
     {
         "id": "motivation",
         "emoji": "🤔",
-        "step": "1 de 8",
-        "title": "¿Qué te trajo acá hoy?",
-        "hint": "Elegí la que más se parece a tu situación real.",
+        "step": "Sección 1 de 8",
+        "title": "¿Qué lo trae aquí hoy?",
+        "hint": "Seleccione la opción que mejor refleje su situación actual.",
         "options": [
             ("La inflación me come los ahorros. Quiero al menos no perder valor.", 0),
             ("Tengo plata quieta y quiero que me genere algo, sin complicarme.", 1),
@@ -23,9 +23,9 @@ QUESTIONS = [
     {
         "id": "loss_reaction",
         "emoji": "📉",
-        "step": "2 de 8",
-        "title": "Invertís $500.000 hoy. Al mes siguiente ves en la app que valen $430.000. ¿Qué hacés?",
-        "hint": "Estas caídas son normales en ciertos tipos de inversión. Sé honesto con vos mismo.",
+        "step": "Sección 2 de 8",
+        "title": "Invierte $500.000 hoy. Al mes siguiente comprueba que valen $430.000. ¿Qué hace?",
+        "hint": "Estas caídas son normales en ciertos instrumentos. Sea honesto en su respuesta.",
         "options": [
             ("Los saco de inmediato. No puedo ver eso.", 0),
             ("Saco la mitad para no perder más.", 1),
@@ -36,9 +36,9 @@ QUESTIONS = [
     {
         "id": "horizon",
         "emoji": "📅",
-        "step": "3 de 8",
-        "title": "¿Para cuándo vas a necesitar esa plata?",
-        "hint": "Pensá en tus planes reales: viaje, auto, casa, jubilación...",
+        "step": "Sección 3 de 8",
+        "title": "¿En qué plazo necesitará disponer de ese capital?",
+        "hint": "Considere sus planes: viaje, vivienda, retiro u otros objetivos.",
         "options": [
             ("La puedo necesitar en cualquier momento. Menos de un año.", 0),
             ("En 1 a 3 años. Tengo algo planificado.", 1),
@@ -49,9 +49,9 @@ QUESTIONS = [
     {
         "id": "income_stability",
         "emoji": "💼",
-        "step": "4 de 8",
-        "title": "¿Cómo son tus ingresos mes a mes?",
-        "hint": "Esto es clave para saber si podés aguantar un mal momento sin tener que rescatar tu inversión.",
+        "step": "Sección 4 de 8",
+        "title": "¿Cómo son sus ingresos mes a mes?",
+        "hint": "Este factor determina su capacidad de mantener la inversión ante imprevistos.",
         "options": [
             ("Irregulares o sin ingreso fijo. Nunca sé cuánto voy a cobrar.", 0),
             ("Varían bastante. Dependo de ventas, clientes o proyectos.", 1),
@@ -62,9 +62,9 @@ QUESTIONS = [
     {
         "id": "emergency_fund",
         "emoji": "🛡️",
-        "step": "5 de 8",
-        "title": "Si mañana se te rompe el auto o tenés un gasto inesperado grande, ¿podés cubrirlo sin tocar esta inversión?",
-        "hint": "Tener un fondo de emergencia es la base de cualquier inversión sana.",
+        "step": "Sección 5 de 8",
+        "title": "Si surgiera un gasto inesperado importante, ¿podría cubrirlo sin tocar esta inversión?",
+        "hint": "El fondo de emergencia es la base de una estrategia de inversión sólida.",
         "options": [
             ("No. No tengo nada extra guardado.", 0),
             ("Tengo algo, pero alcanzaría para 1 o 2 meses.", 1),
@@ -75,9 +75,9 @@ QUESTIONS = [
     {
         "id": "risk_appetite",
         "emoji": "🎲",
-        "step": "6 de 8",
-        "title": "Si tuvieras que elegir, ¿con cuál te quedás?",
-        "hint": "No hay respuesta correcta. Pensá cómo te sentirías realmente en cada caso.",
+        "step": "Sección 6 de 8",
+        "title": "Si tuviera que elegir, ¿con cuál opción se quedaría?",
+        "hint": "No hay respuesta correcta. Reflexione sobre su tolerancia real al riesgo.",
         "options": [
             ("Ganar siempre un 5% fijo al año. Sin sorpresas, sin emociones.", 0),
             ("Poder ganar 15%, aunque algún año pueda perder 5%.", 1),
@@ -88,9 +88,9 @@ QUESTIONS = [
     {
         "id": "experience",
         "emoji": "📚",
-        "step": "7 de 8",
-        "title": "¿Cuánto sabés de inversiones hoy?",
-        "hint": "Sé honesto, no hay respuesta mala. Sirve para adaptar lo que te recomendamos.",
+        "step": "Sección 7 de 8",
+        "title": "¿Cuánto conoce sobre inversiones?",
+        "hint": "No hay respuesta incorrecta. Esta información nos permite personalizar su recomendación.",
         "options": [
             ("Prácticamente nada. Nunca invertí en mi vida.", 0),
             ("Solo conozco el plazo fijo o Mercado Pago.", 1),
@@ -101,9 +101,9 @@ QUESTIONS = [
     {
         "id": "mindset",
         "emoji": "🧠",
-        "step": "8 de 8",
-        "title": "¿Con cuál de estas frases te identificás más?",
-        "hint": "La última pregunta. Elegí la que más resuena con tu forma de pensar.",
+        "step": "Sección 8 de 8",
+        "title": "¿Con cuál de estas afirmaciones se identifica más?",
+        "hint": "Seleccione la que mejor represente su filosofía de inversión.",
         "options": [
             ("Prefiero mil veces dormir tranquilo que ganar más.", 0),
             ("Busco un equilibrio. Seguridad con algo de crecimiento.", 1),
@@ -125,36 +125,36 @@ PROFILES = {
         "emoji": "🟢",
         "label": "Inversor Conservador",
         "color": "#22c55e",
-        "tagline": "Tu prioridad es la seguridad. Y eso está muy bien.",
+        "tagline": "Su prioridad es la preservación del capital. Una decisión sólida.",
         "explanation": (
-            "Preferís dormir tranquilo antes que apostar por grandes ganancias. "
-            "No estás dispuesto a ver caídas fuertes y eso es completamente válido — "
-            "especialmente si recién arrancás o si necesitás el dinero en el corto plazo. "
-            "Una cartera conservadora no es \"para los que no saben\": "
-            "es para los que tienen claras sus prioridades."
+            "Usted prioriza la seguridad por encima de la rentabilidad máxima. "
+            "No desea exponerse a caídas significativas, lo cual es completamente válido — "
+            "especialmente si requiere el capital en el corto plazo o está comenzando. "
+            "Una cartera conservadora no es sinónimo de bajo rendimiento: "
+            "es la elección de quien tiene claras sus prioridades financieras."
         ),
         "what_means": [
-            "📦 La mayor parte de tu plata va a activos muy seguros",
+            "📦 La mayor parte del capital se destina a instrumentos de alta seguridad",
             "💵 Protección contra la inflación y la devaluación del peso",
-            "🔒 Poca volatilidad — tu saldo no va a oscilar mucho",
+            "🔒 Baja volatilidad — el saldo no presenta oscilaciones significativas",
             "📈 Rendimiento moderado, consistente y predecible",
         ],
         "first_steps": [
-            "Empezá con un Fondo Money Market en IOL o Mercado Pago (retiro en el día)",
-            "Comprá Dólar MEP para dolarizar una parte de tus ahorros",
-            "Mirá bonos CER (TX26) para protegerte de la inflación en pesos",
+            "Comience con un Fondo Money Market en IOL o Mercado Pago (rescate en el día)",
+            "Adquiera Dólar MEP para dolarizar una parte de su capital",
+            "Considere bonos CER (TX26) para protegerse de la inflación en pesos",
         ],
     },
     "moderado": {
         "emoji": "🟡",
         "label": "Inversor Moderado",
         "color": "#f59e0b",
-        "tagline": "Buscás un equilibrio inteligente.",
+        "tagline": "Busca un equilibrio inteligente entre seguridad y crecimiento.",
         "explanation": (
-            "Querés que tu plata crezca, pero sin pegarte un susto enorme. "
-            "Estás dispuesto a tolerar alguna baja temporal si eso significa "
+            "Usted desea que su capital crezca sin asumir riesgos excesivos. "
+            "Está dispuesto a tolerar variaciones temporales si eso implica "
             "mejores resultados a mediano plazo. "
-            "Es el perfil más común y, para muchas personas, el más inteligente: "
+            "Es el perfil más frecuente y, para muchos inversores, el más adecuado: "
             "combina protección con crecimiento real."
         ),
         "what_means": [
@@ -164,57 +164,57 @@ PROFILES = {
             "📉 Puede haber meses negativos, pero el largo plazo es positivo",
         ],
         "first_steps": [
-            "Una base en fondos conservadores (money market + bonos) para la liquidez",
-            "CEDEARs del S&P500 (SPY) para exposición al mercado americano en pesos",
-            "Algo de bonos en dólares (ONs corporativas) para renta en USD",
+            "Establezca una base en fondos conservadores (money market + bonos) para liquidez",
+            "Incorpore CEDEARs del S&P 500 (SPY) para exposición al mercado americano en pesos",
+            "Sume bonos en dólares (ONs corporativas) para renta en USD",
         ],
     },
     "estable": {
         "emoji": "🔵",
         "label": "Inversor Estable",
         "color": "#60a5fa",
-        "tagline": "Algo mejor que un plazo fijo, sin complicaciones.",
+        "tagline": "Rendimiento superior al plazo fijo con exposición al riesgo controlada.",
         "explanation": (
-            "Querés que tu plata trabaje más que un plazo fijo "
-            "pero sin exponerte a grandes caídas. "
-            "Es el punto intermedio perfecto: más rendimiento que la caja de ahorro "
-            "sin los altibajos del mercado de acciones. "
-            "Ideal para quien empieza a diversificar y quiere dormir tranquilo."
+            "Usted desea que su capital rinda más que un plazo fijo "
+            "sin exponerse a caídas significativas. "
+            "Es el punto intermedio ideal: mayor rendimiento que la caja de ahorro "
+            "sin la volatilidad del mercado de renta variable. "
+            "Recomendado para quien inicia su proceso de diversificación."
         ),
         "what_means": [
             "💵 Mayoría en dólares y bonos de empresas sólidas",
             "📈 Rendimiento esperado superior al plazo fijo tradicional",
-            "🛡️ Poca volatilidad — tu saldo no varía mucho mes a mes",
-            "🌎 Algo de exposición al mercado global para algo de crecimiento",
+            "🛡️ Baja volatilidad — el saldo no presenta variaciones significativas mes a mes",
+            "🌎 Exposición moderada al mercado global para potenciar el crecimiento",
         ],
         "first_steps": [
-            "Comprá Dólar MEP en IOL o PPI — 1 click, sin límite mensual",
-            "Invertí en ONs corporativas como las de Pampa Energía o MercadoLibre",
-            "Comprá el CEDEAR del S&P 500 (SPY) para algo de crecimiento en pesos",
+            "Adquiera Dólar MEP en IOL o PPI — operación inmediata, sin límite mensual",
+            "Invierta en ONs corporativas de Pampa Energía o MercadoLibre",
+            "Incorpore el CEDEAR del S&P 500 (SPY) para crecimiento en pesos",
         ],
     },
     "agresivo": {
         "emoji": "🔴",
         "label": "Inversor Agresivo",
         "color": "#ef4444",
-        "tagline": "Jugás en modo largo plazo y a fondo.",
+        "tagline": "Horizonte largo plazo con foco en maximizar el rendimiento.",
         "explanation": (
-            "Tenés claro que para ganar más hay que asumir más riesgo. "
-            "Estás dispuesto a ver caídas fuertes sin desesperarte, "
-            "porque tu horizonte es largo y tu objetivo es maximizar el crecimiento. "
-            "Importante: esto no significa tirar la plata — significa invertir "
-            "con estrategia en activos de alto potencial."
+            "Usted comprende que para obtener mayor rentabilidad debe asumir mayor riesgo. "
+            "Está dispuesto a tolerar caídas significativas sin reaccionar impulsivamente, "
+            "porque su horizonte es extenso y su objetivo es maximizar el crecimiento patrimonial. "
+            "Importante: esto no implica especulación — significa invertir "
+            "con estrategia en instrumentos de alto potencial."
         ),
         "what_means": [
             "🚀 Alta exposición a acciones argentinas e internacionales",
-            "⚡ Mayor volatilidad — podés ver caídas de 20-30% sin que sea una señal de vender",
+            "⚡ Mayor volatilidad — caídas de 20-30% son parte del proceso, no una señal de venta",
             "💎 Potencial de rendimiento muy superior al largo plazo",
             "🧩 Incluye tecnología global, mercados emergentes y algo de cripto",
         ],
         "first_steps": [
             "CEDEARs de tecnología: Nvidia, Meta, Amazon, MercadoLibre",
-            "ETF QQQ o SPY para exposición amplia al mercado americano",
-            "Acciones argentinas: YPF, Galicia, Vista Energy para apuesta local",
+            "ETF QQQ o SPY para exposición diversificada al mercado americano",
+            "Renta variable argentina: YPF, Galicia, Vista Energy para posicionamiento local",
         ],
     },
 }
@@ -244,7 +244,7 @@ def render_profiler() -> dict | None:
     if not has_reveal:
         progress_pct = int(min((answered + (1 if has_capital else 0)) / total_steps, 1.0) * 100)
         st.markdown(f"""<div class="progress-wrap">
-<div class="progress-label">Tu progreso</div>
+<div class="progress-label">Progreso del cuestionario</div>
 <div class="progress-track"><div class="progress-fill" style="width:{progress_pct}%"></div></div>
 </div>""", unsafe_allow_html=True)
 
@@ -276,7 +276,7 @@ def render_profiler() -> dict | None:
                     st.session_state.answers = answers
                     st.rerun()
             with col_b2:
-                label = "Siguiente →" if answered < len(QUESTIONS) - 1 else "Última pregunta →"
+                label = "Continuar →" if answered < len(QUESTIONS) - 1 else "Última sección →"
                 if st.button(label, key=f"next_{q['id']}", use_container_width=True):
                     answers[q["id"]] = selected
                     st.session_state.answers = answers
@@ -288,8 +288,8 @@ def render_profiler() -> dict | None:
     if not has_capital:
         st.markdown("""<div class="profiler-card">
 <div class="q-emoji">💵</div>
-<h3 class="q-title">¿Con cuánta plata querés empezar?</h3>
-<p class="hint">No hay mínimo perfecto. Con poco también se puede invertir bien. Podés cambiar esto después.</p>
+<h3 class="q-title">¿Con qué capital desea comenzar a invertir?</h3>
+<p class="hint">No existe un mínimo perfecto. Con cualquier monto puede invertir de forma inteligente.</p>
 </div>""", unsafe_allow_html=True)
 
         col_q, _ = st.columns([2, 1])
@@ -340,7 +340,7 @@ def render_profiler() -> dict | None:
                     st.session_state.answers = answers
                     st.rerun()
             with col_b2:
-                if st.button("🎯 Ver mi perfil de inversor", key="finish_btn", use_container_width=True):
+                if st.button("Ver mi Perfil de Inversor", key="finish_btn", use_container_width=True):
                     answers["capital"]          = float(capital_usd)
                     answers["capital_display"]  = capital_display
                     answers["currency"]         = currency
@@ -378,11 +378,11 @@ def render_profiler() -> dict | None:
         first_steps_html = "".join(f'<div class="reveal-item">✅ {step}</div>' for step in p['first_steps'])
         st.markdown(f"""<div class="reveal-columns">
 <div class="reveal-section">
-<div class="reveal-section-title">📋 Lo que esto significa para tu cartera</div>
+<div class="reveal-section-title">📋 Implicancias para su cartera</div>
 {what_means_html}
 </div>
 <div class="reveal-section">
-<div class="reveal-section-title">🚀 Por dónde empezar</div>
+<div class="reveal-section-title">📌 Primeros pasos sugeridos</div>
 {first_steps_html}
 </div>
 </div>""", unsafe_allow_html=True)
@@ -390,7 +390,7 @@ def render_profiler() -> dict | None:
         st.markdown("<br>", unsafe_allow_html=True)
         _, col_cta, _ = st.columns([1, 2, 1])
         with col_cta:
-            if st.button("📊 Ver mi cartera personalizada →", key="to_portfolio", use_container_width=True):
+            if st.button("Ver Cartera Sugerida →", key="to_portfolio", use_container_width=True):
                 answers["_reveal_done"] = True
                 st.session_state.answers = answers
                 st.rerun()
