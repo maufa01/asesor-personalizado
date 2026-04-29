@@ -6,7 +6,7 @@ Aplicación web de asesoría financiera personal con inteligencia artificial par
 
 - 🎯 **Perfil de riesgo adaptativo** — Cuestionario de 8 preguntas para detectar perfil conservador, moderado o agresivo
 - 💼 **Cartera teórica diversificada** — Acciones locales, CEDEARs, ETFs, bonos, dólar MEP y cash
-- 🤖 **Asesoría IA con Claude** — Justificación de activos, alertas de sobreexposición y consejos de rebalanceo
+- 🤖 **Asesoría IA con Google Gemini** — Justificación de activos, alertas de sobreexposición y consejos de rebalanceo
 - 📈 **Simulación Monte Carlo** — Evolución proyectada con escenarios optimista/base/pesimista
 - ⚙️ **Supuestos ajustables** — Modificá retorno y volatilidad para ver distintos escenarios
 
@@ -14,7 +14,7 @@ Aplicación web de asesoría financiera personal con inteligencia artificial par
 
 - **Frontend**: Streamlit (UI moderna con CSS personalizado)
 - **Backend**: Python 3.11+
-- **IA**: Anthropic Claude API (claude-sonnet-4)
+- **IA**: Google GenAI / Gemini
 - **Gráficos**: Plotly
 - **Simulación**: NumPy (Monte Carlo)
 
@@ -32,26 +32,30 @@ source venv/bin/activate  # Linux/Mac
 # 3. Instalar dependencias
 pip install -r requirements.txt
 
-# 4. Configurar API key de Anthropic
-export ANTHROPIC_API_KEY="tu-api-key-aqui"
-# En Windows: set ANTHROPIC_API_KEY=tu-api-key-aqui
+# 4. Configurar API key de Google Gemini
+export GOOGLE_API_KEY="tu-api-key-aqui"
+# En Windows: set GOOGLE_API_KEY=tu-api-key-aqui
 
 # 5. Ejecutar la aplicación
 streamlit run app.py
-```
+
+> Si tu terminal no encuentra el comando `streamlit`, ejecutá:
+> ```bash
+> python -m streamlit run app.py
+> ```
 
 ## Configuración de API Key
 
-Obtené tu API key en: https://console.anthropic.com/
+Obtené tu API key en Google Cloud Console y habilitá el API de Google GenAI.
 
 Podés configurarla de tres formas:
-1. Variable de entorno: `export ANTHROPIC_API_KEY="sk-ant-..."`
+1. Variable de entorno: `export GOOGLE_API_KEY="tu-api-key-aqui"`
 2. Archivo `.env` (requiere python-dotenv)
 3. Secrets de Streamlit Cloud: `.streamlit/secrets.toml`
 
 ```toml
 # .streamlit/secrets.toml
-ANTHROPIC_API_KEY = "sk-ant-..."
+GOOGLE_API_KEY = "tu-api-key-aqui"
 ```
 
 ## Estructura del Proyecto
@@ -68,7 +72,7 @@ finanzas_app/
     ├── portfolio.py          # Motor de construcción de carteras
     ├── simulator.py          # Simulación Monte Carlo
     ├── charts.py             # Visualizaciones Plotly
-    └── ai_advisor.py         # Integración con Claude AI
+    └── ai_advisor.py         # Integración con Google Gemini AI
 ```
 
 ## Activos Incluidos
