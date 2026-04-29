@@ -169,6 +169,30 @@ PROFILES = {
             "Algo de bonos en dólares (ONs corporativas) para renta en USD",
         ],
     },
+    "estable": {
+        "emoji": "🔵",
+        "label": "Inversor Estable",
+        "color": "#60a5fa",
+        "tagline": "Algo mejor que un plazo fijo, sin complicaciones.",
+        "explanation": (
+            "Querés que tu plata trabaje más que un plazo fijo "
+            "pero sin exponerte a grandes caídas. "
+            "Es el punto intermedio perfecto: más rendimiento que la caja de ahorro "
+            "sin los altibajos del mercado de acciones. "
+            "Ideal para quien empieza a diversificar y quiere dormir tranquilo."
+        ),
+        "what_means": [
+            "💵 Mayoría en dólares y bonos de empresas sólidas",
+            "📈 Rendimiento esperado superior al plazo fijo tradicional",
+            "🛡️ Poca volatilidad — tu saldo no varía mucho mes a mes",
+            "🌎 Algo de exposición al mercado global para algo de crecimiento",
+        ],
+        "first_steps": [
+            "Comprá Dólar MEP en IOL o PPI — 1 click, sin límite mensual",
+            "Invertí en ONs corporativas como las de Pampa Energía o MercadoLibre",
+            "Comprá el CEDEAR del S&P 500 (SPY) para algo de crecimiento en pesos",
+        ],
+    },
     "agresivo": {
         "emoji": "🔴",
         "label": "Inversor Agresivo",
@@ -198,11 +222,13 @@ PROFILES = {
 
 def _score_to_profile(score: int, max_score: int) -> str:
     ratio = score / max_score
-    if ratio < 0.38:
+    if ratio < 0.26:       # 0-6 pts: quiere solo seguridad
         return "conservador"
-    elif ratio < 0.68:
+    elif ratio < 0.46:     # 7-11 pts: algo mejor que plazo fijo pero sin sustos
+        return "estable"
+    elif ratio < 0.68:     # 12-16 pts: equilibrio crecimiento/seguridad
         return "moderado"
-    else:
+    else:                  # 17-24 pts: maximizar crecimiento
         return "agresivo"
 
 

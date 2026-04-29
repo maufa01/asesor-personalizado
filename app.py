@@ -166,15 +166,22 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
         st.session_state.show_celebration = False
         components.html(_CELEBRATION_HTML, height=0)
 
-    risk_colors = {"conservador": "#22c55e", "moderado": "#f59e0b", "agresivo": "#ef4444"}
-    risk_emojis = {"conservador": "🟢", "moderado": "🟡", "agresivo": "🔴"}
+    risk_colors = {
+        "conservador": "#22c55e",
+        "estable":     "#60a5fa",
+        "moderado":    "#f59e0b",
+        "agresivo":    "#ef4444",
+    }
+    risk_emojis = {"conservador": "🟢", "estable": "🔵", "moderado": "🟡", "agresivo": "🔴"}
     risk_labels = {
         "conservador": "Inversor Conservador",
+        "estable":     "Inversor Estable",
         "moderado":    "Inversor Moderado",
         "agresivo":    "Inversor Agresivo",
     }
     risk_explanations = {
         "conservador": "Priorizás la seguridad de tu plata por encima del crecimiento. Tu cartera apunta a proteger el capital con bajo riesgo.",
+        "estable":     "Querés algo mejor que un plazo fijo sin exponerte a grandes caídas. Tu cartera combina dólares, bonos sólidos y algo de acciones globales.",
         "moderado":    "Buscás un equilibrio entre hacer crecer tu plata y no arriesgar demasiado. Tu cartera mezcla seguridad con crecimiento.",
         "agresivo":    "Estás dispuesto a asumir riesgo para buscar mayor crecimiento a largo plazo. Tu cartera apunta al máximo rendimiento posible.",
     }
@@ -282,6 +289,7 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
     with col_evo:
         _scenario_headlines = {
             "conservador": "En el peor caso, tu plata sigue valiendo lo mismo.",
+            "estable":     "Más que un plazo fijo, menos sustos que la bolsa.",
             "moderado":    "Tu plata tiene chances reales de crecer.",
             "agresivo":    "El riesgo tiene su recompensa a largo plazo.",
         }
@@ -297,6 +305,20 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
     # ── Tabla de activos ──────────────────────────────────────────────────────
     st.markdown('<div class="section-title">📋 Activos de tu cartera</div>', unsafe_allow_html=True)
     render_allocation_table(portfolio, profile["capital"])
+
+    # ── Advertencias de solapamiento ──────────────────────────────────────────
+    overlaps = portfolio.get("overlaps", [])
+    if overlaps:
+        st.markdown("<br>", unsafe_allow_html=True)
+        for ov in overlaps:
+            etf = ov["etf"].upper()
+            conflicts = ", ".join(c.upper() for c in ov["conflicts"])
+            reason = ov["reason"]
+            st.markdown(f"""<div class="alert-card alert-medium">
+<span class="alert-icon">⚠️</span>
+<div><strong>Solapamiento detectado: {etf} + {conflicts}</strong><br>
+<span>{reason}</span></div>
+</div>""", unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
 

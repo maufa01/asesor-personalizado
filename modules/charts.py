@@ -431,19 +431,15 @@ def render_allocation_table(portfolio: dict, capital: float):
                 st.session_state.pending_remove_name = None
                 st.rerun()
 
-    tag_bg = {
-        "mínimo":     ("#064e3b", "#34d399"),
-        "muy bajo":   ("#1e3a5f", "#60a5fa"),
-        "bajo":       ("#14532d", "#86efac"),
-        "bajo-medio": ("#365314", "#bef264"),
-        "medio":      ("#713f12", "#fcd34d"),
-        "medio-alto": ("#7c2d12", "#fb923c"),
-        "alto":       ("#7f1d1d", "#f87171"),
+    liq_colors = {
+        "alta":  ("#064e3b", "#34d399"),
+        "media": ("#1e3a5f", "#60a5fa"),
+        "baja":  ("#7c2d12", "#fb923c"),
     }
 
     # Header
-    h = st.columns([3.2, 1.4, 1.8, 1.4, 1.2, 1.3, 0.55])
-    for col, label in zip(h, ["Activo", "Categoría", "Peso", "Monto (USD)", "Retorno", "Riesgo", ""]):
+    h = st.columns([2.8, 1.2, 1.5, 1.4, 3.0, 1.0, 0.55])
+    for col, label in zip(h, ["Activo", "Categoría", "Peso", "Monto (USD)", "¿Para qué sirve?", "Liquidez", ""]):
         col.markdown(f'<div class="tbl-header">{label}</div>', unsafe_allow_html=True)
 
     st.markdown('<div class="tbl-divider"></div>', unsafe_allow_html=True)
@@ -451,8 +447,8 @@ def render_allocation_table(portfolio: dict, capital: float):
     for p in positions:
         pct    = p["weight"] * 100
         amount = p["weight"] * capital
-        risk   = p["risk_level"]
-        bg, fg = tag_bg.get(risk, ("#1a2235", "#94a3b8"))
+        liq    = p.get("liquidity", "media")
+        lbg, lfg = liq_colors.get(liq, ("#1a2235", "#94a3b8"))
 
         bar_html = (
             f'<div class="pct-bar-bg" style="margin-top:5px;">'
@@ -460,7 +456,8 @@ def render_allocation_table(portfolio: dict, capital: float):
             f'</div>'
         )
 
-        cols = st.columns([3.2, 1.4, 1.8, 1.4, 1.2, 1.3, 0.55])
+        cols = st.columns([2.8, 1.2, 1.5, 1.4, 3.0, 1.0, 0.55])
+        desc = p.get("simple_desc") or p.get("description", "")[:90]
 
         cols[0].markdown(
             f'<div class="tbl-cell">'
@@ -483,11 +480,11 @@ def render_allocation_table(portfolio: dict, capital: float):
             unsafe_allow_html=True,
         )
         cols[4].markdown(
-            f'<div class="tbl-cell" style="color:#10d98a;">{p["expected_return"]*100:.1f}%</div>',
+            f'<div class="tbl-cell" style="font-size:0.82rem;color:#94a3b8;line-height:1.4;">{desc}</div>',
             unsafe_allow_html=True,
         )
         cols[5].markdown(
-            f'<div class="tbl-cell"><span class="tag" style="background:{bg};color:{fg};">{risk}</span></div>',
+            f'<div class="tbl-cell"><span class="tag" style="background:{lbg};color:{lfg};">{liq}</span></div>',
             unsafe_allow_html=True,
         )
 
@@ -504,11 +501,11 @@ def render_allocation_table(portfolio: dict, capital: float):
 
     # Fila de total
     st.markdown('<div class="tbl-divider" style="margin-top:4px;"></div>', unsafe_allow_html=True)
-    t_cols = st.columns([3.2, 1.4, 1.8, 1.4, 1.2, 1.3, 0.55])
+    t_cols = st.columns([2.8, 1.2, 1.5, 1.4, 3.0, 1.0, 0.55])
     t_cols[0].markdown('<div class="tbl-cell"><strong style="color:#eef2ff;">TOTAL</strong></div>', unsafe_allow_html=True)
     t_cols[2].markdown('<div class="tbl-cell"><strong style="color:#eef2ff;">100%</strong></div>', unsafe_allow_html=True)
     t_cols[3].markdown(f'<div class="tbl-cell"><strong style="color:#eef2ff;">${capital:,.0f}</strong></div>', unsafe_allow_html=True)
-    t_cols[4].markdown(f'<div class="tbl-cell"><strong style="color:#10d98a;">{portfolio["expected_cagr"]*100:.1f}%</strong></div>', unsafe_allow_html=True)
+    t_cols[4].markdown(f'<div class="tbl-cell" style="font-size:0.82rem;color:#64748b;">Retorno prom. anual: <strong style="color:#10d98a;">{portfolio["expected_cagr"]*100:.1f}%</strong></div>', unsafe_allow_html=True)
 
     # Exposición por categoría y moneda
     st.markdown("<br>", unsafe_allow_html=True)

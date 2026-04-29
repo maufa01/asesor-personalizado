@@ -758,75 +758,94 @@ ASSET_UNIVERSE: List[Dict[str, Any]] = [
 # ─── Índice por ID ─────────────────────────────────────────────────────────────
 ASSET_INDEX = {a["id"]: a for a in ASSET_UNIVERSE}
 
+# ─── Liquidez en BYMA ──────────────────────────────────────────────────────────
+# alta  = volumen alto, rescate inmediato o mismo día
+# media = volumen medio o mercado alternativo (exchanges, ONs)
+# baja  = poco volumen en BYMA, solo para agresivos con horizonte ≥5 años
+_LIQUIDITY_LEVELS = {
+    "alta":  {"cash_pesos","money_market","plazo_fijo","fci_t0","lecap",
+              "cer_bond","fci_renta_pesos","mep","al30","gd30",
+              "spy","qqq","aapl","meli","ypf","galicia","usdt"},
+    "media": {"on_ypf","on_corp","on_pampa","on_tecpetrol","gld","iau","vti",
+              "eem","msft","nvda","googl","amzn","meta","brk","jpm",
+              "bac","tsla","btc","eth"},
+}
+for _a in ASSET_UNIVERSE:
+    for _lev, _ids in _LIQUIDITY_LEVELS.items():
+        if _a["id"] in _ids:
+            _a["liquidity"] = _lev
+            break
+    else:
+        _a["liquidity"] = "baja"
+
 
 # ─── Plantillas de cartera por perfil ─────────────────────────────────────────
+# Máximo de posiciones por perfil (tarea 1 + 3)
+_MAX_POSITIONS = {
+    "conservador": 6,
+    "estable":     6,
+    "moderado":    7,
+    "agresivo":    8,
+}
+
 PORTFOLIO_TEMPLATES = {
     "conservador": {
-        "expected_cagr": 0.065,
-        "expected_volatility": 0.06,
-        "description": "Prioriza la seguridad y la liquidez. Ideal para alguien que no quiere arriesgar su capital.",
-        "summary": "Tu cartera está pensada para mantener el valor de tu plata con el menor riesgo posible. La mayor parte está en pesos con buena liquidez, un poco en dólares para protegerte de la devaluación, y algo en inversiones seguras en USD.",
+        "expected_cagr": 0.073,
+        "expected_volatility": 0.07,
+        "description": "Prioriza la seguridad y la liquidez. Ideal para quien no quiere arriesgar su capital.",
+        "summary": "Tu cartera está pensada para mantener el valor de tu plata con el menor riesgo posible. Dólares legales, bonos de empresas sólidas y un poco de acciones globales para algo de crecimiento.",
         "allocations": {
-            "money_market":   0.18,
-            "plazo_fijo":     0.12,
-            "fci_t0":         0.10,
-            "cer_bond":       0.10,
-            "lecap":          0.10,
-            "mep":            0.12,
-            "on_corp":        0.08,
-            "on_pampa":       0.08,
-            "spy":            0.05,
-            "gld":            0.04,
-            "iau":            0.03,
+            "money_market": 0.20,   # liquidez ARS, retiro el mismo día
+            "lecap":        0.15,   # pesos a tasa fija del Tesoro
+            "mep":          0.25,   # dólares legales por la bolsa
+            "on_corp":      0.18,   # bonos de empresas privadas en USD
+            "al30":         0.12,   # bono soberano argentino en USD
+            "spy":          0.10,   # algo de mercado global
+        },
+    },
+    "estable": {
+        "expected_cagr": 0.082,
+        "expected_volatility": 0.09,
+        "description": "Mejor que un plazo fijo, sin sustos. Para quien quiere protegerse de la inflación con algo de crecimiento.",
+        "summary": "Tu cartera está pensada para darte más que un plazo fijo sin que pierdas el sueño. Combinás dólares seguros, bonos de empresas sólidas y un poco de acciones globales.",
+        "allocations": {
+            "mep":          0.25,   # dólares legales, base sólida
+            "on_corp":      0.20,   # renta fija en USD de empresas privadas
+            "money_market": 0.15,   # liquidez en pesos, retiro el mismo día
+            "cer_bond":     0.15,   # cobertura contra la inflación
+            "al30":         0.10,   # bono soberano en USD
+            "spy":          0.15,   # exposición al mercado global
         },
     },
     "moderado": {
         "expected_cagr": 0.105,
-        "expected_volatility": 0.15,
+        "expected_volatility": 0.14,
         "description": "Equilibrio entre crecimiento y protección. Mezcla inversiones seguras con algo de riesgo controlado.",
-        "summary": "Tu cartera combina estabilidad con crecimiento. Tenés una base sólida en activos seguros y, encima de eso, inversiones en empresas y bonos que pueden darte mejor rendimiento a mediano plazo.",
+        "summary": "Tu cartera combina estabilidad con crecimiento. Una base sólida en activos seguros y encima de eso exposición a acciones globales que pueden darte mejor rendimiento a mediano plazo.",
         "allocations": {
-            "spy":            0.15,
-            "vti":            0.08,
-            "qqq":            0.07,
-            "msft":           0.06,
-            "aapl":           0.05,
-            "brk":            0.05,
-            "on_corp":        0.07,
-            "on_pampa":       0.05,
-            "al30":           0.07,
-            "mep":            0.08,
-            "lecap":          0.07,
-            "money_market":   0.08,
-            "cer_bond":       0.06,
-            "gld":            0.06,
+            "spy":          0.22,   # columna vertebral: 500 mayores empresas de EE.UU.
+            "money_market": 0.15,   # liquidez en pesos
+            "mep":          0.15,   # dólares base
+            "on_corp":      0.13,   # renta fija en USD
+            "brk":          0.12,   # Berkshire: el holding más diversificado del mundo
+            "qqq":          0.10,   # las 100 mayores empresas tech de EE.UU.
+            "al30":         0.13,   # bono soberano argentino en USD
         },
     },
     "agresivo": {
-        "expected_cagr": 0.170,
-        "expected_volatility": 0.30,
+        "expected_cagr": 0.165,
+        "expected_volatility": 0.28,
         "description": "Maximiza el crecimiento a largo plazo, aceptando que puede haber caídas fuertes en el camino.",
-        "summary": "Tu cartera apunta al máximo crecimiento. Estás dispuesto a ver caídas fuertes a corto plazo a cambio de mejores resultados a largo plazo. Tenés exposición a tecnología, mercados globales, acciones argentinas y algo de cripto.",
+        "summary": "Tu cartera apunta al máximo crecimiento. Estás dispuesto a ver caídas fuertes a corto plazo a cambio de mejores resultados a largo plazo. Tecnología global, energía argentina y algo de cripto.",
         "allocations": {
-            "qqq":            0.12,
-            "spy":            0.08,
-            "nvda":           0.07,
-            "meli":           0.06,
-            "meta":           0.05,
-            "msft":           0.05,
-            "amzn":           0.04,
-            "tsla":           0.04,
-            "ypf":            0.06,
-            "vist":           0.04,
-            "galicia":        0.04,
-            "pampa":          0.03,
-            "al30":           0.06,
-            "gd30":           0.04,
-            "mep":            0.05,
-            "btc":            0.07,
-            "eth":            0.03,
-            "money_market":   0.03,
-            "on_tecpetrol":   0.04,
+            "qqq":     0.22,   # tech growth: Nasdaq 100
+            "spy":     0.12,   # base global amplia
+            "nvda":    0.12,   # chips para inteligencia artificial
+            "mep":     0.16,   # base en dólares
+            "ypf":     0.10,   # energía argentina: Vaca Muerta
+            "galicia": 0.08,   # financiero argentino
+            "al30":    0.08,   # bono soberano USD
+            "btc":     0.12,   # cripto: reserva de valor digital
         },
     },
 }
@@ -858,9 +877,9 @@ def _adjust_for_horizon(allocations: dict, horizon: int, risk: str) -> dict:
             if k in adj:
                 freed = adj[k] * 0.4
                 adj[k] -= freed
-                for g in ["spy", "qqq", "meli"]:
+                for g in ["spy", "qqq", "nvda"]:
                     if g in adj:
-                        adj[g] += freed / len([x for x in ["spy", "qqq", "meli"] if x in adj])
+                        adj[g] += freed / len([x for x in ["spy", "qqq", "nvda"] if x in adj])
                         break
 
     total = sum(adj.values())
@@ -885,6 +904,87 @@ def _adjust_for_emergency(allocations: dict, has_emergency: bool) -> dict:
     return {k: v / total for k, v in adj.items()}
 
 
+# ─── Reglas de solapamiento ────────────────────────────────────────────────────
+# Si ya hay un ETF broad, agregar el stock individual duplica exposición sin saberlo
+_OVERLAP_RULES = {
+    "spy": {
+        "excludes": ["aapl", "msft"],
+        "reason": "SPY ya incluye ~7% Apple y ~6% Microsoft — tener ambos duplica esa exposición",
+    },
+    "vti": {
+        "excludes": ["aapl", "msft"],
+        "reason": "VTI ya incluye Apple y Microsoft entre sus mayores posiciones",
+    },
+    "qqq": {
+        "excludes": ["aapl", "meli"],
+        "reason": "QQQ ya incluye ~9% Apple y MercadoLibre — tener ambos duplica esa exposición",
+    },
+}
+
+
+def _detect_overlaps(positions: list) -> list:
+    """Detecta solapamientos entre ETFs y CEDEARs individuales."""
+    ids = {p["id"] for p in positions}
+    warnings = []
+    for etf_id, rule in _OVERLAP_RULES.items():
+        if etf_id in ids:
+            conflicts = [c for c in rule["excludes"] if c in ids]
+            if conflicts:
+                warnings.append({
+                    "etf":       ASSET_INDEX[etf_id]["name"],
+                    "conflicts": [ASSET_INDEX[c]["name"] for c in conflicts],
+                    "reason":    rule["reason"],
+                })
+    return warnings
+
+
+def _apply_overlap_exclusion(allocations: dict) -> dict:
+    """Excluye activos que solapan con ETFs presentes en la cartera."""
+    ids = set(allocations.keys())
+    to_remove = set()
+    for etf_id, rule in _OVERLAP_RULES.items():
+        if etf_id in ids:
+            for conflicting in rule["excludes"]:
+                if conflicting in ids:
+                    to_remove.add(conflicting)
+    if not to_remove:
+        return allocations
+    filtered = {k: v for k, v in allocations.items() if k not in to_remove}
+    total = sum(filtered.values())
+    return {k: v / total for k, v in filtered.items()}
+
+
+def _filter_by_liquidity(allocations: dict, risk: str, horizon: int) -> dict:
+    """Elimina activos de baja liquidez para perfiles conservador, estable y moderado."""
+    allow_baja = (risk == "agresivo" and horizon >= 5)
+    if allow_baja:
+        return allocations
+    filtered = {k: v for k, v in allocations.items()
+                if ASSET_INDEX.get(k, {}).get("liquidity", "baja") != "baja"}
+    if not filtered:
+        return allocations
+    total = sum(filtered.values())
+    return {k: v / total for k, v in filtered.items()}
+
+
+def _trim_to_max(allocations: dict, max_pos: int) -> dict:
+    """Mantiene las top N posiciones por ratio Sharpe (retorno ajustado por riesgo)."""
+    if len(allocations) <= max_pos:
+        return allocations
+    risk_free = 0.05
+
+    def sharpe(asset_id: str) -> float:
+        a = ASSET_INDEX.get(asset_id, {})
+        r = a.get("expected_return", 0)
+        v = a.get("volatility", 0.1)
+        return (r - risk_free) / v if v > 0 else 0
+
+    top_ids = sorted(allocations, key=sharpe, reverse=True)[:max_pos]
+    trimmed  = {k: allocations[k] for k in top_ids}
+    total    = sum(trimmed.values())
+    return {k: v / total for k, v in trimmed.items()}
+
+
 def build_portfolio(profile: dict) -> dict:
     """Construye la cartera personalizada según el perfil del inversor."""
     risk     = profile["risk_profile"]
@@ -898,15 +998,23 @@ def build_portfolio(profile: dict) -> dict:
                      or "6 meses" in profile.get("emergency_fund", "").lower())
     allocs        = _adjust_for_emergency(allocs, has_emergency)
 
+    # Filtros de calidad
+    allocs = _filter_by_liquidity(allocs, risk, horizon)
+    allocs = _apply_overlap_exclusion(allocs)
+    allocs = _trim_to_max(allocs, _MAX_POSITIONS.get(risk, 8))
+
     # Construir posiciones
     positions = []
     for asset_id, weight in allocs.items():
         if asset_id in ASSET_INDEX and weight > 0.005:
-            asset          = dict(ASSET_INDEX[asset_id])
+            asset           = dict(ASSET_INDEX[asset_id])
             asset["weight"] = round(weight, 4)
             positions.append(asset)
 
     positions.sort(key=lambda x: x["weight"], reverse=True)
+
+    # Detectar solapamientos para advertir al usuario
+    overlaps = _detect_overlaps(positions)
 
     # Métricas
     expected_cagr = sum(p["weight"] * p["expected_return"] for p in positions)
@@ -948,4 +1056,5 @@ def build_portfolio(profile: dict) -> dict:
         "usd_pct":             round(usd_pct, 1),
         "diversification":     diversification,
         "profile":             profile,
+        "overlaps":            overlaps,
     }
