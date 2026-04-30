@@ -1492,6 +1492,21 @@ def apply_custom_css():
         display: flex !important;
         justify-content: center !important;
         align-items: center !important;
+        position: relative !important;
+    }
+    [data-testid="stToggle"]::before {
+        content: "🌙";
+        position: absolute;
+        left: 0;
+        font-size: 0.85rem;
+        line-height: 1;
+    }
+    [data-testid="stToggle"]::after {
+        content: "☀️";
+        position: absolute;
+        right: 0;
+        font-size: 0.85rem;
+        line-height: 1;
     }
     /* Track: fondo oscuro cuando OFF (modo oscuro) */
     [data-testid="stToggle"] [data-baseweb="checkbox"] > div:first-child {
