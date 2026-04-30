@@ -322,6 +322,7 @@ def apply_custom_css():
         box-shadow: var(--shadow-card);
         transition: border-color 0.2s;
         height: 100%;
+        text-align: center;
     }
     
     @media (max-width: 1024px) {
@@ -407,6 +408,7 @@ def apply_custom_css():
         color: var(--green);
         margin: 0 0 0.75rem 0;
         line-height: 1.4;
+        text-align: center;
     }
     @media (max-width: 768px) {
         .chart-headline { font-size: 0.95rem; }
@@ -1233,6 +1235,10 @@ def apply_custom_css():
         border-radius: var(--radius-md);
         padding: 1rem;
         text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
     }
     
     @media (max-width: 640px) {
@@ -1435,6 +1441,30 @@ def apply_custom_css():
 
     /* ── Header nav button ───────────────────────────────────────── */
     .header-nav-spacer { padding-top: 1.1rem; }
+
+    /* ── Currency toggle ─────────────────────────────────────────── */
+    .currency-toggle-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+    }
+    .currency-toggle-label {
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--text-3);
+    }
+    .fx-rate-note {
+        text-align: center;
+        font-size: 0.72rem;
+        color: var(--text-3);
+        margin-top: 0.5rem;
+        font-style: italic;
+    }
 
     /* ── Glosario ─────────────────────────────────────────────────── */
     .glosario-header {

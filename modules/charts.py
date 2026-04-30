@@ -365,7 +365,7 @@ def render_bar_simulation(portfolio: dict, initial_capital: float,
 
 # ─── Tabla de activos con botón de eliminar ───────────────────────────────────
 
-def render_allocation_table(portfolio: dict, capital: float):
+def render_allocation_table(portfolio: dict, capital: float, currency_label: str = "USD"):
     positions  = portfolio["positions"]
     can_remove = len(positions) > 2
 
@@ -475,8 +475,9 @@ def render_allocation_table(portfolio: dict, capital: float):
             f'<div class="tbl-cell"><strong style="color:#eef2ff;">{pct:.1f}%</strong>{bar_html}</div>',
             unsafe_allow_html=True,
         )
+        _amt_prefix = "$" if currency_label == "ARS" else "USD "
         cols[3].markdown(
-            f'<div class="tbl-cell"><strong style="color:#eef2ff;">${amount:,.0f}</strong></div>',
+            f'<div class="tbl-cell"><strong style="color:#eef2ff;">{_amt_prefix}{amount:,.0f}</strong></div>',
             unsafe_allow_html=True,
         )
         cols[4].markdown(

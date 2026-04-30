@@ -157,6 +157,40 @@ elif step == "results":
     portfolio  = st.session_state.portfolio
     simulation = st.session_state.simulation
 
+    # ── Resolución de moneda de display ──────────────────────────────────────
+    _MEP_RATE      = 1200                                  # ARS/USD de referencia
+    _currency_in   = profile.get("currency", "USD")       # moneda con que el usuario ingresó
+    _capital_usd   = profile["capital"]                    # siempre en USD internamente
+    _capital_orig  = profile.get("capital_original", _capital_usd)
+    # Tasa efectiva usada al ingresar: capital_orig / capital_usd
+    _fx_rate       = _capital_orig / _capital_usd if _currency_in == "ARS" else 1.0
+
+    # Toggle (solo si el usuario ingresó en ARS)
+    if _currency_in == "ARS":
+        if "_display_currency" not in st.session_state:
+            st.session_state._display_currency = "ARS"
+        _tog_col, _ = st.columns([3, 5])
+        with _tog_col:
+            st.markdown('<div class="currency-toggle-wrap"><span class="currency-toggle-label">Ver cifras en:</span></div>', unsafe_allow_html=True)
+            _disp_sel = st.radio(
+                "Ver cifras en:", ["ARS (Pesos)", "USD (Dólares)"],
+                horizontal=True, key="currency_toggle", label_visibility="collapsed",
+            )
+        st.session_state._display_currency = "ARS" if "ARS" in _disp_sel else "USD"
+
+    _disp_curr = st.session_state.get("_display_currency", _currency_in)
+
+    if _disp_curr == "ARS" and _currency_in == "ARS":
+        _disp_factor  = _fx_rate
+        _disp_capital = _capital_orig
+        _disp_prefix  = "$"
+        _disp_suffix  = " ARS"
+    else:
+        _disp_factor  = 1.0
+        _disp_capital = _capital_usd
+        _disp_prefix  = "USD "
+        _disp_suffix  = ""
+
     st.markdown("""<a class="fab-btn" href="#chat-section"
 onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smooth'});return false;">
 💬 Consultar al Asesor
@@ -213,7 +247,7 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
 <div class="summary-item">
 <div class="si-label">Retorno estimado/año</div>
 <div class="si-value" style="color:#22c55e;">{portfolio['expected_cagr']*100:.1f}%</div>
-<div class="si-sub">Promedio ponderado de la cartera en USD</div>
+<div class="si-sub">Rendimiento histórico esperado (base USD)</div>
 </div>
 </div>
 <details class="summary-detail">
@@ -247,36 +281,47 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── Métricas de simulación ────────────────────────────────────────────────
-    sim_data    = simulation["scenarios"]["base"]
-    total_end   = sim_data[-1]
-    total_gain  = total_end - profile["capital"]
-    cagr        = portfolio["expected_cagr"]
-    vol         = portfolio["expected_volatility"]
+    sim_data       = simulation["scenarios"]["base"]
+    total_end_usd  = sim_data[-1]
+    total_gain_usd = total_end_usd - _capital_usd
+    cagr           = portfolio["expected_cagr"]
+    vol            = portfolio["expected_volatility"]
 
-    gain_color = "#22c55e" if total_gain >= 0 else "#ef4444"
-    sign = "+" if total_gain >= 0 else ""
+    total_end_disp  = total_end_usd  * _disp_factor
+    total_gain_disp = total_gain_usd * _disp_factor
+
+    gain_color = "#22c55e" if total_gain_disp >= 0 else "#ef4444"
+    sign       = "+" if total_gain_disp >= 0 else ""
+    cagr_sub   = "Rendimiento histórico esperado (base USD)"
+
     st.markdown(f"""<div class="metrics-grid">
 <div class="metric-card">
   <div class="metric-label">Retorno anual estimado</div>
   <div class="metric-value" style="color:#22c55e;">{cagr*100:.1f}%</div>
-  <div class="metric-sub">Rendimiento esperado en USD</div>
+  <div class="metric-sub">{cagr_sub}</div>
 </div>
 <div class="metric-card">
-  <div class="metric-label">¿Cuánto puede variar?</div>
+  <div class="metric-label">Volatilidad estimada</div>
   <div class="metric-value" style="color:#f59e0b;">{vol*100:.1f}%</div>
-  <div class="metric-sub">Fluctuación anual estimada</div>
+  <div class="metric-sub">Fluctuación anual de la cartera</div>
 </div>
 <div class="metric-card">
   <div class="metric-label">Capital proyectado en {profile['horizon']}a</div>
-  <div class="metric-value" style="color:#60a5fa;">USD {total_end:,.0f}</div>
+  <div class="metric-value" style="color:#60a5fa;">{_disp_prefix}{total_end_disp:,.0f}{_disp_suffix}</div>
   <div class="metric-sub">Escenario base</div>
 </div>
 <div class="metric-card">
   <div class="metric-label">Ganancia estimada</div>
-  <div class="metric-value" style="color:{gain_color};">{sign}USD {total_gain:,.0f}</div>
+  <div class="metric-value" style="color:{gain_color};">{sign}{_disp_prefix}{abs(total_gain_disp):,.0f}{_disp_suffix}</div>
   <div class="metric-sub">Sobre el capital inicial</div>
 </div>
 </div>""", unsafe_allow_html=True)
+
+    if _currency_in == "ARS":
+        st.markdown(
+            f'<p class="fx-rate-note">Tipo de cambio MEP de referencia: ${_fx_rate:,.0f} ARS/USD</p>',
+            unsafe_allow_html=True,
+        )
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -297,15 +342,17 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
         _headline = _scenario_headlines.get(profile["risk_profile"], "")
         st.markdown('<div class="section-title">📈 Proyección de Crecimiento</div>', unsafe_allow_html=True)
         st.markdown(f'<h3 class="chart-headline">{_headline}</h3>', unsafe_allow_html=True)
-        render_bar_simulation(portfolio, profile["capital"],
-                              currency=profile.get("currency", "USD"),
-                              capital_original=profile.get("capital_original", profile["capital"]))
+        # Pasar capital_original según la moneda seleccionada en el toggle
+        _bar_cap_orig = _disp_capital if _disp_curr != _currency_in else profile.get("capital_original", _capital_usd)
+        render_bar_simulation(portfolio, _capital_usd,
+                              currency=_disp_curr,
+                              capital_original=_bar_cap_orig)
 
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── Tabla de activos ──────────────────────────────────────────────────────
     st.markdown('<div class="section-title">📋 Instrumentos de la Cartera</div>', unsafe_allow_html=True)
-    render_allocation_table(portfolio, profile["capital"])
+    render_allocation_table(portfolio, _disp_capital, currency_label=_disp_curr)
 
     # ── Advertencias de solapamiento ──────────────────────────────────────────
     overlaps = portfolio.get("overlaps", [])
