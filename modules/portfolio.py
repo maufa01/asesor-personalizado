@@ -793,7 +793,7 @@ PORTFOLIO_TEMPLATES = {
         "expected_cagr": 0.073,
         "expected_volatility": 0.07,
         "description": "Prioriza la seguridad y la liquidez. Ideal para quien no quiere arriesgar su capital.",
-        "summary": "Tu cartera está pensada para mantener el valor de tu plata con el menor riesgo posible. Dólares legales, bonos de empresas sólidas y un poco de acciones globales para algo de crecimiento.",
+        "summary": "Su cartera está diseñada para preservar el valor del capital con el menor riesgo posible. Dólares legales, bonos de empresas sólidas y algo de acciones globales para crecimiento moderado.",
         "allocations": {
             "money_market": 0.20,   # liquidez ARS, retiro el mismo día
             "lecap":        0.15,   # pesos a tasa fija del Tesoro
@@ -807,7 +807,7 @@ PORTFOLIO_TEMPLATES = {
         "expected_cagr": 0.082,
         "expected_volatility": 0.09,
         "description": "Mejor que un plazo fijo, sin sustos. Para quien quiere protegerse de la inflación con algo de crecimiento.",
-        "summary": "Tu cartera está pensada para darte más que un plazo fijo sin que pierdas el sueño. Combinás dólares seguros, bonos de empresas sólidas y un poco de acciones globales.",
+        "summary": "Su cartera está diseñada para superar al plazo fijo sin exponerse a riesgos significativos. Combina dólares seguros, bonos de empresas sólidas y exposición moderada a acciones globales.",
         "allocations": {
             "mep":          0.25,   # dólares legales, base sólida
             "on_corp":      0.20,   # renta fija en USD de empresas privadas
@@ -821,7 +821,7 @@ PORTFOLIO_TEMPLATES = {
         "expected_cagr": 0.105,
         "expected_volatility": 0.14,
         "description": "Equilibrio entre crecimiento y protección. Mezcla inversiones seguras con algo de riesgo controlado.",
-        "summary": "Tu cartera combina estabilidad con crecimiento. Una base sólida en activos seguros y encima de eso exposición a acciones globales que pueden darte mejor rendimiento a mediano plazo.",
+        "summary": "Su cartera equilibra estabilidad y crecimiento. Una base sólida en activos seguros complementada con exposición a acciones globales que potencian el rendimiento a mediano plazo.",
         "allocations": {
             "spy":          0.22,   # columna vertebral: 500 mayores empresas de EE.UU.
             "money_market": 0.15,   # liquidez en pesos
@@ -836,7 +836,7 @@ PORTFOLIO_TEMPLATES = {
         "expected_cagr": 0.165,
         "expected_volatility": 0.28,
         "description": "Maximiza el crecimiento a largo plazo, aceptando que puede haber caídas fuertes en el camino.",
-        "summary": "Tu cartera apunta al máximo crecimiento. Estás dispuesto a ver caídas fuertes a corto plazo a cambio de mejores resultados a largo plazo. Tecnología global, energía argentina y algo de cripto.",
+        "summary": "Su cartera apunta al máximo crecimiento. Asume caídas de corto plazo a cambio de mejores resultados a largo plazo. Tecnología global, energía argentina y exposición a activos de alto potencial.",
         "allocations": {
             "qqq":     0.22,   # tech growth: Nasdaq 100
             "spy":     0.12,   # base global amplia

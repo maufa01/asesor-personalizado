@@ -1035,13 +1035,23 @@ def apply_custom_css():
         display: flex;
         justify-content: center;
         width: 100%;
-        margin-top: 0.5rem;
+        margin-top: 0.75rem;
     }
     .reveal-explanation, .summary-explain {
         max-width: 560px;
         width: 100%;
         text-align: left;
         margin: 0;
+        padding: 0.8rem 1rem 0.8rem 1.1rem;
+        border-left: 3px solid rgba(255,255,255,0.12);
+        background: rgba(255,255,255,0.025);
+        border-radius: 0 8px 8px 0;
+        line-height: 1.75;
+    }
+    @media (max-width: 640px) {
+        .reveal-explanation, .summary-explain {
+            padding: 0.65rem 0.8rem 0.65rem 0.9rem;
+        }
     }
 
     /* ── Profile Reveal ───────────────────────────────────────── */

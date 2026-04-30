@@ -238,7 +238,7 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
 <div class="summary-grid summary-main-grid">
 <div class="summary-item">
 <div class="si-label">Capital a invertir</div>
-<div class="si-value">{profile.get('capital_display', f"USD {profile['capital']:,.0f}")}</div>
+<div class="si-value">{_disp_prefix}{_disp_capital:,.0f}{_disp_suffix}</div>
 </div>
 <div class="summary-item">
 <div class="si-label">Horizonte</div>
