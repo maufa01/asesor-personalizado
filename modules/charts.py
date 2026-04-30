@@ -501,11 +501,12 @@ def render_allocation_table(portfolio: dict, capital: float, currency_label: str
             st.markdown('</div>', unsafe_allow_html=True)
 
     # Fila de total
+    _tot_prefix = "$" if currency_label == "ARS" else "USD "
     st.markdown('<div class="tbl-divider" style="margin-top:4px;"></div>', unsafe_allow_html=True)
     t_cols = st.columns([2.8, 1.2, 1.5, 1.4, 3.0, 1.0, 0.55])
     t_cols[0].markdown('<div class="tbl-cell"><strong style="color:#eef2ff;">TOTAL</strong></div>', unsafe_allow_html=True)
     t_cols[2].markdown('<div class="tbl-cell"><strong style="color:#eef2ff;">100%</strong></div>', unsafe_allow_html=True)
-    t_cols[3].markdown(f'<div class="tbl-cell"><strong style="color:#eef2ff;">${capital:,.0f}</strong></div>', unsafe_allow_html=True)
+    t_cols[3].markdown(f'<div class="tbl-cell"><strong style="color:#eef2ff;">{_tot_prefix}{capital:,.0f}</strong></div>', unsafe_allow_html=True)
     t_cols[4].markdown(f'<div class="tbl-cell" style="font-size:0.82rem;color:#64748b;">Retorno prom. anual: <strong style="color:#10d98a;">{portfolio["expected_cagr"]*100:.1f}%</strong></div>', unsafe_allow_html=True)
 
     # Exposición por categoría y moneda
