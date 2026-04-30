@@ -31,7 +31,7 @@ class QuotaExhaustedError(Exception):
 
 
 def _generate_with_retry(contents, config: types.GenerateContentConfig, retries: int = 2) -> str:
-    """Intenta generar contenido con fallback de modelo y reintentos ante 503."""
+    """Intenta generar contenido con fallback de modelo y reintentos ante 429/503."""
     client = _get_client()
     last_err = None
     for model in _MODELS:
@@ -46,13 +46,17 @@ def _generate_with_retry(contents, config: types.GenerateContentConfig, retries:
             except Exception as e:
                 last_err = e
                 msg = str(e)
-                if "429" in msg or "RESOURCE_EXHAUSTED" in msg:
-                    raise QuotaExhaustedError(msg)
+                is_429 = "429" in msg or "RESOURCE_EXHAUSTED" in msg
                 is_503 = "503" in msg or "UNAVAILABLE" in msg
+                if is_429:
+                    if attempt < retries:
+                        time.sleep(3 * (attempt + 1))  # 3s, 6s — puede ser límite por minuto
+                        continue
+                    raise QuotaExhaustedError(msg)
                 if is_503 and attempt < retries:
                     time.sleep(2 ** attempt)  # 1s, 2s
                     continue
-                break  # error no recuperable o agotados los reintentos → probar modelo siguiente
+                break  # error no recuperable → probar modelo siguiente
     raise last_err
 
 

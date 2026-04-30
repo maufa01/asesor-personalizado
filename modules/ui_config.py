@@ -1059,6 +1059,7 @@ def apply_custom_css():
         font-weight: 600;
         color: var(--text-1);
         margin-bottom: 0.8rem;
+        text-align: center;
     }
     @media (max-width: 480px) { .reveal-tagline { font-size: 0.95rem; } }
     .reveal-explanation {
@@ -1067,6 +1068,7 @@ def apply_custom_css():
         line-height: 1.75;
         max-width: 600px;
         margin: 0 auto;
+        text-align: center;
     }
     @media (max-width: 480px) { .reveal-explanation { font-size: 0.82rem; line-height: 1.6; } }
     .reveal-columns {
