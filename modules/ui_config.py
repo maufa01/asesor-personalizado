@@ -1486,6 +1486,38 @@ def apply_custom_css():
         font-style: italic;
     }
 
+    /* ── Theme Toggle ────────────────────────────────────────────── */
+    .theme-toggle-row { margin-top: 0.4rem; }
+    [data-testid="stToggle"] {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+    }
+    /* Track: fondo oscuro cuando OFF (modo oscuro) */
+    [data-testid="stToggle"] [data-baseweb="checkbox"] > div:first-child {
+        width: 48px !important;
+        height: 26px !important;
+        border-radius: 99px !important;
+        background-color: #1a2235 !important;
+        border: 1.5px solid rgba(99,120,180,0.35) !important;
+        transition: background-color 0.25s ease !important;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.4) !important;
+    }
+    /* Track: azul cuando ON (modo claro) */
+    [data-testid="stToggle"] [data-baseweb="checkbox"]:has(input:checked) > div:first-child {
+        background-color: #4fa3ff !important;
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 10px rgba(79,163,255,0.35) !important;
+    }
+    /* Thumb (bolita blanca) */
+    [data-testid="stToggle"] [data-baseweb="checkbox"] > div:first-child > div {
+        width: 20px !important;
+        height: 20px !important;
+        border-radius: 50% !important;
+        background-color: #eef2ff !important;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.45) !important;
+    }
+
     /* ── Glosario ─────────────────────────────────────────────────── */
     .glosario-header {
         text-align: center;
@@ -1767,6 +1799,15 @@ div[data-testid="stRadio"] div[role="radiogroup"] label p { color: #334155 !impo
 /* Scrollbar */
 ::-webkit-scrollbar       { background: #f1f5f9; }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; }
+
+/* Toggle en modo claro */
+[data-testid="stToggle"] [data-baseweb="checkbox"] > div:first-child {
+    background-color: #cbd5e1 !important;
+    border-color: #94a3b8 !important;
+}
+[data-testid="stToggle"] input:checked ~ div > div:first-child {
+    background-color: #2563eb !important;
+}
 </style>"""
 
 
@@ -1786,9 +1827,16 @@ def render_header():
             st.session_state._prev_step = st.session_state.get("step", "intro")
             st.session_state.step = "glosario"
             st.rerun()
-        icon = "☀️" if theme == "dark" else "🌙"
-        if st.button(icon, key="theme_toggle", use_container_width=True, help="Cambiar tema claro/oscuro"):
-            st.session_state.theme = "light" if theme == "dark" else "dark"
+        st.markdown('<div class="theme-toggle-row"></div>', unsafe_allow_html=True)
+        is_light = st.toggle(
+            label="Tema",
+            value=(theme == "light"),
+            key="theme_toggle_sw",
+            label_visibility="collapsed",
+            help="Cambiar entre modo oscuro y claro",
+        )
+        if is_light != (theme == "light"):
+            st.session_state.theme = "light" if is_light else "dark"
             st.rerun()
 
 
