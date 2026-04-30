@@ -13,7 +13,7 @@ from google.genai import types
 from typing import Dict, Any
 import streamlit as st
 
-_MODELS = ["gemini-2.5-flash", "gemini-2.0-flash"]
+_MODELS = ["gemini-2.0-flash", "gemini-1.5-flash"]
 
 
 def _get_client() -> genai.Client:
@@ -173,7 +173,7 @@ def _build_justification_html(data: dict, portfolio: dict) -> str:
 
     return f"""{intro}
 <div class="ai-section">
-  <h3 class="ai-section-title">💼 Qué tiene tu cartera y para qué sirve cada activo</h3>
+  <h3 class="ai-section-title">💼 Qué tiene su cartera y para qué sirve cada activo</h3>
   {cards}
 </div>
 <div class="ai-section">
@@ -212,7 +212,7 @@ def _build_tips_html(data: dict) -> str:
         items += f'<li><span class="tip-icon">{icon}</span><span>{text}</span></li>'
 
     return f"""<div class="ai-section">
-  <h3 class="ai-section-title">💡 Consejos para vos</h3>
+  <h3 class="ai-section-title">💡 Consejos para usted</h3>
   <ul class="ai-tip-list">{items}</ul>
 </div>"""
 
@@ -257,15 +257,15 @@ Recordá:
             "tips":          _build_tips_html(data),
         }
 
-    except json.JSONDecodeError as e:
+    except json.JSONDecodeError:
         return {
-            "justification": "<p>Hubo un problema al procesar la respuesta de la IA. Intentá de nuevo en unos segundos.</p>",
-            "alerts": [{"title": "Error temporal", "message": "No se pudo leer la respuesta. Intentá de nuevo.", "severity": "medium"}],
+            "justification": "<p>Hubo un problema al procesar la respuesta de la IA. Por favor, intente de nuevo en unos segundos.</p>",
+            "alerts": [{"title": "Error temporal", "message": "No se pudo leer la respuesta. Por favor, intente de nuevo.", "severity": "medium"}],
             "rebalancing": "<p>No disponible.</p>",
             "tips": "<p>No disponible.</p>",
         }
     except QuotaExhaustedError:
-        msg_quota = "Alcanzaste el límite gratuito de la IA por hoy. Podés habilitar facturación en Google Cloud Console o volver a intentarlo mañana."
+        msg_quota = "Se alcanzó el límite gratuito de la IA por hoy. Puede habilitar facturación en Google Cloud Console o volver a intentarlo mañana."
         return {
             "justification": f"<p>⚠️ {_e(msg_quota)}</p>",
             "alerts": [{"title": "Cuota de IA agotada", "message": msg_quota, "severity": "medium"}],
@@ -273,11 +273,12 @@ Recordá:
             "tips": "<p>No disponible hasta que se restablezca la cuota.</p>",
         }
     except Exception as e:
+        err_type = type(e).__name__
         return {
-            "justification": "<p>No se pudo conectar con la IA. Verificá tu conexión e intentá de nuevo.</p>",
-            "alerts": [{"title": "Error de conexión", "message": "No se pudo conectar con la IA. Intentá de nuevo.", "severity": "high"}],
+            "justification": f"<p>No se pudo conectar con la IA ({_e(err_type)}). Verifique su conexión e intente de nuevo.</p>",
+            "alerts": [{"title": "Error de conexión", "message": f"No se pudo conectar con la IA. Error: {err_type}.", "severity": "high"}],
             "rebalancing": "<p>No disponible por error de conexión.</p>",
-            "tips": "<p>Verificá tu conectividad e intentá de nuevo.</p>",
+            "tips": "<p>Verifique su conectividad e intente de nuevo.</p>",
         }
 
 
@@ -322,9 +323,9 @@ REGLAS:
             ),
         )
     except QuotaExhaustedError:
-        return "Llegaste al límite gratuito de la IA por hoy. Podés volver a intentarlo mañana o habilitar facturación en Google Cloud Console."
+        return "Se alcanzó el límite gratuito de la IA por hoy. Puede volver a intentarlo mañana o habilitar facturación en Google Cloud Console."
     except Exception as e:
-        return "No pude conectarme con la IA. Verificá tu conexión e intentá de nuevo."
+        return f"No se pudo conectar con la IA ({type(e).__name__}). Verifique su conexión e intente de nuevo."
 
 
 def get_rebalancing_advice(portfolio: dict, profile: dict) -> str:
