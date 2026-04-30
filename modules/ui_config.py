@@ -1627,7 +1627,7 @@ def apply_custom_css():
 
 
 _LIGHT_THEME_CSS = """<style>
-/* ── Tema claro: override de variables CSS ──────────────────────────── */
+/* ── Tema claro: variables ───────────────────────────────────────────── */
 :root {
     --bg-0:        #f8fafc;
     --bg-1:        #f1f5f9;
@@ -1649,16 +1649,53 @@ _LIGHT_THEME_CSS = """<style>
     --accent:      #2563eb;
     --shadow-card: 0 2px 12px rgba(0,0,0,0.07);
 }
-html, body, [class*="css"] {
-    background-color: #f8fafc !important;
-    color: #0f172a !important;
-}
+
+/* ── Fondos ──────────────────────────────────────────────────────────── */
+html, body, [class*="css"],
 [data-testid="stAppViewContainer"],
 [data-testid="stApp"],
 [data-testid="stMain"],
 .main { background-color: #f8fafc !important; }
 
-/* Gradientes hardcodeados que no usan variables */
+/* ── Texto global: Streamlit sobreescribe h1-h6 con sus propios estilos ─ */
+h1, h2, h3, h4, h5, h6,
+h1 *, h2 *, h3 *, h4 *, h5 *, h6 * { color: #0f172a !important; }
+p, li, span:not(.app-logo span) { color: #334155 !important; }
+a { color: #2563eb !important; }
+
+/* ── Clases custom de la app ─────────────────────────────────────────── */
+.hero-title, .q-title, .summary-title, .results-title,
+.reveal-tagline, .reveal-badge, .section-title,
+.glosario-title, .glosario-cat-title,
+.action-step-title, .ai-empty-title,
+.ai-section-title, .rebalance-block strong,
+.app-logo      { color: #0f172a !important; }
+
+.hero-subtitle, .hero-human-copy,
+.reveal-explanation, .reveal-item,
+.summary-explain, .summary-desc,
+.results-sub,
+.ai-response, .ai-response *,
+.ai-bullet, .ai-tip-list li,
+.action-step-copy, .action-step-help div,
+.chat-text,
+.glosario-sub, .glosario-def-text, .glosario-example-text,
+.glosario-cta-sub,
+.asset-row, .asset-sub, .asc-desc,
+.tbl-text       { color: #334155 !important; }
+
+.progress-label, .metric-label, .metric-sub,
+.si-label, .si-sub,
+.reveal-section-title, .chart-headline,
+.tbl-header, .glosario-cat-count,
+.chat-label, .app-badge,
+.profiler-card p.hint, p.hint,
+.disclaimer, .app-footer,
+.glosario-def-label, .glosario-example-label,
+.chart-currency-note, .fx-rate-note,
+.asc-pct-sub    { color: #64748b !important; }
+
+/* ── Gradientes hardcodeados → versión clara ─────────────────────────── */
 .hero-card {
     background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%) !important;
     box-shadow: 0 4px 24px rgba(0,0,0,0.06) !important;
@@ -1666,24 +1703,42 @@ html, body, [class*="css"] {
 .hero-card::before {
     background: radial-gradient(circle, rgba(37,99,235,0.05) 0%, transparent 70%) !important;
 }
-.reveal-card  { background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%) !important; }
-.summary-panel{ background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%) !important; }
+.reveal-card   { background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%) !important; }
+.summary-panel { background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%) !important; }
 .ai-empty-state{ background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%) !important; }
-.action-guide { background: #ffffff !important; }
+.action-guide  { background: #ffffff !important; }
+.profiler-card { background: #ffffff !important; }
+.ai-response   { background: #ffffff !important; border-left-color: #2563eb !important; }
+.alert-card    { background: #ffffff !important; }
+.metric-card   { background: #ffffff !important; }
+.summary-item  { background: #f1f5f9 !important; }
+.reveal-section{ background: rgba(0,0,0,0.02) !important; border-color: rgba(100,116,139,0.2) !important; }
+.reveal-item   { border-bottom-color: rgba(100,116,139,0.12) !important; }
 
 .glosario-cta {
     background: linear-gradient(135deg, rgba(37,99,235,0.06) 0%, rgba(5,150,105,0.04) 100%) !important;
     border-color: rgba(37,99,235,0.18) !important;
 }
-.profiler-card { background: #ffffff !important; }
-.ai-response   { background: #ffffff !important; }
-.alert-card    { background: #ffffff !important; }
-.metric-card   { background: #ffffff !important; }
-.summary-item  { background: var(--bg-1) !important; }
+.glosario-definition { background: #f1f5f9 !important; border-color: rgba(100,116,139,0.2) !important; }
+.glosario-example    { background: rgba(37,99,235,0.04) !important; border-color: rgba(37,99,235,0.15) !important; }
+
+/* App header / badge */
+.app-header { border-bottom-color: rgba(100,116,139,0.2) !important; }
+.app-badge  { background: #f1f5f9 !important; border-color: rgba(100,116,139,0.2) !important; }
+.app-footer { border-top-color: rgba(100,116,139,0.2) !important; }
+
+/* Progress bar track */
+.progress-track { background: #e2e8f0 !important; }
+
+/* Inputs nativos */
+.stSelectbox > div > div { color: #0f172a !important; }
+div[data-testid="stRadio"] div[role="radiogroup"] label,
+div[data-testid="stRadio"] div[role="radiogroup"] label p { color: #334155 !important; }
+.stRadio [data-baseweb="radio"] { background: #f1f5f9 !important; border-color: rgba(100,116,139,0.25) !important; }
 
 /* Chat */
-.chat-user   { background: rgba(37,99,235,0.08) !important; border-color: rgba(37,99,235,0.2) !important; }
-.chat-advisor{ background: rgba(0,0,0,0.03) !important; }
+.chat-user   { background: rgba(37,99,235,0.07) !important; border-color: rgba(37,99,235,0.18) !important; }
+.chat-advisor{ background: rgba(0,0,0,0.03) !important; border-color: rgba(100,116,139,0.18) !important; }
 
 /* Botones */
 .stButton > button {
@@ -1702,11 +1757,16 @@ html, body, [class*="css"] {
 
 /* Tabs */
 .stTabs [data-baseweb="tab-list"] { background: #f1f5f9 !important; border-color: rgba(100,116,139,0.2) !important; }
-.stTabs [aria-selected="true"]    { background: #ffffff !important; }
+.stTabs [data-baseweb="tab"]      { color: #64748b !important; }
+.stTabs [aria-selected="true"]    { background: #ffffff !important; color: #0f172a !important; }
+
+/* Captions y textos pequeños de Streamlit */
+.stCaption, [data-testid="stCaptionContainer"] p { color: #64748b !important; }
+[data-testid="stMarkdownContainer"] p { color: #334155 !important; }
 
 /* Scrollbar */
-::-webkit-scrollbar            { background: #f1f5f9; }
-::-webkit-scrollbar-thumb      { background: #cbd5e1; }
+::-webkit-scrollbar       { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; }
 </style>"""
 
 

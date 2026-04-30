@@ -16,6 +16,20 @@ PLOTLY_LAYOUT = dict(
 )
 
 
+def _t1() -> str:
+    """Color de texto primario según el tema activo."""
+    return "#1e293b" if st.session_state.get("theme") == "light" else "#eef2ff"
+
+
+def _t2() -> str:
+    """Color de texto secundario según el tema activo."""
+    return "#475569" if st.session_state.get("theme") == "light" else "#94a3b8"
+
+
+def _pie_border() -> str:
+    return "#f1f5f9" if st.session_state.get("theme") == "light" else "#050810"
+
+
 # ─── Helpers ──────────────────────────────────────────────────────────────────
 
 def _remove_asset(portfolio: dict, asset_id: str) -> dict:
@@ -70,10 +84,10 @@ def render_pie_chart(portfolio: dict):
         labels=labels,
         values=values,
         hole=0.52,
-        marker=dict(colors=colors, line=dict(color="#050810", width=2)),
+        marker=dict(colors=colors, line=dict(color=_pie_border(), width=2)),
         hovertemplate="%{customdata}<extra></extra>",
         customdata=hovers,
-        textfont=dict(size=11, color="#eef2ff"),
+        textfont=dict(size=11, color=_t1()),
         textinfo="percent",
         showlegend=True,
     )])
@@ -86,13 +100,13 @@ def render_pie_chart(portfolio: dict):
             y=0.5,
             xanchor="left",
             x=1.02,
-            font=dict(size=10, color="#94a3b8"),
+            font=dict(size=10, color=_t2()),
             bgcolor="rgba(0,0,0,0)",
         ),
         annotations=[dict(
             text=f"<b>{portfolio['risk_profile'].upper()}</b>",
             x=0.5, y=0.5,
-            font=dict(size=13, color="#eef2ff", family="Syne, sans-serif"),
+            font=dict(size=13, color=_t1(), family="Syne, sans-serif"),
             showarrow=False,
         )],
         height=380,
@@ -310,7 +324,7 @@ def render_bar_simulation(portfolio: dict, initial_capital: float,
         ),
         xaxis=dict(
             showgrid=False,
-            tickfont=dict(size=13, family="Space Grotesk, sans-serif", color="#eef2ff"),
+            tickfont=dict(size=13, family="Space Grotesk, sans-serif", color=_t1()),
         ),
         legend=dict(
             orientation="h",
