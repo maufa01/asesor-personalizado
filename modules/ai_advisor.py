@@ -29,6 +29,9 @@ def _get_client() -> genai.Client:
 class QuotaExhaustedError(Exception):
     pass
 
+class ApiKeyError(Exception):
+    pass
+
 
 def _generate_with_retry(contents, config: types.GenerateContentConfig, retries: int = 2) -> str:
     """Intenta generar contenido con fallback de modelo y reintentos ante 429/503."""
@@ -48,6 +51,9 @@ def _generate_with_retry(contents, config: types.GenerateContentConfig, retries:
                 msg = str(e)
                 is_429 = "429" in msg or "RESOURCE_EXHAUSTED" in msg
                 is_503 = "503" in msg or "UNAVAILABLE" in msg
+                is_403 = "403" in msg or "PERMISSION_DENIED" in msg or "API_KEY" in msg.upper() or "api key" in msg.lower()
+                if is_403:
+                    raise ApiKeyError(msg)
                 if is_429:
                     if attempt < retries:
                         time.sleep(10 * (attempt + 1))  # 10s, 20s — espera límite por minuto (15 req/min)
@@ -268,6 +274,14 @@ Recordá:
             "rebalancing": "<p>No disponible.</p>",
             "tips": "<p>No disponible.</p>",
         }
+    except ApiKeyError:
+        msg_key = "La clave de API de Gemini no es válida o no tiene permisos. Debe actualizarse en Streamlit Cloud → Settings → Secrets."
+        return {
+            "justification": f"<p>🔑 {_e(msg_key)}</p>",
+            "alerts": [{"title": "API key inválida", "message": msg_key, "severity": "high"}],
+            "rebalancing": "<p>No disponible.</p>",
+            "tips": "<p>No disponible.</p>",
+        }
     except QuotaExhaustedError:
         msg_quota = "La IA está saturada en este momento (límite de solicitudes por minuto). Espere 1 minuto e intente de nuevo."
         return {
@@ -326,6 +340,8 @@ REGLAS:
                 max_output_tokens=1024,
             ),
         )
+    except ApiKeyError:
+        return "La clave de API no es válida o no tiene permisos. Actualícela en Streamlit Cloud → Settings → Secrets."
     except QuotaExhaustedError:
         return "La IA está saturada en este momento (límite de solicitudes por minuto). Espere 1 minuto e intente de nuevo."
     except Exception as e:
