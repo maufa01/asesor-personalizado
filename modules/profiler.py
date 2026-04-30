@@ -4,6 +4,26 @@ Lenguaje cotidiano, situaciones concretas, sin tecnicismos.
 """
 
 import streamlit as st
+import urllib.request
+import json as _json
+
+
+@st.cache_data(ttl=300)
+def _get_mep_rate() -> tuple[float, bool]:
+    """Obtiene el dólar MEP en tiempo real desde dolarapi.com. TTL 5 min."""
+    try:
+        req = urllib.request.Request(
+            "https://dolarapi.com/v1/dolares/bolsa",
+            headers={"User-Agent": "Mozilla/5.0"},
+        )
+        with urllib.request.urlopen(req, timeout=4) as resp:
+            data = _json.loads(resp.read())
+            rate = float(data.get("venta") or data.get("compra") or 0)
+            if rate > 0:
+                return rate, True
+    except Exception:
+        pass
+    return 1100.0, False
 
 
 QUESTIONS = [
@@ -292,6 +312,9 @@ def render_profiler() -> dict | None:
 <p class="hint">No existe un mínimo perfecto. Con cualquier monto puede invertir de forma inteligente.</p>
 </div>""", unsafe_allow_html=True)
 
+        _mep_rate, _mep_live = _get_mep_rate()
+        _mep_tag = f"${_mep_rate:,.0f}/USD · tiempo real" if _mep_live else f"~${_mep_rate:,.0f}/USD · estimado"
+
         col_q, _ = st.columns([2, 1])
         with col_q:
             currency_choice = st.radio(
@@ -312,8 +335,8 @@ def render_profiler() -> dict | None:
                     key="capital_ars",
                     label_visibility="collapsed",
                 )
-                st.caption(f"💵 Aproximadamente USD {amount_ars / 1100:,.0f} al tipo de cambio MEP (~$1.100/USD)")
-                capital_usd      = amount_ars / 1100
+                st.caption(f"💵 Aproximadamente USD {amount_ars / _mep_rate:,.0f} al tipo de cambio MEP ({_mep_tag})")
+                capital_usd      = amount_ars / _mep_rate
                 capital_display  = f"${amount_ars:,.0f} ARS"
                 currency         = "ARS"
                 capital_original = float(amount_ars)
@@ -371,7 +394,7 @@ def render_profiler() -> dict | None:
   {p['emoji']} {p['label']}
 </div>
 <p class="reveal-tagline">{p['tagline']}</p>
-<p class="reveal-explanation">{p['explanation']}</p>
+<div class="explain-outer"><p class="reveal-explanation">{p['explanation']}</p></div>
 </div>""", unsafe_allow_html=True)
 
         what_means_html  = "".join(f'<div class="reveal-item">{item}</div>' for item in p['what_means'])

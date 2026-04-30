@@ -1030,6 +1030,20 @@ def apply_custom_css():
         transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
+    /* ── Explanation flex wrapper (centrado confiable) ───────── */
+    .explain-outer {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+    .reveal-explanation, .summary-explain {
+        max-width: 560px;
+        width: 100%;
+        text-align: left;
+        margin: 0;
+    }
+
     /* ── Profile Reveal ───────────────────────────────────────── */
     .reveal-card {
         background: linear-gradient(135deg, var(--bg-card) 0%, #0a1628 100%);
@@ -1066,9 +1080,6 @@ def apply_custom_css():
         font-size: 0.93rem;
         color: var(--text-2);
         line-height: 1.75;
-        max-width: 580px;
-        margin: 0 auto;
-        text-align: left;
     }
     @media (max-width: 480px) { .reveal-explanation { font-size: 0.82rem; line-height: 1.6; } }
     .reveal-columns {
@@ -1139,10 +1150,7 @@ def apply_custom_css():
     .summary-explain {
         color: var(--text-2);
         font-size: 1.05rem;
-        max-width: 580px;
-        margin: 0 auto;
         line-height: 1.7;
-        text-align: left;
     }
     
     @media (max-width: 768px) {

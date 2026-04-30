@@ -233,7 +233,7 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
 {re} {rl}
 </div>
 <h2 class="summary-title">Cartera Sugerida</h2>
-<p class="summary-explain">{rex}</p>
+<div class="explain-outer"><p class="summary-explain">{rex}</p></div>
 </div>
 <div class="summary-grid summary-main-grid">
 <div class="summary-item">
