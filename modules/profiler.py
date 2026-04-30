@@ -281,10 +281,16 @@ def render_profiler() -> dict | None:
         col_q, _ = st.columns([2, 1])
         with col_q:
             option_labels = [o[0] for o in q["options"]]
+            default_index = 0
+            if q["id"] == "experience" and st.session_state.get("pre_experience"):
+                pre_exp = st.session_state.get("pre_experience")
+                if pre_exp in option_labels:
+                    default_index = option_labels.index(pre_exp)
             selected = st.radio(
                 label="Opción",
                 options=option_labels,
                 key=f"radio_{q['id']}",
+                index=default_index,
                 label_visibility="collapsed",
             )
 

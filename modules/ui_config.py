@@ -1622,8 +1622,96 @@ def apply_custom_css():
     </style>
     """, unsafe_allow_html=True)
 
+    if st.session_state.get("theme") == "light":
+        st.markdown(_LIGHT_THEME_CSS, unsafe_allow_html=True)
+
+
+_LIGHT_THEME_CSS = """<style>
+/* ── Tema claro: override de variables CSS ──────────────────────────── */
+:root {
+    --bg-0:        #f8fafc;
+    --bg-1:        #f1f5f9;
+    --bg-2:        #e2e8f0;
+    --bg-3:        #cbd5e1;
+    --bg-card:     #ffffff;
+    --border:      rgba(100,116,139,0.2);
+    --border-glow: rgba(37,99,235,0.4);
+    --gold:        #d97706;
+    --gold-dim:    #b45309;
+    --green:       #059669;
+    --green-dim:   #047857;
+    --red:         #dc2626;
+    --blue:        #2563eb;
+    --blue-dim:    #1d4ed8;
+    --text-1:      #0f172a;
+    --text-2:      #334155;
+    --text-3:      #64748b;
+    --accent:      #2563eb;
+    --shadow-card: 0 2px 12px rgba(0,0,0,0.07);
+}
+html, body, [class*="css"] {
+    background-color: #f8fafc !important;
+    color: #0f172a !important;
+}
+[data-testid="stAppViewContainer"],
+[data-testid="stApp"],
+[data-testid="stMain"],
+.main { background-color: #f8fafc !important; }
+
+/* Gradientes hardcodeados que no usan variables */
+.hero-card {
+    background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%) !important;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06) !important;
+}
+.hero-card::before {
+    background: radial-gradient(circle, rgba(37,99,235,0.05) 0%, transparent 70%) !important;
+}
+.reveal-card  { background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%) !important; }
+.summary-panel{ background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%) !important; }
+.ai-empty-state{ background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%) !important; }
+.action-guide { background: #ffffff !important; }
+
+.glosario-cta {
+    background: linear-gradient(135deg, rgba(37,99,235,0.06) 0%, rgba(5,150,105,0.04) 100%) !important;
+    border-color: rgba(37,99,235,0.18) !important;
+}
+.profiler-card { background: #ffffff !important; }
+.ai-response   { background: #ffffff !important; }
+.alert-card    { background: #ffffff !important; }
+.metric-card   { background: #ffffff !important; }
+.summary-item  { background: var(--bg-1) !important; }
+
+/* Chat */
+.chat-user   { background: rgba(37,99,235,0.08) !important; border-color: rgba(37,99,235,0.2) !important; }
+.chat-advisor{ background: rgba(0,0,0,0.03) !important; }
+
+/* Botones */
+.stButton > button {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%) !important;
+    color: #1d4ed8 !important;
+    border-color: rgba(37,99,235,0.35) !important;
+    box-shadow: 0 2px 8px rgba(37,99,235,0.12) !important;
+}
+.stButton > button:hover {
+    border-color: #2563eb !important;
+    box-shadow: 0 4px 16px rgba(37,99,235,0.25) !important;
+}
+
+/* FAB */
+.fab-btn { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important; }
+
+/* Tabs */
+.stTabs [data-baseweb="tab-list"] { background: #f1f5f9 !important; border-color: rgba(100,116,139,0.2) !important; }
+.stTabs [aria-selected="true"]    { background: #ffffff !important; }
+
+/* Scrollbar */
+::-webkit-scrollbar            { background: #f1f5f9; }
+::-webkit-scrollbar-thumb      { background: #cbd5e1; }
+</style>"""
+
 
 def render_header():
+    theme = st.session_state.get("theme", "dark")
     col_logo, col_nav = st.columns([5, 1])
     with col_logo:
         st.markdown("""
@@ -1637,6 +1725,10 @@ def render_header():
         if st.button("📚 Glosario", key="header_glosario", use_container_width=True):
             st.session_state._prev_step = st.session_state.get("step", "intro")
             st.session_state.step = "glosario"
+            st.rerun()
+        icon = "☀️" if theme == "dark" else "🌙"
+        if st.button(icon, key="theme_toggle", use_container_width=True, help="Cambiar tema claro/oscuro"):
+            st.session_state.theme = "light" if theme == "dark" else "dark"
             st.rerun()
 
 

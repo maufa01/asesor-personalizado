@@ -11,6 +11,7 @@ from modules.charts import render_pie_chart, render_evolution_chart, render_bar_
 from modules.simulator import simulate_portfolio
 from modules.ai_advisor import get_ai_analysis, get_rebalancing_advice, chat_with_advisor
 from modules.glossary import render_glossary
+from modules.costo_no_invertir import render_cost_of_not_investing, render_cost_results
 
 _CELEBRATION_HTML = """<!DOCTYPE html><html><head><meta charset="utf-8">
 <style>
@@ -65,9 +66,6 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-apply_custom_css()
-
-
 def init_state():
     defaults = {
         "step":        "intro",
@@ -77,6 +75,7 @@ def init_state():
         "ai_analysis": None,
         "chat_history": [],
         "answers":     {},
+        "theme":       "dark",
     }
     for k, v in defaults.items():
         if k not in st.session_state:
@@ -84,6 +83,7 @@ def init_state():
 
 
 init_state()
+apply_custom_css()
 render_header()
 
 step = st.session_state.step
@@ -118,6 +118,11 @@ independientemente de su experiencia previa en el mercado de capitales.
 </div>""", unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
+    if st.button("¿Cuánto perdí por no invertir?", key="cost_btn", use_container_width=True):
+        st.session_state.step = "costo_no_invertir"
+        st.rerun()
+
+    st.markdown("<br>", unsafe_allow_html=True)
     if st.button("Iniciar Evaluación", key="start_btn", use_container_width=True):
         st.session_state.step = "profiling"
         st.rerun()
@@ -126,6 +131,15 @@ independientemente de su experiencia previa en el mercado de capitales.
 ⚠️ Esta herramienta es de carácter educativo y no constituye asesoramiento financiero regulado por la CNV.
 Consulte siempre con un asesor habilitado antes de tomar decisiones de inversión.
 </p>""", unsafe_allow_html=True)
+
+# ══════════════════════════════════════════════════════════════════════════════
+# COSTO DE NO INVERTIR
+# ══════════════════════════════════════════════════════════════════════════════
+elif step == "costo_no_invertir":
+    render_cost_of_not_investing()
+
+elif step == "cost_results":
+    render_cost_results()
 
 # ══════════════════════════════════════════════════════════════════════════════
 # CUESTIONARIO
