@@ -1490,23 +1490,22 @@ def apply_custom_css():
     .theme-toggle-row { margin-top: 0.4rem; }
     [data-testid="stToggle"] {
         display: flex !important;
+        flex-direction: row !important;
         justify-content: center !important;
         align-items: center !important;
-        position: relative !important;
+        gap: 6px !important;
     }
     [data-testid="stToggle"]::before {
         content: "🌙";
-        position: absolute;
-        left: 0;
         font-size: 0.85rem;
         line-height: 1;
+        flex-shrink: 0;
     }
     [data-testid="stToggle"]::after {
         content: "☀️";
-        position: absolute;
-        right: 0;
         font-size: 0.85rem;
         line-height: 1;
+        flex-shrink: 0;
     }
     /* Track: fondo oscuro cuando OFF (modo oscuro) */
     [data-testid="stToggle"] [data-baseweb="checkbox"] > div:first-child {
