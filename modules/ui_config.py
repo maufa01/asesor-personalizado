@@ -1066,9 +1066,9 @@ def apply_custom_css():
         font-size: 0.93rem;
         color: var(--text-2);
         line-height: 1.75;
-        max-width: 600px;
+        max-width: 580px;
         margin: 0 auto;
-        text-align: center;
+        text-align: left;
     }
     @media (max-width: 480px) { .reveal-explanation { font-size: 0.82rem; line-height: 1.6; } }
     .reveal-columns {
@@ -1139,10 +1139,10 @@ def apply_custom_css():
     .summary-explain {
         color: var(--text-2);
         font-size: 1.05rem;
-        max-width: 600px;
+        max-width: 580px;
         margin: 0 auto;
         line-height: 1.7;
-        text-align: center;
+        text-align: left;
     }
     
     @media (max-width: 768px) {

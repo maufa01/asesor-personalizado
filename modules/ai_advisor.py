@@ -50,7 +50,7 @@ def _generate_with_retry(contents, config: types.GenerateContentConfig, retries:
                 is_503 = "503" in msg or "UNAVAILABLE" in msg
                 if is_429:
                     if attempt < retries:
-                        time.sleep(3 * (attempt + 1))  # 3s, 6s — puede ser límite por minuto
+                        time.sleep(10 * (attempt + 1))  # 10s, 20s — espera límite por minuto (15 req/min)
                         continue
                     raise QuotaExhaustedError(msg)
                 if is_503 and attempt < retries:
@@ -269,7 +269,7 @@ Recordá:
             "tips": "<p>No disponible.</p>",
         }
     except QuotaExhaustedError:
-        msg_quota = "Se alcanzó el límite gratuito de la IA por hoy. Puede habilitar facturación en Google Cloud Console o volver a intentarlo mañana."
+        msg_quota = "La IA está saturada en este momento (límite de solicitudes por minuto). Espere 1 minuto e intente de nuevo."
         return {
             "justification": f"<p>⚠️ {_e(msg_quota)}</p>",
             "alerts": [{"title": "Cuota de IA agotada", "message": msg_quota, "severity": "medium"}],
@@ -327,7 +327,7 @@ REGLAS:
             ),
         )
     except QuotaExhaustedError:
-        return "Se alcanzó el límite gratuito de la IA por hoy. Puede volver a intentarlo mañana o habilitar facturación en Google Cloud Console."
+        return "La IA está saturada en este momento (límite de solicitudes por minuto). Espere 1 minuto e intente de nuevo."
     except Exception as e:
         return f"No se pudo conectar con la IA ({type(e).__name__}). Verifique su conexión e intente de nuevo."
 
