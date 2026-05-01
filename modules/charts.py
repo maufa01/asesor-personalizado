@@ -169,21 +169,26 @@ def _remove_asset(portfolio: dict, asset_id: str) -> dict:
     }
 
 
-# ─── Torta (2 capas: macro → detalle) ────────────────────────────────────────
+# ─── Torta (misma categorización que la tabla de instrumentos) ───────────────
 
 def render_pie_chart(portfolio: dict):
     positions = portfolio["positions"]
 
-    # Agregar por macro-categoría (Capa 1)
-    macro_data: dict = {}
+    # Usar la misma lógica que render_allocation_table para que ambas vistas sean consistentes
+    cat_data: dict = {}
     for p in positions:
-        macro_name, macro_color = _MACRO_MAP.get(p["category"], (p["category"], "#94a3b8"))
-        if macro_name not in macro_data:
-            macro_data[macro_name] = {"weight": 0.0, "color": macro_color, "assets": []}
-        macro_data[macro_name]["weight"] += p["weight"]
-        macro_data[macro_name]["assets"].append(p)
+        cat   = _asset_to_user_category(p)
+        color = _CATEGORY_META.get(cat, {}).get("color", "#94a3b8")
+        if cat not in cat_data:
+            cat_data[cat] = {"weight": 0.0, "color": color, "assets": []}
+        cat_data[cat]["weight"] += p["weight"]
+        cat_data[cat]["assets"].append(p)
 
-    sorted_macro = sorted(macro_data.items(), key=lambda x: -x[1]["weight"])
+    # Ordenar según _CATEGORY_ORDER para que sea consistente con la tabla
+    sorted_macro = sorted(
+        cat_data.items(),
+        key=lambda x: (_CATEGORY_ORDER.index(x[0]) if x[0] in _CATEGORY_ORDER else 99),
+    )
 
     labels = [m[0] for m in sorted_macro]
     values = [round(m[1]["weight"] * 100, 1) for m in sorted_macro]
@@ -231,14 +236,15 @@ def render_pie_chart(portfolio: dict):
 
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
-    # Capa 2: desglose por macro-categoría
+    # Capa 2: desglose (mismas categorías que la tabla de abajo)
     with st.expander("Ver desglose detallado →"):
         for name, info in sorted_macro:
-            pct = info["weight"] * 100
+            pct   = info["weight"] * 100
             color = info["color"]
+            icon  = _CATEGORY_META.get(name, {}).get("icon", "📊")
             st.markdown(
                 f'<div class="macro-cat-header" style="border-left-color:{color};">'
-                f'<span class="macro-cat-name">{name}</span>'
+                f'<span class="macro-cat-name">{icon}&nbsp;{name}</span>'
                 f'<span class="macro-cat-pct">{pct:.0f}%</span>'
                 f'</div>',
                 unsafe_allow_html=True,
