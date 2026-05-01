@@ -15,6 +15,68 @@ PLOTLY_LAYOUT = dict(
     margin=dict(l=0, r=0, t=10, b=0),
 )
 
+# ── Macro-categorías para el gráfico de 2 capas ────────────────────────────────
+_MACRO_MAP: dict[str, tuple[str, str]] = {
+    "Pesos ARS":    ("Liquidez ARS",            "#a3e635"),
+    "Dólar MEP":    ("Cobertura Cambiaria",      "#38bdf8"),
+    "Bonos USD":    ("Renta Fija USD",           "#4fa3ff"),
+    "CEDEARs":      ("Renta Variable Intl.",     "#a78bfa"),
+    "ETFs":         ("Fondos Globales (ETFs)",   "#10d98a"),
+    "Acciones ARG": ("Acciones Argentinas",      "#f59e0b"),
+    "Cripto":       ("Alternativos",             "#f97316"),
+}
+
+# ── Guía de compra: plataforma + cómo buscarlo ────────────────────────────────
+_PLATFORMS: dict[str, tuple[str, str]] = {
+    "cash_pesos":      ("Naranja X, Ualá, Mercado Pago",    "App → sección 'Cuenta'"),
+    "money_market":    ("IOL, Mercado Pago, Ualá, Balanz",  "Fondos → Money Market"),
+    "plazo_fijo":      ("Tu banco (Galicia, Santander…)",   "App del banco → Inversiones"),
+    "fci_t0":          ("IOL, PPI, Balanz",                 "Fondos → Renta Fija T+0"),
+    "lecap":           ("IOL, PPI, Balanz",                 "Renta Fija → S31M26 / S30J26"),
+    "cer_bond":        ("IOL, PPI, Balanz",                 "Renta Fija → TX26 / TX28"),
+    "fci_renta_pesos": ("IOL, PPI, SBS",                   "Fondos → Renta Fija"),
+    "mep":             ("IOL, PPI, Balanz, Cocos",          "Dólar MEP → operación AL30 48hs"),
+    "al30":            ("IOL, PPI, Balanz, Cocos",          "Renta Fija → AL30"),
+    "gd30":            ("IOL, PPI, Balanz",                 "Renta Fija → GD30"),
+    "on_ypf":          ("IOL, PPI",                        "Renta Fija → YPFDS"),
+    "on_corp":         ("IOL, PPI",                        "Renta Fija → PTSTO / TCCUD"),
+    "on_pampa":        ("IOL, PPI",                        "Renta Fija → PTSTO"),
+    "on_tecpetrol":    ("IOL, PPI",                        "Renta Fija → TCCUD"),
+    "spy":             ("IOL, PPI, Balanz",                 "CEDEARs → SPY"),
+    "qqq":             ("IOL, PPI, Balanz",                 "CEDEARs → QQQ"),
+    "eem":             ("IOL, PPI",                        "CEDEARs → EEM"),
+    "iau":             ("IOL, PPI",                        "CEDEARs → IAU"),
+    "vti":             ("IOL, PPI",                        "CEDEARs → VTI"),
+    "gld":             ("IOL, PPI",                        "CEDEARs → GLD"),
+    "aapl":            ("IOL, PPI, Balanz",                 "CEDEARs → AAPL"),
+    "msft":            ("IOL, PPI, Balanz",                 "CEDEARs → MSFT"),
+    "googl":           ("IOL, PPI",                        "CEDEARs → GOOGL"),
+    "amzn":            ("IOL, PPI",                        "CEDEARs → AMZN"),
+    "nvda":            ("IOL, PPI, Balanz",                 "CEDEARs → NVDA"),
+    "meli":            ("IOL, PPI, Balanz",                 "CEDEARs → MELI"),
+    "meta":            ("IOL, PPI",                        "CEDEARs → META"),
+    "brk":             ("IOL, PPI",                        "CEDEARs → BRKB"),
+    "jpm":             ("IOL, PPI",                        "CEDEARs → JPM"),
+    "ko":              ("IOL, PPI",                        "CEDEARs → KO"),
+    "wmt":             ("IOL, PPI",                        "CEDEARs → WMT"),
+    "jnj":             ("IOL, PPI",                        "CEDEARs → JNJ"),
+    "pfe":             ("IOL, PPI",                        "CEDEARs → PFE"),
+    "xom":             ("IOL, PPI",                        "CEDEARs → XOM"),
+    "tsla":            ("IOL, PPI, Balanz",                 "CEDEARs → TSLA"),
+    "bac":             ("IOL, PPI",                        "CEDEARs → BAC"),
+    "dis":             ("IOL, PPI",                        "CEDEARs → DIS"),
+    "ypf":             ("IOL, PPI, Balanz",                 "Acciones → YPFD"),
+    "galicia":         ("IOL, PPI, Balanz",                 "Acciones → GGAL"),
+    "teco2":           ("IOL, PPI",                        "Acciones → TECO2"),
+    "pampa":           ("IOL, PPI, Balanz",                 "Acciones → PAMP"),
+    "vist":            ("IOL, PPI",                        "Acciones → VIST"),
+    "bbar":            ("IOL, PPI",                        "Acciones → BBAR"),
+    "loma":            ("IOL, PPI",                        "Acciones → LOMA"),
+    "btc":             ("Lemon, Buenbit, Ripio, Belo",     "Cripto → BTC"),
+    "eth":             ("Lemon, Buenbit, Ripio",           "Cripto → ETH"),
+    "usdt":            ("Lemon, Buenbit, Belo",            "Cripto → USDT"),
+}
+
 
 def _t1() -> str:
     """Color de texto primario según el tema activo."""
@@ -63,22 +125,33 @@ def _remove_asset(portfolio: dict, asset_id: str) -> dict:
     }
 
 
-# ─── Torta ────────────────────────────────────────────────────────────────────
+# ─── Torta (2 capas: macro → detalle) ────────────────────────────────────────
 
 def render_pie_chart(portfolio: dict):
     positions = portfolio["positions"]
 
-    labels = [p["name"].split("(")[0].split("—")[0].strip() for p in positions]
-    values = [round(p["weight"] * 100, 1) for p in positions]
-    colors = [p["color"] for p in positions]
-    hovers = [
-        f"<b>{p['name']}</b><br>"
-        f"Categoría: {p['category']}<br>"
-        f"Peso: {p['weight']*100:.1f}%<br>"
-        f"Retorno esperado: {p['expected_return']*100:.1f}%<br>"
-        f"Mercado: {p['market']}"
-        for p in positions
-    ]
+    # Agregar por macro-categoría (Capa 1)
+    macro_data: dict = {}
+    for p in positions:
+        macro_name, macro_color = _MACRO_MAP.get(p["category"], (p["category"], "#94a3b8"))
+        if macro_name not in macro_data:
+            macro_data[macro_name] = {"weight": 0.0, "color": macro_color, "assets": []}
+        macro_data[macro_name]["weight"] += p["weight"]
+        macro_data[macro_name]["assets"].append(p)
+
+    sorted_macro = sorted(macro_data.items(), key=lambda x: -x[1]["weight"])
+
+    labels = [m[0] for m in sorted_macro]
+    values = [round(m[1]["weight"] * 100, 1) for m in sorted_macro]
+    colors = [m[1]["color"] for m in sorted_macro]
+
+    hovers = []
+    for name, info in sorted_macro:
+        lines = "<br>".join(
+            f"  · {a['name'].split('(')[0].split('—')[0].strip()} ({a['weight']*100:.0f}%)"
+            for a in sorted(info["assets"], key=lambda x: -x["weight"])
+        )
+        hovers.append(f"<b>{name}</b> — {info['weight']*100:.0f}%<br>{lines}")
 
     fig = go.Figure(data=[go.Pie(
         labels=labels,
@@ -113,6 +186,30 @@ def render_pie_chart(portfolio: dict):
     )
 
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+
+    # Capa 2: desglose por macro-categoría
+    with st.expander("Ver desglose detallado →"):
+        for name, info in sorted_macro:
+            pct = info["weight"] * 100
+            color = info["color"]
+            st.markdown(
+                f'<div class="macro-cat-header" style="border-left-color:{color};">'
+                f'<span class="macro-cat-name">{name}</span>'
+                f'<span class="macro-cat-pct">{pct:.0f}%</span>'
+                f'</div>',
+                unsafe_allow_html=True,
+            )
+            for a in sorted(info["assets"], key=lambda x: -x["weight"]):
+                a_pct = a["weight"] * 100
+                st.markdown(
+                    f'<div class="macro-asset-row">'
+                    f'<span class="macro-asset-dot" style="background:{a["color"]};"></span>'
+                    f'<span class="macro-asset-name">{a["name"].split("(")[0].split("—")[0].strip()}</span>'
+                    f'<span class="macro-asset-ticker">{a["ticker"]}</span>'
+                    f'<span class="macro-asset-pct">{a_pct:.1f}%</span>'
+                    f'</div>',
+                    unsafe_allow_html=True,
+                )
 
 
 # ─── Gráfico de evolución (3 líneas simples) ──────────────────────────────────
@@ -553,3 +650,54 @@ def render_allocation_table(portfolio: dict, capital: float, currency_label: str
                 f'<div class="pct-bar-fill" style="width:{pct}%;background:{col};"></div></div>',
                 unsafe_allow_html=True,
             )
+
+
+# ─── Guía de compra rápida (Feature 5) ────────────────────────────────────────
+
+def render_buy_guide(portfolio: dict):
+    """Tabla compacta: ticker + plataforma para cada activo de la cartera."""
+    positions = portfolio["positions"]
+
+    with st.expander("🛒 ¿Dónde y cómo comprar cada activo?"):
+        # Header
+        h = st.columns([2.6, 1.1, 2.8, 2.5])
+        for col, label in zip(h, ["Instrumento", "Ticker", "Plataformas", "Cómo buscarlo"]):
+            col.markdown(f'<div class="tbl-header">{label}</div>', unsafe_allow_html=True)
+        st.markdown('<div class="tbl-divider"></div>', unsafe_allow_html=True)
+
+        for p in positions:
+            plat, how = _PLATFORMS.get(p["id"], ("IOL, PPI", f"Buscar → {p['ticker']}"))
+            short_name = p["name"].split("(")[0].split("—")[0].strip()
+            if len(short_name) > 36:
+                short_name = short_name[:35] + "…"
+
+            cols = st.columns([2.6, 1.1, 2.8, 2.5])
+            cols[0].markdown(
+                f'<div class="tbl-cell">'
+                f'<span class="asset-dot" style="background:{p["color"]};"></span>'
+                f'<span class="asset-name" style="font-size:0.84rem;">{short_name}</span>'
+                f'</div>',
+                unsafe_allow_html=True,
+            )
+            cols[1].markdown(
+                f'<div class="tbl-cell">'
+                f'<span class="buy-ticker">{p["ticker"]}</span>'
+                f'</div>',
+                unsafe_allow_html=True,
+            )
+            cols[2].markdown(
+                f'<div class="tbl-cell" style="font-size:0.82rem;color:#94a3b8;">{plat}</div>',
+                unsafe_allow_html=True,
+            )
+            cols[3].markdown(
+                f'<div class="tbl-cell" style="font-size:0.8rem;color:#64748b;">{how}</div>',
+                unsafe_allow_html=True,
+            )
+
+        st.markdown(
+            '<p style="font-size:0.72rem;color:#64748b;margin-top:0.75rem;">'
+            'IOL = InvertirOnline · PPI = Portfolio Personal Inversiones · Cocos = Cocos Capital. '
+            'Verificá disponibilidad y costos operativos en cada plataforma antes de operar.'
+            '</p>',
+            unsafe_allow_html=True,
+        )

@@ -7,7 +7,7 @@ import streamlit.components.v1 as components
 from modules.ui_config import apply_custom_css, render_header, render_footer
 from modules.profiler import render_profiler
 from modules.portfolio import build_portfolio
-from modules.charts import render_pie_chart, render_evolution_chart, render_bar_simulation, render_allocation_table
+from modules.charts import render_pie_chart, render_evolution_chart, render_bar_simulation, render_allocation_table, render_buy_guide
 from modules.simulator import simulate_portfolio
 from modules.ai_advisor import get_ai_analysis, get_rebalancing_advice, chat_with_advisor
 from modules.glossary import render_glossary
@@ -240,6 +240,14 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
     rl  = risk_labels.get(profile["risk_profile"], profile["risk_profile"].upper())
     rex = risk_explanations.get(profile["risk_profile"], "")
 
+    _disc_by_risk = {
+        "conservador": "orientada a preservación de capital con bajo riesgo.",
+        "estable":     "con exposición moderada a bonos y renta variable global.",
+        "moderado":    "equilibrada entre seguridad y crecimiento; puede fluctuar en el corto plazo.",
+        "agresivo":    "de alto crecimiento; puede sufrir caídas significativas en el corto plazo.",
+    }
+    _disc_text = _disc_by_risk.get(profile["risk_profile"], "")
+
     # ── Panel de resumen rápido ───────────────────────────────────────────────
     st.markdown(f"""<div class="summary-panel">
 <div class="summary-top">
@@ -248,6 +256,11 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
 </div>
 <h2 class="summary-title">Cartera Sugerida</h2>
 <div class="explain-outer"><p class="summary-explain">{rex}</p></div>
+<div class="legal-disclaimer">
+  ⚠️ <strong>Aviso legal</strong> · Cartera {_disc_text}
+  Capital: {_disp_prefix}{_disp_capital:,.0f}{_disp_suffix} · Horizonte: {profile['horizon']} años · Perfil: {rl}.
+  Esta herramienta tiene fines educativos y no reemplaza el asesoramiento de un profesional regulado por la CNV.
+</div>
 </div>
 <div class="summary-grid summary-main-grid">
 <div class="summary-item">
@@ -381,6 +394,11 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
 <div><strong>Solapamiento detectado: {etf} + {conflicts}</strong><br>
 <span>{reason}</span></div>
 </div>""", unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # ── Guía de compra ────────────────────────────────────────────────────────
+    render_buy_guide(portfolio)
 
     st.markdown("<br>", unsafe_allow_html=True)
 

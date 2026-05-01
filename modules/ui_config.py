@@ -1665,6 +1665,90 @@ def apply_custom_css():
         color: var(--text-2);
         margin: 0;
     }
+
+    /* ── Legal disclaimer (Feature 4) ────────────────────────────── */
+    .legal-disclaimer {
+        background: rgba(240,180,41,0.06);
+        border: 1px solid rgba(240,180,41,0.2);
+        border-radius: var(--radius-sm);
+        padding: 0.65rem 1rem;
+        font-size: 0.75rem;
+        color: var(--text-3);
+        margin-top: 0.9rem;
+        line-height: 1.55;
+        text-align: center;
+    }
+    .legal-disclaimer strong { color: rgba(240,180,41,0.75); }
+
+    /* ── Macro allocation breakdown (Feature 6) ──────────────────── */
+    .macro-cat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.45rem 0.85rem;
+        border-left: 3px solid var(--blue);
+        background: rgba(255,255,255,0.03);
+        border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+        margin: 0.75rem 0 0.25rem;
+    }
+    .macro-cat-name {
+        font-weight: 700;
+        font-size: 0.86rem;
+        color: var(--text-1);
+    }
+    .macro-cat-pct {
+        font-family: var(--font-numbers);
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: var(--text-1);
+    }
+    .macro-asset-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.28rem 0.85rem 0.28rem 1.5rem;
+        font-size: 0.81rem;
+        color: var(--text-2);
+        border-bottom: 1px solid rgba(99,120,180,0.06);
+    }
+    .macro-asset-row:last-child { border-bottom: none; }
+    .macro-asset-dot {
+        width: 7px; height: 7px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        display: inline-block;
+    }
+    .macro-asset-name { flex: 1; min-width: 0; }
+    .macro-asset-ticker {
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--text-3);
+        background: rgba(255,255,255,0.05);
+        padding: 1px 5px;
+        border-radius: 3px;
+        flex-shrink: 0;
+        letter-spacing: 0.03em;
+    }
+    .macro-asset-pct {
+        color: var(--text-3);
+        font-size: 0.78rem;
+        flex-shrink: 0;
+        min-width: 36px;
+        text-align: right;
+    }
+
+    /* ── Buy guide ticker badge (Feature 5) ──────────────────────── */
+    .buy-ticker {
+        display: inline-block;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        color: var(--blue);
+        background: rgba(79,163,255,0.1);
+        border: 1px solid rgba(79,163,255,0.2);
+        padding: 2px 7px;
+        border-radius: 4px;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -1821,6 +1905,32 @@ div[data-testid="stRadio"] div[role="radiogroup"] label p { color: #334155 !impo
 }
 [data-testid="stToggle"] input:checked ~ div > div:first-child {
     background-color: #2563eb !important;
+}
+
+/* Legal disclaimer en modo claro */
+.legal-disclaimer {
+    background: rgba(217,119,6,0.05) !important;
+    border-color: rgba(217,119,6,0.2) !important;
+    color: #64748b !important;
+}
+.legal-disclaimer strong { color: #b45309 !important; }
+
+/* Macro breakdown en modo claro */
+.macro-cat-header { background: rgba(0,0,0,0.02) !important; }
+.macro-cat-name, .macro-cat-pct { color: #0f172a !important; }
+.macro-asset-name { color: #334155 !important; }
+.macro-asset-ticker {
+    color: #475569 !important;
+    background: rgba(0,0,0,0.04) !important;
+}
+.macro-asset-pct { color: #64748b !important; }
+.macro-asset-row { border-bottom-color: rgba(100,116,139,0.1) !important; }
+
+/* Buy ticker badge en modo claro */
+.buy-ticker {
+    color: #1d4ed8 !important;
+    background: rgba(37,99,235,0.08) !important;
+    border-color: rgba(37,99,235,0.2) !important;
 }
 </style>"""
 
