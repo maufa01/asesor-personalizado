@@ -16,7 +16,7 @@ PLOTLY_LAYOUT = dict(
 )
 
 # ── Macro-categorías para el gráfico de 2 capas ────────────────────────────────
-_MACRO_MAP: dict[str, tuple[str, str]] = {
+_MACRO_MAP = {
     "Pesos ARS":    ("Liquidez ARS",            "#a3e635"),
     "Dólar MEP":    ("Cobertura Cambiaria",      "#38bdf8"),
     "Bonos USD":    ("Renta Fija USD",           "#4fa3ff"),
@@ -27,7 +27,7 @@ _MACRO_MAP: dict[str, tuple[str, str]] = {
 }
 
 # ── Guía de compra: plataforma + cómo buscarlo ────────────────────────────────
-_PLATFORMS: dict[str, tuple[str, str]] = {
+_PLATFORMS = {
     "cash_pesos":      ("Naranja X, Ualá, Mercado Pago",    "App → sección 'Cuenta'"),
     "money_market":    ("IOL, Mercado Pago, Ualá, Balanz",  "Fondos → Money Market"),
     "plazo_fijo":      ("Tu banco (Galicia, Santander…)",   "App del banco → Inversiones"),
