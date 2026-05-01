@@ -15,6 +15,50 @@ PLOTLY_LAYOUT = dict(
     margin=dict(l=0, r=0, t=10, b=0),
 )
 
+_CATEGORY_ORDER = [
+    "Liquidez",
+    "Cobertura cambiaria",
+    "Renta fija",
+    "Fondos globales",
+    "Renta variable",
+]
+
+_CATEGORY_META = {
+    "Liquidez": {
+        "icon":        "💵",
+        "description": "Plata disponible en todo momento. La podés retirar cuando quieras, sin esperar ni pagar penalidades.",
+        "color":       "#60a5fa",
+    },
+    "Cobertura cambiaria": {
+        "icon":        "🛡️",
+        "description": "Dólares legales comprados por la bolsa. Protege sus ahorros de la devaluación del peso.",
+        "color":       "#f59e0b",
+    },
+    "Renta fija": {
+        "icon":        "📄",
+        "description": "Préstamos a empresas o al Estado que le devuelven su dinero con intereses en dólares. Más predecible que las acciones.",
+        "color":       "#22c55e",
+    },
+    "Fondos globales": {
+        "icon":        "🌍",
+        "description": "Acciones de las 500 empresas más grandes del mundo: Apple, Google, Amazon y más. Todo en una sola compra.",
+        "color":       "#4fa3ff",
+    },
+    "Renta variable": {
+        "icon":        "📈",
+        "description": "Acciones con mayor potencial de crecimiento a largo plazo. El precio puede subir y bajar más que el resto.",
+        "color":       "#a78bfa",
+    },
+}
+
+_CATEGORY_ASSET_IDS = {
+    "Liquidez": {"cash_pesos", "money_market", "plazo_fijo", "fci_t0", "usdt"},
+    "Cobertura cambiaria": {"mep"},
+    "Renta fija": {"lecap", "cer_bond", "fci_renta_pesos", "al30", "gd30", "on_ypf", "on_corp", "on_pampa", "on_tecpetrol"},
+    "Fondos globales": {"spy", "qqq", "vti"},
+    "Renta variable": {"aapl", "msft", "nvda", "meli", "ypf", "galicia", "btc", "eth"},
+}
+
 # ── Macro-categorías para el gráfico de 2 capas ────────────────────────────────
 _MACRO_MAP = {
     "Pesos ARS":    ("Liquidez ARS",            "#a3e635"),
@@ -476,183 +520,97 @@ def render_bar_simulation(portfolio: dict, initial_capital: float,
 
 # ─── Tabla de activos con botón de eliminar ───────────────────────────────────
 
-def render_allocation_table(portfolio: dict, capital: float, currency_label: str = "USD"):
-    positions  = portfolio["positions"]
-    can_remove = len(positions) > 2
+def _asset_to_user_category(asset: dict) -> str:
+    aid = asset.get("id", "")
+    if aid in _CATEGORY_ASSET_IDS["Liquidez"]:
+        return "Liquidez"
+    if aid in _CATEGORY_ASSET_IDS["Cobertura cambiaria"]:
+        return "Cobertura cambiaria"
+    if aid in _CATEGORY_ASSET_IDS["Fondos globales"]:
+        return "Fondos globales"
+    if aid in _CATEGORY_ASSET_IDS["Renta fija"]:
+        return "Renta fija"
+    if aid in _CATEGORY_ASSET_IDS["Renta variable"]:
+        return "Renta variable"
+    if asset.get("category") in {"CEDEARs", "Acciones ARG", "Acciones", "Cripto"}:
+        return "Renta variable"
+    if asset.get("category") in {"Bonos USD", "Dólar MEP", "Pesos ARS"}:
+        return "Renta fija"
+    return "Renta variable"
 
-    if "show_detail_table" not in st.session_state:
-        st.session_state.show_detail_table = False
-    if "pending_remove_id" not in st.session_state:
-        st.session_state.pending_remove_id   = None
-        st.session_state.pending_remove_name = None
 
-    # ── Vista simple (por defecto) ─────────────────────────────────────────────
-    if not st.session_state.show_detail_table:
-        for p in positions[:3]:
-            pct       = p["weight"] * 100
-            desc      = p.get("simple_desc") or p.get("description", "")[:90]
-            st.markdown(
-                f'<div class="asset-simple-card">'
-                f'<span class="asc-dot" style="background:{p["color"]};"></span>'
-                f'<div class="asc-content">'
-                f'<div class="asc-name">{p["name"]}</div>'
-                f'<div class="asc-desc">{desc}</div>'
-                f'</div>'
-                f'<div class="asc-pct">{pct:.0f}%'
-                f'<span class="asc-pct-sub">de tu plata</span></div>'
-                f'</div>',
-                unsafe_allow_html=True,
-            )
-
-        remaining = len(positions) - 3
-        extra     = f" ({remaining} más)" if remaining > 0 else ""
-        if st.button(f"Ver todos los activos{extra} →", key="toggle_detail_on", use_container_width=True):
-            st.session_state.show_detail_table = True
-            st.rerun()
-        return
-
-    # ── Vista detallada ────────────────────────────────────────────────────────
-    if st.button("↑ Ver resumen", key="toggle_detail_off"):
-        st.session_state.show_detail_table = False
-        st.session_state.pending_remove_id   = None
-        st.session_state.pending_remove_name = None
-        st.rerun()
-
-    # Panel de confirmación de eliminación
-    if st.session_state.pending_remove_id:
-        pname = st.session_state.pending_remove_name
-        st.markdown(
-            f'<div class="remove-confirm">'
-            f'¿Querés sacar <strong>{pname}</strong> de tu cartera? '
-            f'Podés agregarlo de nuevo después.'
-            f'</div>',
-            unsafe_allow_html=True,
-        )
-        col_yes, col_no, _ = st.columns([1, 1, 4])
-        with col_yes:
-            if st.button("Sí, sacarlo", key="confirm_remove", type="primary"):
-                updated = _remove_asset(portfolio, st.session_state.pending_remove_id)
-                st.session_state.portfolio         = updated
-                st.session_state.pending_remove_id   = None
-                st.session_state.pending_remove_name = None
-                st.rerun()
-        with col_no:
-            if st.button("Cancelar", key="cancel_remove"):
-                st.session_state.pending_remove_id   = None
-                st.session_state.pending_remove_name = None
-                st.rerun()
-
-    liq_colors = {
-        "alta":  ("#064e3b", "#34d399"),
-        "media": ("#1e3a5f", "#60a5fa"),
-        "baja":  ("#7c2d12", "#fb923c"),
-    }
-
-    # Header
-    h = st.columns([2.8, 1.2, 1.5, 1.4, 3.0, 1.0, 0.55])
-    for col, label in zip(h, ["Instrumento", "Categoría", "Ponderación", "Importe Sugerido", "¿Para qué sirve?", "Liquidez", ""]):
-        col.markdown(f'<div class="tbl-header">{label}</div>', unsafe_allow_html=True)
-
-    st.markdown('<div class="tbl-divider"></div>', unsafe_allow_html=True)
-
+def _group_positions_by_user_category(positions: list) -> dict:
+    groups = {cat: [] for cat in _CATEGORY_ORDER}
     for p in positions:
-        pct    = p["weight"] * 100
-        amount = p["weight"] * capital
-        liq    = p.get("liquidity", "media")
-        lbg, lfg = liq_colors.get(liq, ("#1a2235", "#94a3b8"))
+        category = _asset_to_user_category(p)
+        groups.setdefault(category, []).append(p)
+    return groups
 
-        bar_html = (
-            f'<div class="pct-bar-bg" style="margin-top:5px;">'
-            f'<div class="pct-bar-fill" style="width:{pct:.1f}%;background:{p["color"]};"></div>'
-            f'</div>'
-        )
 
-        cols = st.columns([2.8, 1.2, 1.5, 1.4, 3.0, 1.0, 0.55])
-        desc = p.get("simple_desc") or p.get("description", "")[:90]
+def render_allocation_table(portfolio: dict, capital: float, currency_label: str = "USD"):
+    """
+    Nivel 1: cards de categorías siempre visibles (sin siglas).
+    Nivel 2: expander por categoría con los activos específicos.
+    """
+    positions  = portfolio["positions"]
+    groups     = _group_positions_by_user_category(positions)
+    amt_prefix = "$" if currency_label == "ARS" else "USD "
 
-        cols[0].markdown(
-            f'<div class="tbl-cell">'
-            f'<span class="asset-dot" style="background:{p["color"]};"></span>'
-            f'<span class="asset-name">{p["name"]}</span><br>'
-            f'<span class="asset-sub">{p["ticker"]} · {p["market"]}</span>'
+    for category in _CATEGORY_ORDER:
+        items = groups.get(category, [])
+        if not items:
+            continue
+
+        pct   = sum(p["weight"] for p in items) * 100
+        meta  = _CATEGORY_META[category]
+        icon  = meta["icon"]
+        color = meta["color"]
+
+        # ── Nivel 1: card de categoría (siempre visible) ──────────────────
+        st.markdown(
+            f'<div class="cat-l1-card" style="border-left-color:{color};">'
+            f'  <div class="cat-l1-body">'
+            f'    <div class="cat-l1-name">{icon}&nbsp; {category}</div>'
+            f'    <div class="cat-l1-desc">{meta["description"]}</div>'
+            f'  </div>'
+            f'  <div class="cat-l1-right">'
+            f'    <div class="cat-l1-pct" style="color:{color};">{pct:.0f}%</div>'
+            f'    <div class="cat-l1-pct-sub">de su dinero</div>'
+            f'  </div>'
             f'</div>',
             unsafe_allow_html=True,
         )
-        cols[1].markdown(
-            f'<div class="tbl-cell"><span class="tbl-text">{p["category"]}</span></div>',
-            unsafe_allow_html=True,
-        )
-        cols[2].markdown(
-            f'<div class="tbl-cell"><strong style="color:#eef2ff;">{pct:.1f}%</strong>{bar_html}</div>',
-            unsafe_allow_html=True,
-        )
-        _amt_prefix = "$" if currency_label == "ARS" else "USD "
-        cols[3].markdown(
-            f'<div class="tbl-cell"><strong style="color:#eef2ff;">{_amt_prefix}{amount:,.0f}</strong></div>',
-            unsafe_allow_html=True,
-        )
-        cols[4].markdown(
-            f'<div class="tbl-cell" style="font-size:0.82rem;color:#94a3b8;line-height:1.4;">{desc}</div>',
-            unsafe_allow_html=True,
-        )
-        cols[5].markdown(
-            f'<div class="tbl-cell"><span class="tag" style="background:{lbg};color:{lfg};">{liq}</span></div>',
-            unsafe_allow_html=True,
-        )
 
-        with cols[6]:
-            st.markdown('<div style="padding-top:6px;">', unsafe_allow_html=True)
-            if can_remove:
-                is_pending = st.session_state.pending_remove_id == p["id"]
-                btn_style  = "primary" if is_pending else "secondary"
-                if st.button("✕", key=f"rm_{p['id']}", help="Sacar de mi cartera", type=btn_style):
-                    st.session_state.pending_remove_id   = p["id"]
-                    st.session_state.pending_remove_name = p["name"]
-                    st.rerun()
-            st.markdown('</div>', unsafe_allow_html=True)
+        # ── Nivel 2: activos específicos (expandible) ─────────────────────
+        n     = len(items)
+        label = f"Ver {'los ' if n > 1 else 'el '}{n} activo{'s' if n > 1 else ''} que componen esta categoría"
+        with st.expander(label, expanded=False):
+            for p in items:
+                a_pct = p["weight"] * 100
+                a_amt = p["weight"] * capital
+                desc  = p.get("simple_desc") or p.get("description", "")
+                ticker = p.get("ticker", "")
+                plat, _ = _PLATFORMS.get(p["id"], ("IOL, PPI", ""))
+                short_name = p["name"].split("(")[0].split("—")[0].strip()
+                st.markdown(
+                    f'<div class="asset-detail-card" style="border-left-color:{p["color"]};">'
+                    f'  <div class="adc-top">'
+                    f'    <div class="adc-title-wrap">'
+                    f'      <div class="adc-title">{short_name}</div>'
+                    f'      <div class="adc-meta">{ticker} · {plat}</div>'
+                    f'    </div>'
+                    f'    <div class="adc-right">'
+                    f'      <div class="adc-pct">{a_pct:.0f}%</div>'
+                    f'      <div class="adc-amt">{amt_prefix}{a_amt:,.0f}</div>'
+                    f'    </div>'
+                    f'  </div>'
+                    f'  <div class="adc-desc">{desc}</div>'
+                    f'</div>',
+                    unsafe_allow_html=True,
+                )
 
-    # Fila de total
-    _tot_prefix = "$" if currency_label == "ARS" else "USD "
-    st.markdown('<div class="tbl-divider" style="margin-top:4px;"></div>', unsafe_allow_html=True)
-    t_cols = st.columns([2.8, 1.2, 1.5, 1.4, 3.0, 1.0, 0.55])
-    t_cols[0].markdown('<div class="tbl-cell"><strong style="color:#eef2ff;">TOTAL</strong></div>', unsafe_allow_html=True)
-    t_cols[2].markdown('<div class="tbl-cell"><strong style="color:#eef2ff;">100%</strong></div>', unsafe_allow_html=True)
-    t_cols[3].markdown(f'<div class="tbl-cell"><strong style="color:#eef2ff;">{_tot_prefix}{capital:,.0f}</strong></div>', unsafe_allow_html=True)
-    t_cols[4].markdown(f'<div class="tbl-cell" style="font-size:0.82rem;color:#64748b;">Retorno prom. anual: <strong style="color:#10d98a;">{portfolio["expected_cagr"]*100:.1f}%</strong></div>', unsafe_allow_html=True)
+        st.markdown('<div style="height:0.4rem;"></div>', unsafe_allow_html=True)
 
-    # Exposición por categoría y moneda
-    st.markdown("<br>", unsafe_allow_html=True)
-    col_cat, col_cur = st.columns(2)
-
-    with col_cat:
-        st.markdown("**Distribución por tipo de activo**")
-        for cat, w in sorted(portfolio["category_exposure"].items(), key=lambda x: -x[1]):
-            pct = w * 100
-            st.markdown(
-                f'<div style="display:flex;justify-content:space-between;font-size:0.82rem;color:#94a3b8;margin-bottom:0.25rem;">'
-                f'<span>{cat}</span><span style="color:#eef2ff;">{pct:.1f}%</span></div>'
-                f'<div class="pct-bar-bg" style="margin-bottom:0.55rem;">'
-                f'<div class="pct-bar-fill" style="width:{pct}%;background:#4fa3ff;"></div></div>',
-                unsafe_allow_html=True,
-            )
-
-    with col_cur:
-        st.markdown("**En pesos vs dólares**")
-        cur_colors = {"USD": "#10d98a", "ARS": "#f0b429", "ARS/USD": "#60a5fa"}
-        for cur, w in sorted(portfolio["currency_exposure"].items(), key=lambda x: -x[1]):
-            pct = w * 100
-            col = cur_colors.get(cur, "#94a3b8")
-            label = {"USD": "Dólares (USD)", "ARS": "Pesos (ARS)", "ARS/USD": "Mix ARS/USD"}.get(cur, cur)
-            st.markdown(
-                f'<div style="display:flex;justify-content:space-between;font-size:0.82rem;color:#94a3b8;margin-bottom:0.25rem;">'
-                f'<span>{label}</span><span style="color:#eef2ff;">{pct:.1f}%</span></div>'
-                f'<div class="pct-bar-bg" style="margin-bottom:0.55rem;">'
-                f'<div class="pct-bar-fill" style="width:{pct}%;background:{col};"></div></div>',
-                unsafe_allow_html=True,
-            )
-
-
-# ─── Guía de compra rápida (Feature 5) ────────────────────────────────────────
 
 def render_buy_guide(portfolio: dict):
     """Tabla compacta: ticker + plataforma para cada activo de la cartera."""

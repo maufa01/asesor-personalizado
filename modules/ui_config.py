@@ -791,6 +791,114 @@ def apply_custom_css():
         color: var(--text-3);
         font-family: var(--font-body);
     }
+
+    .category-card {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+        background: var(--bg-3);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 1rem 1.2rem;
+        margin-bottom: 0.75rem;
+        transition: border-color 0.2s ease;
+    }
+    .category-card:hover { border-color: rgba(79,163,255,0.3); }
+    .category-card-left { min-width: 0; }
+    .category-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.25rem 0.65rem;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        margin-bottom: 0.6rem;
+    }
+    .category-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-1);
+        margin-bottom: 0.35rem;
+    }
+    .category-desc {
+        color: var(--text-2);
+        font-size: 0.88rem;
+        line-height: 1.6;
+    }
+    .category-card-right {
+        display: flex;
+        align-items: flex-end;
+        justify-content: flex-end;
+        min-width: 110px;
+    }
+    .category-pct {
+        font-family: var(--font-numbers);
+        font-size: 1.8rem;
+        color: var(--text-1);
+        font-weight: 800;
+        line-height: 1;
+    }
+    .category-pct-sub {
+        font-size: 0.74rem;
+        color: var(--text-3);
+        margin-top: 0.15rem;
+    }
+    .detail-note,
+    .detail-footer {
+        color: var(--text-2);
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+    .asset-detail-card {
+        background: rgba(79,163,255,0.05);
+        border: 1px solid rgba(79,163,255,0.1);
+        border-radius: var(--radius-md);
+        padding: 1rem 1rem 0.9rem;
+        margin-bottom: 0.85rem;
+    }
+    .adc-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 0.55rem;
+    }
+    .adc-title-wrap { min-width: 0; flex: 1; }
+    .adc-title {
+        font-weight: 700;
+        color: var(--text-1);
+        font-size: 0.95rem;
+        margin-bottom: 0.2rem;
+    }
+    .adc-meta {
+        color: var(--text-3);
+        font-size: 0.8rem;
+        line-height: 1.5;
+    }
+    .adc-pct {
+        font-family: var(--font-numbers);
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: var(--text-1);
+        text-align: right;
+        flex-shrink: 0;
+    }
+    .adc-desc {
+        color: var(--text-2);
+        font-size: 0.88rem;
+        line-height: 1.6;
+        margin-bottom: 0.7rem;
+    }
+    .adc-footer {
+        color: var(--text-3);
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
     @media (max-width: 640px) {
         .asc-name { font-size: 0.82rem; }
         .asc-desc { font-size: 0.72rem; }
@@ -1666,6 +1774,119 @@ def apply_custom_css():
         margin: 0;
     }
 
+    /* ── Category L1 cards (Nivel 1 de instrumentos) ─────────────── */
+    .cat-l1-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-left: 4px solid var(--blue);
+        border-radius: var(--radius-md);
+        padding: 1.1rem 1.4rem;
+        margin-bottom: 0.3rem;
+        transition: border-color 0.2s, background 0.2s;
+    }
+    .cat-l1-card:hover { background: rgba(255,255,255,0.03); }
+    .cat-l1-body  { flex: 1; min-width: 0; }
+    .cat-l1-name  {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 0.97rem;
+        color: var(--text-1);
+        margin-bottom: 0.3rem;
+        letter-spacing: 0.01em;
+    }
+    .cat-l1-desc {
+        font-size: 0.83rem;
+        color: var(--text-2);
+        line-height: 1.55;
+    }
+    .cat-l1-right {
+        text-align: right;
+        margin-left: 1.5rem;
+        flex-shrink: 0;
+    }
+    .cat-l1-pct {
+        font-family: var(--font-numbers);
+        font-size: 2rem;
+        font-weight: 700;
+        line-height: 1;
+        letter-spacing: -0.03em;
+    }
+    .cat-l1-pct-sub {
+        font-size: 0.62rem;
+        color: var(--text-3);
+        margin-top: 0.25rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+    @media (max-width: 640px) {
+        .cat-l1-card  { padding: 0.85rem 1rem; }
+        .cat-l1-pct   { font-size: 1.5rem; }
+        .cat-l1-name  { font-size: 0.88rem; }
+        .cat-l1-desc  { font-size: 0.76rem; }
+    }
+
+    /* ── Asset detail cards (Nivel 2) ────────────────────────────── */
+    .asset-detail-card {
+        background: rgba(255,255,255,0.025);
+        border: 1px solid var(--border);
+        border-left: 3px solid var(--blue);
+        border-radius: var(--radius-sm);
+        padding: 0.9rem 1rem;
+        margin-bottom: 0.6rem;
+        transition: border-color 0.2s;
+    }
+    .asset-detail-card:last-child { margin-bottom: 0; }
+    .asset-detail-card:hover { border-color: rgba(99,120,180,0.3); }
+    .adc-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 0.75rem;
+        margin-bottom: 0.5rem;
+    }
+    .adc-title-wrap { flex: 1; min-width: 0; }
+    .adc-title {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--text-1);
+        margin-bottom: 0.2rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .adc-meta {
+        font-size: 0.71rem;
+        color: var(--text-3);
+        letter-spacing: 0.02em;
+    }
+    .adc-right { text-align: right; flex-shrink: 0; }
+    .adc-pct {
+        font-family: var(--font-numbers);
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-1);
+        line-height: 1;
+    }
+    .adc-amt {
+        font-family: var(--font-numbers);
+        font-size: 0.76rem;
+        color: var(--text-3);
+        margin-top: 0.2rem;
+    }
+    .adc-desc {
+        font-size: 0.82rem;
+        color: var(--text-2);
+        line-height: 1.6;
+    }
+    @media (max-width: 640px) {
+        .adc-title { font-size: 0.83rem; }
+        .adc-desc  { font-size: 0.76rem; }
+        .adc-pct   { font-size: 0.97rem; }
+    }
+
     /* ── Legal disclaimer (Feature 4) ────────────────────────────── */
     .legal-disclaimer {
         background: rgba(240,180,41,0.06);
@@ -1906,6 +2127,21 @@ div[data-testid="stRadio"] div[role="radiogroup"] label p { color: #334155 !impo
 [data-testid="stToggle"] input:checked ~ div > div:first-child {
     background-color: #2563eb !important;
 }
+
+/* Category L1 cards en modo claro */
+.cat-l1-card  { background: #ffffff !important; }
+.cat-l1-name  { color: #0f172a !important; }
+.cat-l1-desc  { color: #475569 !important; }
+.cat-l1-pct-sub { color: #64748b !important; }
+.cat-l1-card:hover { background: #f8fafc !important; }
+
+/* Asset detail cards en modo claro */
+.asset-detail-card { background: #f8fafc !important; }
+.adc-title { color: #0f172a !important; }
+.adc-meta  { color: #64748b !important; }
+.adc-pct   { color: #0f172a !important; }
+.adc-amt   { color: #64748b !important; }
+.adc-desc  { color: #334155 !important; }
 
 /* Legal disclaimer en modo claro */
 .legal-disclaimer {
