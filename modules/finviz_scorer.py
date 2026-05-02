@@ -15,13 +15,29 @@ from pathlib import Path
 
 # ─── Tickers del universo ─────────────────────────────────────────────────────
 SCOREABLE_TICKERS = [
+    # CEDEARs — originales
     "AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "META", "BRK-B",
     "JPM",  "KO",   "WMT",   "JNJ",  "PFE",  "XOM",  "TSLA", "BAC", "DIS",
-    "MELI", "YPF",  "VIST",  "GGAL", "LOMA", "TEO",  "PAM",  "BBAR",
+    "MELI",
+    # CEDEARs — tecnología adicional
+    "AMD",  "NFLX", "ORCL", "CRM",  "ADBE", "UBER", "GLOB",
+    # CEDEARs — finanzas adicional
+    "V",    "MA",   "GS",   "MS",
+    # CEDEARs — salud adicional
+    "UNH",  "LLY",  "MRK",
+    # CEDEARs — consumo adicional
+    "HD",   "COST", "MCD",  "NKE",
+    # CEDEARs — energía adicional
+    "CVX",
+    # Acciones ARG (ADRs en NYSE/NASDAQ)
+    "YPF",  "VIST", "GGAL", "LOMA", "TEO",  "PAM",  "BBAR",
+    "BMA",  "SUPV", "TGS",  "CEPU", "IRS",  "CRESY",
+    # ETFs — NO van aquí; se scorean por el motor ETF estático en run_and_save()
 ]
 
 # Mapeo asset_id (portfolio.py) → ticker Finviz
 ASSET_TO_FINVIZ = {
+    # CEDEARs originales
     "aapl":    "AAPL",
     "msft":    "MSFT",
     "googl":   "GOOGL",
@@ -39,6 +55,31 @@ ASSET_TO_FINVIZ = {
     "bac":     "BAC",
     "dis":     "DIS",
     "meli":    "MELI",
+    # CEDEARs tecnología adicional
+    "amd":     "AMD",
+    "nflx":    "NFLX",
+    "orcl":    "ORCL",
+    "crm":     "CRM",
+    "adbe":    "ADBE",
+    "uber":    "UBER",
+    "glob":    "GLOB",
+    # CEDEARs finanzas adicional
+    "v":       "V",
+    "ma":      "MA",
+    "gs":      "GS",
+    "ms":      "MS",
+    # CEDEARs salud adicional
+    "unh":     "UNH",
+    "lly":     "LLY",
+    "mrk":     "MRK",
+    # CEDEARs consumo adicional
+    "hd":      "HD",
+    "cost":    "COST",
+    "mcd":     "MCD",
+    "nke":     "NKE",
+    # CEDEARs energía adicional
+    "cvx":     "CVX",
+    # Acciones ARG
     "ypf":     "YPF",
     "vist":    "VIST",
     "galicia": "GGAL",
@@ -46,6 +87,19 @@ ASSET_TO_FINVIZ = {
     "teco2":   "TEO",
     "pampa":   "PAM",
     "bbar":    "BBAR",
+    "bma":     "BMA",
+    "supv":    "SUPV",
+    "tgs":     "TGS",
+    "cepu":    "CEPU",
+    "irsa":    "IRS",
+    "cres":    "CRESY",
+    # ETFs — mapeados para el motor ETF estático de run_and_save()
+    "spy":     "SPY",
+    "qqq":     "QQQ",
+    "vti":     "VTI",
+    "iau":     "IAU",
+    "gld":     "GLD",
+    "eem":     "EEM",
 }
 
 # ─── Sección 4: Mapeo sector Finviz → sector framework ────────────────────────

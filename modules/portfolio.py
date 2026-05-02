@@ -240,6 +240,56 @@ ASSET_UNIVERSE: List[Dict[str, Any]] = [
         "market": "BYMA",
         "simple_desc": "Deuda de Tecpetrol en dólares, respaldo del grupo Techint",
     },
+    {
+        "id": "al35",
+        "name": "Bono AL35 — soberano USD ley Argentina",
+        "category": "Bonos USD", "sub": "Soberano",
+        "ticker": "AL35", "color": "#1d4ed8",
+        "expected_return": 0.085, "volatility": 0.13, "risk_level": "medio",
+        "description": "Bono soberano argentino en dólares con vencimiento 2035, ley argentina. Mayor duración que AL30, implica más sensibilidad a tasas pero mayor rendimiento potencial.",
+        "currency": "USD", "market": "BYMA",
+        "simple_desc": "Bono soberano USD Argentina 2035 (ley local)",
+    },
+    {
+        "id": "gd35",
+        "name": "Bono GD35 — soberano USD ley Nueva York",
+        "category": "Bonos USD", "sub": "Soberano",
+        "ticker": "GD35", "color": "#1d4ed8",
+        "expected_return": 0.085, "volatility": 0.13, "risk_level": "medio",
+        "description": "Versión ley Nueva York del bono soberano al 2035. Mejor protección legal para el inversor, prima menor frente al AL35.",
+        "currency": "USD", "market": "BYMA",
+        "simple_desc": "Bono soberano USD Argentina 2035 (ley NY, mayor protección)",
+    },
+    {
+        "id": "gd38",
+        "name": "Bono GD38 — soberano USD ley Nueva York",
+        "category": "Bonos USD", "sub": "Soberano",
+        "ticker": "GD38", "color": "#1e3a8a",
+        "expected_return": 0.09, "volatility": 0.14, "risk_level": "medio-alto",
+        "description": "Bono soberano argentino en USD con vencimiento 2038, ley Nueva York. Mayor duration implica más potencial de suba si mejora el riesgo país.",
+        "currency": "USD", "market": "BYMA",
+        "simple_desc": "Bono soberano USD Argentina 2038, mayor duración",
+    },
+    {
+        "id": "on_tgs",
+        "name": "ON TGS USD (TGSU2O)",
+        "category": "Bonos USD", "sub": "Corporativo",
+        "ticker": "TGSU2O", "color": "#0369a1",
+        "expected_return": 0.085, "volatility": 0.08, "risk_level": "bajo-medio",
+        "description": "Obligación negociable de Transportadora Gas del Sur en dólares. Infraestructura crítica con flujos en USD regulados.",
+        "currency": "USD", "market": "BYMA",
+        "simple_desc": "Deuda de TGS en USD, infraestructura gasífera regulada",
+    },
+    {
+        "id": "on_macro",
+        "name": "ON Banco Macro USD",
+        "category": "Bonos USD", "sub": "Corporativo",
+        "ticker": "BMA5O", "color": "#f59e0b",
+        "expected_return": 0.09, "volatility": 0.09, "risk_level": "bajo-medio",
+        "description": "Obligación negociable de Banco Macro en dólares. Banco sólido con fuerte capitalización. Rinde más que los soberanos con riesgo corporativo diversificado.",
+        "currency": "USD", "market": "BYMA",
+        "simple_desc": "Deuda corporativa de Banco Macro en USD",
+    },
 
     # ══ CEDEARs TECNOLOGÍA ═════════════════════════════════════════════════════
 
@@ -509,6 +559,211 @@ ASSET_UNIVERSE: List[Dict[str, Any]] = [
         "simple_desc": "Disney: películas, streaming, parques y Marvel",
     },
 
+    # ══ CEDEARs — TECNOLOGÍA ADICIONAL ════════════════════════════════════════
+
+    {
+        "id": "amd",
+        "name": "AMD (Advanced Micro Devices)",
+        "category": "CEDEARs", "sub": "Tecnología",
+        "ticker": "AMD", "color": "#ef4444",
+        "expected_return": 0.22, "volatility": 0.50, "risk_level": "alto",
+        "description": "Fabricante de chips rival de Nvidia e Intel. Fuerte en CPUs y GPUs para IA y data centers.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "AMD: chips para computadoras, servidores e IA",
+    },
+    {
+        "id": "nflx",
+        "name": "Netflix (NFLX)",
+        "category": "CEDEARs", "sub": "Tecnología",
+        "ticker": "NFLX", "color": "#dc2626",
+        "expected_return": 0.18, "volatility": 0.38, "risk_level": "medio-alto",
+        "description": "Líder global en streaming de video. Opera en 190 países con más de 300 millones de suscriptores.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Netflix: el streaming de series y películas más grande del mundo",
+    },
+    {
+        "id": "orcl",
+        "name": "Oracle (ORCL)",
+        "category": "CEDEARs", "sub": "Tecnología",
+        "ticker": "ORCL", "color": "#dc2626",
+        "expected_return": 0.15, "volatility": 0.25, "risk_level": "medio",
+        "description": "Gigante de software empresarial y cloud. Dominante en bases de datos. Beneficiario del boom de IA en infraestructura.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Oracle: bases de datos y cloud para empresas",
+    },
+    {
+        "id": "crm",
+        "name": "Salesforce (CRM)",
+        "category": "CEDEARs", "sub": "Tecnología",
+        "ticker": "CRM", "color": "#0ea5e9",
+        "expected_return": 0.16, "volatility": 0.32, "risk_level": "medio-alto",
+        "description": "Líder en software CRM (gestión de clientes). Principal plataforma de ventas y marketing para empresas.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Salesforce: el software de ventas empresarial más usado del mundo",
+    },
+    {
+        "id": "adbe",
+        "name": "Adobe (ADBE)",
+        "category": "CEDEARs", "sub": "Tecnología",
+        "ticker": "ADBE", "color": "#ef4444",
+        "expected_return": 0.16, "volatility": 0.32, "risk_level": "medio-alto",
+        "description": "Dueña de Photoshop, Illustrator, Premiere y Acrobat. Fuerte transición a suscripción cloud e integración de IA generativa.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Adobe: Photoshop, Premiere e IA creativa",
+    },
+    {
+        "id": "uber",
+        "name": "Uber (UBER)",
+        "category": "CEDEARs", "sub": "Tecnología",
+        "ticker": "UBER", "color": "#1e293b",
+        "expected_return": 0.18, "volatility": 0.42, "risk_level": "medio-alto",
+        "description": "Plataforma de movilidad y delivery global. Opera en 70+ países. En camino a rentabilidad sostenida.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Uber: transporte y delivery en 70 países",
+    },
+    {
+        "id": "glob",
+        "name": "Globant (GLOB)",
+        "category": "CEDEARs", "sub": "Tecnología",
+        "ticker": "GLOB", "color": "#10b981",
+        "expected_return": 0.20, "volatility": 0.45, "risk_level": "alto",
+        "description": "Empresa tecnológica argentina cotizando en NYSE. Desarrollo de software y transformación digital para clientes globales.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Globant: la tech argentina en Wall Street",
+    },
+
+    # ══ CEDEARs — FINANZAS ═════════════════════════════════════════════════════
+
+    {
+        "id": "v",
+        "name": "Visa (V)",
+        "category": "CEDEARs", "sub": "Financiero",
+        "ticker": "V", "color": "#1d4ed8",
+        "expected_return": 0.14, "volatility": 0.20, "risk_level": "medio",
+        "description": "La red de pagos más grande del mundo. Cobra una comisión en cada transacción con tarjeta Visa en el planeta.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Visa: cobra en cada transacción con tarjeta en el mundo",
+    },
+    {
+        "id": "ma",
+        "name": "Mastercard (MA)",
+        "category": "CEDEARs", "sub": "Financiero",
+        "ticker": "MA", "color": "#ef4444",
+        "expected_return": 0.14, "volatility": 0.20, "risk_level": "medio",
+        "description": "Segunda red de pagos global. Modelo de negocio idéntico a Visa: cobra en cada transacción sin riesgo crediticio.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Mastercard: red de pagos global sin riesgo crediticio",
+    },
+    {
+        "id": "gs",
+        "name": "Goldman Sachs (GS)",
+        "category": "CEDEARs", "sub": "Financiero",
+        "ticker": "GS", "color": "#1e293b",
+        "expected_return": 0.13, "volatility": 0.28, "risk_level": "medio-alto",
+        "description": "Banco de inversión líder global. Opera en trading, M&A, asset management y finanzas estructuradas.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Goldman Sachs: el banco de inversión más poderoso del mundo",
+    },
+    {
+        "id": "ms",
+        "name": "Morgan Stanley (MS)",
+        "category": "CEDEARs", "sub": "Financiero",
+        "ticker": "MS", "color": "#1e40af",
+        "expected_return": 0.13, "volatility": 0.27, "risk_level": "medio-alto",
+        "description": "Banco de inversión y wealth management. Fuerte en gestión de patrimonios y banca corporativa global.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Morgan Stanley: banca de inversión y wealth management",
+    },
+
+    # ══ CEDEARs — SALUD ════════════════════════════════════════════════════════
+
+    {
+        "id": "unh",
+        "name": "UnitedHealth (UNH)",
+        "category": "CEDEARs", "sub": "Salud",
+        "ticker": "UNH", "color": "#0ea5e9",
+        "expected_return": 0.14, "volatility": 0.20, "risk_level": "medio",
+        "description": "Mayor aseguradora de salud de EE.UU. Combina seguro médico con servicios de salud digitales.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "UnitedHealth: el gigante del seguro médico en EE.UU.",
+    },
+    {
+        "id": "lly",
+        "name": "Eli Lilly (LLY)",
+        "category": "CEDEARs", "sub": "Salud",
+        "ticker": "LLY", "color": "#c026d3",
+        "expected_return": 0.18, "volatility": 0.28, "risk_level": "medio-alto",
+        "description": "Farmacéutica líder en medicamentos para diabetes y obesidad. Sus fármacos Ozempic/Mounjaro revolucionaron el mercado.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Eli Lilly: lidera el mercado de medicamentos para obesidad",
+    },
+    {
+        "id": "mrk",
+        "name": "Merck (MRK)",
+        "category": "CEDEARs", "sub": "Salud",
+        "ticker": "MRK", "color": "#0f766e",
+        "expected_return": 0.11, "volatility": 0.18, "risk_level": "bajo-medio",
+        "description": "Farmacéutica global con cartera diversificada. Keytruda es el oncológico más vendido del mundo.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Merck: farmacéutica global líder en oncología",
+    },
+
+    # ══ CEDEARs — CONSUMO ══════════════════════════════════════════════════════
+
+    {
+        "id": "hd",
+        "name": "Home Depot (HD)",
+        "category": "CEDEARs", "sub": "Consumo",
+        "ticker": "HD", "color": "#f97316",
+        "expected_return": 0.13, "volatility": 0.22, "risk_level": "medio",
+        "description": "Mayor cadena de mejoras del hogar del mundo. Muy correlacionada con el mercado inmobiliario estadounidense.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Home Depot: el mayor retailer de materiales para el hogar",
+    },
+    {
+        "id": "cost",
+        "name": "Costco (COST)",
+        "category": "CEDEARs", "sub": "Consumo",
+        "ticker": "COST", "color": "#1d4ed8",
+        "expected_return": 0.14, "volatility": 0.20, "risk_level": "medio",
+        "description": "Cadena de clubes de compras por membresía. Alta fidelidad de clientes y modelo de negocio excepcionalmente rentable.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Costco: el club de compras más rentable del mundo",
+    },
+    {
+        "id": "mcd",
+        "name": "McDonald's (MCD)",
+        "category": "CEDEARs", "sub": "Consumo",
+        "ticker": "MCD", "color": "#f59e0b",
+        "expected_return": 0.11, "volatility": 0.17, "risk_level": "bajo-medio",
+        "description": "Mayor cadena de comida rápida del mundo. Modelo de franquicias genera flujo de caja predecible y creciente.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "McDonald's: franquicias globales con flujo de caja predecible",
+    },
+    {
+        "id": "nke",
+        "name": "Nike (NKE)",
+        "category": "CEDEARs", "sub": "Consumo",
+        "ticker": "NKE", "color": "#1e293b",
+        "expected_return": 0.12, "volatility": 0.24, "risk_level": "medio",
+        "description": "Líder global en calzado y ropa deportiva. Marca icónica con fuerte poder de fijación de precios.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Nike: la marca deportiva más valiosa del mundo",
+    },
+
+    # ══ CEDEARs — ENERGÍA ══════════════════════════════════════════════════════
+
+    {
+        "id": "cvx",
+        "name": "Chevron (CVX)",
+        "category": "CEDEARs", "sub": "Energía",
+        "ticker": "CVX", "color": "#1d4ed8",
+        "expected_return": 0.11, "volatility": 0.25, "risk_level": "medio",
+        "description": "Segunda petrolera de EE.UU. Alta generación de caja, dividendo sólido y exposición al precio del petróleo.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Chevron: petrolera global con dividendo sólido",
+    },
+
     # ══ ETFs GLOBALES (via CEDEAR) ═════════════════════════════════════════════
 
     {
@@ -711,6 +966,76 @@ ASSET_UNIVERSE: List[Dict[str, Any]] = [
         "market": "BYMA",
         "simple_desc": "Loma Negra: la cementera más grande de Argentina",
     },
+    {
+        "id": "bma",
+        "name": "Banco Macro (BMA)",
+        "category": "Acciones ARG", "sub": "Financiero ARG",
+        "ticker": "BMA", "color": "#f59e0b",
+        "expected_return": 0.25, "volatility": 0.65, "risk_level": "alto",
+        "description": "Segundo banco privado de Argentina por depósitos. Fuerte presencia en el interior del país.",
+        "currency": "ARS", "market": "BYMA",
+        "simple_desc": "Banco Macro: el segundo banco privado de Argentina",
+    },
+    {
+        "id": "supv",
+        "name": "Supervielle (SUPV)",
+        "category": "Acciones ARG", "sub": "Financiero ARG",
+        "ticker": "SUPV", "color": "#ef4444",
+        "expected_return": 0.22, "volatility": 0.70, "risk_level": "alto",
+        "description": "Banco mediano con fuerte componente digital. Mayor volatilidad que Galicia o Macro, mayor potencial de rebote.",
+        "currency": "ARS", "market": "BYMA",
+        "simple_desc": "Supervielle: banco argentino con foco digital",
+    },
+    {
+        "id": "tgs",
+        "name": "Transportadora Gas del Sur (TGS)",
+        "category": "Acciones ARG", "sub": "Energía ARG",
+        "ticker": "TGSU2", "color": "#0ea5e9",
+        "expected_return": 0.18, "volatility": 0.50, "risk_level": "alto",
+        "description": "Mayor transportadora de gas natural de Argentina. Infraestructura crítica que conecta Vaca Muerta con el resto del país.",
+        "currency": "ARS", "market": "BYMA",
+        "simple_desc": "TGS: la arteria de gas que conecta Vaca Muerta",
+    },
+    {
+        "id": "cepu",
+        "name": "Central Puerto (CEPU)",
+        "category": "Acciones ARG", "sub": "Energía ARG",
+        "ticker": "CEPU", "color": "#a3e635",
+        "expected_return": 0.16, "volatility": 0.45, "risk_level": "alto",
+        "description": "Principal generadora de energía eléctrica de Argentina. Se beneficia de la normalización tarifaria en el sector.",
+        "currency": "ARS", "market": "BYMA",
+        "simple_desc": "Central Puerto: la mayor generadora eléctrica del país",
+    },
+    {
+        "id": "alua",
+        "name": "Aluar (ALUA)",
+        "category": "Acciones ARG", "sub": "Industria ARG",
+        "ticker": "ALUA", "color": "#6b7280",
+        "expected_return": 0.15, "volatility": 0.45, "risk_level": "alto",
+        "description": "Único productor de aluminio primario de Argentina. Exporta el 70% de su producción. Beneficiado por precios internacionales del aluminio.",
+        "currency": "ARS", "market": "BYMA",
+        "simple_desc": "Aluar: el único productor de aluminio de Argentina",
+    },
+    {
+        "id": "irsa",
+        "name": "IRSA Propiedades Comerciales (IRCP)",
+        "category": "Acciones ARG", "sub": "Real Estate ARG",
+        "ticker": "IRCP", "color": "#8b5cf6",
+        "expected_return": 0.20, "volatility": 0.55, "risk_level": "alto",
+        "description": "Mayor empresa de real estate comercial de Argentina. Dueña de shoppings, oficinas y el hotel Llao Llao.",
+        "currency": "ARS", "market": "BYMA",
+        "simple_desc": "IRSA: el mayor propietario de shoppings y oficinas en Argentina",
+    },
+    {
+        "id": "cres",
+        "name": "Cresud (CRES)",
+        "category": "Acciones ARG", "sub": "Agro ARG",
+        "ticker": "CRES", "color": "#84cc16",
+        "expected_return": 0.18, "volatility": 0.55, "risk_level": "alto",
+        "description": "Empresa agropecuaria argentina con campos en 4 países. Dueña de IRSA y con fuerte exposición a commodities agrícolas.",
+        "currency": "ARS", "market": "BYMA",
+        "simple_desc": "Cresud: campos y agro en Argentina, Brasil, Bolivia y Paraguay",
+    },
 
 ]
 
@@ -722,12 +1047,29 @@ ASSET_INDEX = {a["id"]: a for a in ASSET_UNIVERSE}
 # media = volumen medio o mercado alternativo (exchanges, ONs)
 # baja  = poco volumen en BYMA, solo para agresivos con horizonte ≥5 años
 _LIQUIDITY_LEVELS = {
-    "alta":  {"cash_pesos","money_market","plazo_fijo","fci_t0","lecap",
-              "cer_bond","fci_renta_pesos","mep","al30","gd30",
-              "spy","qqq","aapl","meli","ypf","galicia"},
-    "media": {"on_ypf","on_corp","on_pampa","on_tecpetrol","gld","iau","vti",
-              "eem","msft","nvda","googl","amzn","meta","brk","jpm",
-              "bac","tsla"},
+    "alta":  {
+        # Pesos e instrumentos locales
+        "cash_pesos","money_market","plazo_fijo","fci_t0","lecap",
+        "cer_bond","fci_renta_pesos","mep",
+        # Soberanos USD más líquidos (AL30/GD30 operan >$10M/día en BYMA)
+        "al30","gd30","al35","gd35",
+        # CEDEARs de alto volumen en BYMA
+        "spy","qqq","aapl","meli","ypf","galicia","bma","msft","nvda","v","ma",
+    },
+    "media": {
+        # Soberanos con algo menos de volumen
+        "gd38",
+        # ONs corporativas
+        "on_ypf","on_corp","on_pampa","on_tecpetrol","on_tgs","on_macro",
+        # ETFs alternativos
+        "gld","iau","vti","eem",
+        # CEDEARs de volumen medio en BYMA
+        "googl","amzn","meta","brk","jpm","bac","tsla","ko","wmt","jnj",
+        "pfe","xom","dis","amd","nflx","orcl","crm","adbe","uber","glob",
+        "gs","ms","unh","lly","mrk","hd","cost","mcd","nke","cvx",
+        # Acciones ARG de liquidez media en BYMA
+        "tgs","cepu","alua","bbar","loma","pampa","vist","teco2","supv",
+    },
 }
 for _a in ASSET_UNIVERSE:
     for _lev, _ids in _LIQUIDITY_LEVELS.items():
@@ -823,7 +1165,7 @@ PORTFOLIO_TEMPLATES = {
 
 _BUCKET_DEFS: Dict[str, list] = {
     "conservador": [
-        # Peso objetivo: 1.00 total → 6 posiciones
+        # 6 posiciones máximo
         {"id": "liquidez",   "target": 0.20, "max_pos": 1, "score_src": None,
          "candidates": ["money_market"]},
         {"id": "cobertura",  "target": 0.24, "max_pos": 1, "score_src": None,
@@ -831,9 +1173,10 @@ _BUCKET_DEFS: Dict[str, list] = {
         {"id": "rf_pesos",   "target": 0.14, "max_pos": 1, "score_src": "bond",
          "candidates": ["lecap", "cer_bond"]},
         {"id": "rf_usd",     "target": 0.31, "max_pos": 2, "score_src": "bond",
-         "candidates": ["on_corp", "on_ypf", "on_pampa", "on_tecpetrol", "al30", "gd30"]},
+         "candidates": ["on_corp", "on_ypf", "on_pampa", "on_tecpetrol",
+                         "on_tgs", "on_macro", "al30", "gd30", "al35", "gd35"]},
         {"id": "globales",   "target": 0.11, "max_pos": 1, "score_src": "equity",
-         "candidates": ["spy", "vti", "iau"]},
+         "candidates": ["spy", "vti", "iau", "gld"]},
     ],
     "estable": [
         # 6 posiciones
@@ -842,9 +1185,11 @@ _BUCKET_DEFS: Dict[str, list] = {
         {"id": "cobertura", "target": 0.25, "max_pos": 1, "score_src": None,
          "candidates": ["mep"]},
         {"id": "rf",        "target": 0.45, "max_pos": 3, "score_src": "bond",
-         "candidates": ["lecap", "cer_bond", "on_corp", "on_ypf", "on_pampa", "al30", "gd30"]},
+         "candidates": ["lecap", "cer_bond",
+                         "on_corp", "on_ypf", "on_pampa", "on_tecpetrol", "on_tgs", "on_macro",
+                         "al30", "gd30", "al35", "gd35"]},
         {"id": "globales",  "target": 0.15, "max_pos": 1, "score_src": "equity",
-         "candidates": ["spy", "vti", "qqq"]},
+         "candidates": ["spy", "vti", "qqq", "iau"]},
     ],
     "moderado": [
         # 7 posiciones
@@ -853,26 +1198,34 @@ _BUCKET_DEFS: Dict[str, list] = {
         {"id": "cobertura",     "target": 0.15, "max_pos": 1, "score_src": None,
          "candidates": ["mep"]},
         {"id": "rf_usd",        "target": 0.23, "max_pos": 1, "score_src": "bond",
-         "candidates": ["on_corp", "on_ypf", "on_pampa", "al30", "gd30"]},
+         "candidates": ["on_corp", "on_ypf", "on_pampa", "on_tgs", "on_macro",
+                         "al30", "gd30", "al35", "gd35"]},
         {"id": "etf_global",    "target": 0.22, "max_pos": 2, "score_src": "equity",
          "candidates": ["spy", "qqq", "vti"]},
         {"id": "equity_global", "target": 0.18, "max_pos": 1, "score_src": "equity",
-         "candidates": ["nvda", "msft", "meta", "googl", "brk", "amzn", "aapl"]},
+         "candidates": ["nvda", "amd", "msft", "meta", "googl", "amzn", "aapl",
+                         "v", "ma", "unh", "lly", "cost", "nflx", "orcl", "crm"]},
         {"id": "equity_arg",    "target": 0.10, "max_pos": 1, "score_src": "equity",
-         "candidates": ["ypf", "galicia", "vist", "pampa", "meli"]},
+         "candidates": ["ypf", "galicia", "bma", "tgs", "cepu", "pampa",
+                         "vist", "meli", "alua", "irsa"]},
     ],
     "agresivo": [
         # 8 posiciones
         {"id": "cobertura",     "target": 0.18, "max_pos": 1, "score_src": None,
          "candidates": ["mep"]},
         {"id": "rf_usd",        "target": 0.09, "max_pos": 1, "score_src": "bond",
-         "candidates": ["al30", "gd30", "on_corp"]},
+         "candidates": ["on_corp", "on_ypf", "on_pampa", "on_tgs", "on_macro",
+                         "al30", "gd30", "al35", "gd35", "gd38"]},
         {"id": "etf_global",    "target": 0.25, "max_pos": 2, "score_src": "equity",
-         "candidates": ["qqq", "spy", "vti"]},
+         "candidates": ["qqq", "spy", "vti", "eem"]},
         {"id": "equity_global", "target": 0.28, "max_pos": 3, "score_src": "equity",
-         "candidates": ["nvda", "msft", "meta", "googl", "amzn", "meli", "aapl", "tsla"]},
+         "candidates": ["nvda", "amd", "msft", "meta", "googl", "amzn", "meli",
+                         "aapl", "tsla", "nflx", "v", "ma", "unh", "lly",
+                         "crm", "adbe", "uber", "glob", "gs", "cost"]},
         {"id": "equity_arg",    "target": 0.20, "max_pos": 2, "score_src": "equity",
-         "candidates": ["ypf", "galicia", "vist", "pampa", "bbar"]},
+         "candidates": ["ypf", "galicia", "bma", "supv", "tgs", "cepu",
+                         "pampa", "vist", "bbar", "alua", "irsa", "cres",
+                         "loma", "teco2"]},
     ],
 }
 

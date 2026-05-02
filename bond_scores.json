@@ -152,6 +152,101 @@
         "paridad": 99.0,
         "vol_m": 1.0
       }
+    },
+    "al35": {
+      "score": 61,
+      "rating": "HOLD",
+      "live": false,
+      "label": "AL35 – Bono Global USD Ley Argentina 2035",
+      "breakdown": {
+        "rendimiento": 26,
+        "duration": 2,
+        "calidad": 15,
+        "paridad": 10,
+        "liquidez": 8
+      },
+      "inputs": {
+        "tir": 9.0,
+        "duration": 6.5,
+        "paridad": 42.0,
+        "vol_m": 3.0
+      }
+    },
+    "gd35": {
+      "score": 62,
+      "rating": "HOLD",
+      "live": false,
+      "label": "GD35 – Bono Global USD Ley Nueva York 2035",
+      "breakdown": {
+        "rendimiento": 26,
+        "duration": 2,
+        "calidad": 16,
+        "paridad": 10,
+        "liquidez": 8
+      },
+      "inputs": {
+        "tir": 9.0,
+        "duration": 6.5,
+        "paridad": 42.0,
+        "vol_m": 4.0
+      }
+    },
+    "gd38": {
+      "score": 62,
+      "rating": "HOLD",
+      "live": false,
+      "label": "GD38 – Bono Global USD Ley Nueva York 2038",
+      "breakdown": {
+        "rendimiento": 26,
+        "duration": 2,
+        "calidad": 16,
+        "paridad": 10,
+        "liquidez": 8
+      },
+      "inputs": {
+        "tir": 9.5,
+        "duration": 8.5,
+        "paridad": 40.0,
+        "vol_m": 3.0
+      }
+    },
+    "on_tgs": {
+      "score": 64,
+      "rating": "HOLD",
+      "live": false,
+      "label": "ON TGS USD (TGSU2O)",
+      "breakdown": {
+        "rendimiento": 26,
+        "duration": 9,
+        "calidad": 22,
+        "paridad": 2,
+        "liquidez": 5
+      },
+      "inputs": {
+        "tir": 8.5,
+        "duration": 2.0,
+        "paridad": 100.0,
+        "vol_m": 1.0
+      }
+    },
+    "on_macro": {
+      "score": 55,
+      "rating": "HOLD",
+      "live": false,
+      "label": "ON Banco Macro USD",
+      "breakdown": {
+        "rendimiento": 26,
+        "duration": 2,
+        "calidad": 20,
+        "paridad": 5,
+        "liquidez": 2
+      },
+      "inputs": {
+        "tir": 9.0,
+        "duration": 2.5,
+        "paridad": 99.0,
+        "vol_m": 0.8
+      }
     }
   }
 }

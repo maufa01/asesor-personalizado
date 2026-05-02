@@ -125,6 +125,63 @@ BOND_DEFS = {
         "quality_pts":  22,
         "vol_est_m":    1.0,
     },
+    # ── Soberanos serie 2035-2038 ─────────────────────────────────────────────
+    "al35": {
+        "label":        "AL35 – Bono Global USD Ley Argentina 2035",
+        "type":         "soberano_usd",
+        "ticker_rava":  "AL35",
+        "ticker_ambito": "AL35",
+        "tir_est":      9.0,       # mayor yield por mayor duration
+        "duration_est": 6.5,       # duration más larga que AL30
+        "paridad_est":  42.0,
+        "quality_pts":  15,        # mismo emisor que AL30, menor puntuación por mayor riesgo duration
+        "vol_est_m":    3.0,
+    },
+    "gd35": {
+        "label":        "GD35 – Bono Global USD Ley Nueva York 2035",
+        "type":         "soberano_usd",
+        "ticker_rava":  "GD35",
+        "ticker_ambito": "GD35",
+        "tir_est":      9.0,
+        "duration_est": 6.5,
+        "paridad_est":  42.0,
+        "quality_pts":  16,        # ley NY → punto extra sobre AL35
+        "vol_est_m":    4.0,
+    },
+    "gd38": {
+        "label":        "GD38 – Bono Global USD Ley Nueva York 2038",
+        "type":         "soberano_usd",
+        "ticker_rava":  "GD38",
+        "ticker_ambito": "GD38",
+        "tir_est":      9.5,       # mayor yield por mayor plazo
+        "duration_est": 8.5,
+        "paridad_est":  40.0,
+        "quality_pts":  16,
+        "vol_est_m":    3.0,
+    },
+    # ── ONs adicionales ───────────────────────────────────────────────────────
+    "on_tgs": {
+        "label":        "ON TGS USD (TGSU2O)",
+        "type":         "on_corp",
+        "ticker_rava":  "TGSU2O",
+        "ticker_ambito": "TGSU2O",
+        "tir_est":      8.5,
+        "duration_est": 2.0,
+        "paridad_est":  100.0,
+        "quality_pts":  22,        # infraestructura regulada, alta calidad
+        "vol_est_m":    1.0,
+    },
+    "on_macro": {
+        "label":        "ON Banco Macro USD",
+        "type":         "on_corp",
+        "ticker_rava":  "BMA5O",
+        "ticker_ambito": "BMA5O",
+        "tir_est":      9.0,
+        "duration_est": 2.5,
+        "paridad_est":  99.0,
+        "quality_pts":  20,
+        "vol_est_m":    0.8,
+    },
 }
 
 # ─── Fetchers ─────────────────────────────────────────────────────────────────
