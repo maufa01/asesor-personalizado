@@ -1,0 +1,107 @@
+{
+  "portfolios": [
+    {
+      "id": "d30cf0a3",
+      "fecha": "2026-05-02",
+      "risk_profile": "agresivo",
+      "posiciones": [
+        {
+          "ticker": "NVDA",
+          "sector": "tecnologia",
+          "precio_entrada": 100.0,
+          "descuento_vs_sector_entrada": 5.0,
+          "fecha_salida": "2026-05-02",
+          "precio_salida": 88.0,
+          "retorno_pct": -12.0,
+          "resultado": "perdedor"
+        }
+      ]
+    }
+  ],
+  "performance": [
+    {
+      "ticker": "NVDA",
+      "operaciones": 1,
+      "ganadores": 0,
+      "perdedores": 1,
+      "retorno_promedio_pct": -12.0,
+      "descuento_vs_sector_promedio_pct": 5.0,
+      "mejor_retorno": -12.0,
+      "peor_retorno": -12.0
+    }
+  ],
+  "aprendizaje": {
+    "umbral_descuento_minimo_pct": 12.0,
+    "score_minimo": 55,
+    "ajustes_calidad_sector": {},
+    "sectores_evitar": [],
+    "sectores_sobreponderar": [],
+    "patrones_detectados": [
+      {
+        "tipo": "descuento_insuficiente",
+        "ticker": "NVDA",
+        "fecha": "2026-05-02",
+        "detalle": "Retorno -12.0% con descuento 5.0% vs sector"
+      }
+    ],
+    "reglas_aprendidas": [
+      "Subido umbral_descuento_minimo_pct a 12.0% tras pérdida en NVDA con descuento insuficiente."
+    ],
+    "historial_medianas_sector": {
+      "tecnologia": [
+        {
+          "fecha": "2026-05-02",
+          "pe": 33.52,
+          "ev_ebitda": 19.21
+        }
+      ]
+    }
+  },
+  "mercado_snapshot": [
+    {
+      "fecha": "2026-05-02",
+      "tipo": "screener",
+      "sectores_analizados": [
+        "Technology"
+      ],
+      "candidatos_encontrados": 0,
+      "excluidos": 0,
+      "parametros": {
+        "descuento_min": 12.0,
+        "score_min": 55
+      }
+    },
+    {
+      "fecha": "2026-05-02",
+      "tipo": "screener",
+      "sectores_analizados": [
+        "Technology"
+      ],
+      "candidatos_encontrados": 0,
+      "excluidos": 0,
+      "parametros": {
+        "descuento_min": 12.0,
+        "score_min": 55
+      }
+    },
+    {
+      "fecha": "2026-05-02",
+      "tipo": "screener",
+      "sectores_analizados": [
+        "Technology"
+      ],
+      "candidatos_encontrados": 5,
+      "excluidos": 346,
+      "parametros": {
+        "descuento_min": 12.0,
+        "score_min": 55
+      }
+    }
+  ],
+  "instrumentos_ar": {
+    "bonos": [],
+    "letras": [],
+    "fondos": [],
+    "cedears_seguimiento": []
+  }
+}
