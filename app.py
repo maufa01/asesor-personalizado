@@ -631,6 +631,20 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
 
     # ── ¿Qué pasa si no hacés nada? ───────────────────────────────────────────
     with st.expander("📊 ¿Qué pasa con tu plata si no la invertís?", expanded=False):
+        st.markdown(f"""
+<div style="background:rgba(255,255,255,0.04);border-radius:12px;padding:18px 22px;margin-bottom:20px;border-left:3px solid #f59e0b;">
+  <div style="font-size:1rem;font-weight:700;color:#e2e8f0;margin-bottom:8px;">¿Qué es el costo de oportunidad?</div>
+  <div style="font-size:0.9rem;color:#94a3b8;line-height:1.6;">
+    Cada peso que no invertís no está "guardado" — está <strong style="color:#f59e0b;">perdiendo valor</strong>.
+    Los dólares bajo el colchón pierden poder de compra con la inflación global.
+    El plazo fijo en pesos, históricamente, apenas empata con el dólar.
+    <br><br>
+    El <strong style="color:#a78bfa;">costo de oportunidad</strong> es lo que dejás de ganar por no poner tu plata a trabajar.
+    No es una pérdida visible en tu cuenta — pero sí es real: es la diferencia entre
+    lo que tendrías con esta cartera y lo que tendrías si no hacés nada.
+  </div>
+</div>
+""", unsafe_allow_html=True)
         _comp = comparar_vs_alternativas(_capital_usd, profile["horizon"], portfolio["expected_cagr"])
         _cp_f   = _comp["portfolio_final"] * _disp_factor
         _cp_pf  = _comp["pf_final"]        * _disp_factor
