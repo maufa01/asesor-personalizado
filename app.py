@@ -630,17 +630,14 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── ¿Qué pasa si no hacés nada? ───────────────────────────────────────────
-    st.markdown('<div class="section-title">📊 ¿Qué pasa con tu plata si no la invertís?</div>', unsafe_allow_html=True)
-    st.caption("Comparación en dólares reales a lo largo del tiempo. El plazo fijo rinde ~1% real anual en dólares. Los dólares guardados pierden poder adquisitivo con la inflación global.")
+    with st.expander("📊 ¿Qué pasa con tu plata si no la invertís?", expanded=False):
+        _comp = comparar_vs_alternativas(_capital_usd, profile["horizon"], portfolio["expected_cagr"])
+        _cp_f   = _comp["portfolio_final"] * _disp_factor
+        _cp_pf  = _comp["pf_final"]        * _disp_factor
+        _cp_col = _comp["colchon_final"]   * _disp_factor
+        _dif_col = _comp["diferencia_vs_colchon"] * _disp_factor
 
-    _comp = comparar_vs_alternativas(_capital_usd, profile["horizon"], portfolio["expected_cagr"])
-    _cp_f = _comp["portfolio_final"] * _disp_factor
-    _cp_pf = _comp["pf_final"] * _disp_factor
-    _cp_col = _comp["colchon_final"] * _disp_factor
-    _dif_pf  = (_comp["diferencia_vs_pf"]) * _disp_factor
-    _dif_col = (_comp["diferencia_vs_colchon"]) * _disp_factor
-
-    st.markdown(f"""<div class="metrics-grid">
+        st.markdown(f"""<div class="metrics-grid">
 <div class="metric-card">
   <div class="metric-label">Esta cartera en {profile['horizon']} años</div>
   <div class="metric-value" style="color:#22c55e;">{_disp_prefix}{_cp_f:,.0f}{_disp_suffix}</div>
@@ -663,153 +660,96 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
 </div>
 </div>""", unsafe_allow_html=True)
 
-    # Gráfico de comparación — Plotly para controlar eje Y
-    try:
-        import plotly.graph_objects as _go
-        _years_ax  = _comp["years"]
-        _port_vals = [v * _disp_factor for v in _comp["portfolio"]]
-        _pf_vals   = [v * _disp_factor for v in _comp["pf"]]
-        _col_vals  = [v * _disp_factor for v in _comp["colchon"]]
-
-        _y_min = min(_col_vals) * 0.97
-        _y_max = max(_port_vals) * 1.03
-
-        _fig_comp = _go.Figure()
-        _fig_comp.add_trace(_go.Scatter(
-            x=_years_ax, y=_port_vals,
-            name="Esta cartera", mode="lines",
-            line=dict(color="#22c55e", width=3),
-            fill="tonexty" if False else None,
-        ))
-        _fig_comp.add_trace(_go.Scatter(
-            x=_years_ax, y=_pf_vals,
-            name="Plazo fijo", mode="lines",
-            line=dict(color="#f59e0b", width=2, dash="dot"),
-        ))
-        _fig_comp.add_trace(_go.Scatter(
-            x=_years_ax, y=_col_vals,
-            name="Dólares guardados", mode="lines",
-            line=dict(color="#ef4444", width=2, dash="dash"),
-        ))
-        _fig_comp.update_layout(
-            paper_bgcolor="#0f172a",
-            plot_bgcolor="#0f172a",
-            font=dict(color="#94a3b8", size=12),
-            xaxis=dict(
-                title="Años",
-                tickmode="linear", dtick=1,
-                gridcolor="#1e293b", zerolinecolor="#1e293b",
-            ),
-            yaxis=dict(
-                title=_disp_curr,
-                range=[_y_min, _y_max],
-                gridcolor="#1e293b", zerolinecolor="#1e293b",
-                tickformat=",.0f",
-            ),
-            legend=dict(
-                orientation="h", yanchor="bottom", y=1.02,
-                xanchor="left", x=0,
-                bgcolor="rgba(0,0,0,0)",
-            ),
-            margin=dict(l=0, r=0, t=40, b=0),
-            hovermode="x unified",
-        )
-        st.plotly_chart(_fig_comp, use_container_width=True)
-    except Exception:
-        pass
-
-    st.markdown("<br>", unsafe_allow_html=True)
+        try:
+            import plotly.graph_objects as _go
+            _years_ax  = _comp["years"]
+            _port_vals = [v * _disp_factor for v in _comp["portfolio"]]
+            _pf_vals   = [v * _disp_factor for v in _comp["pf"]]
+            _col_vals  = [v * _disp_factor for v in _comp["colchon"]]
+            _fig_comp  = _go.Figure()
+            _fig_comp.add_trace(_go.Scatter(x=_years_ax, y=_port_vals, name="Esta cartera",
+                line=dict(color="#22c55e", width=3), mode="lines"))
+            _fig_comp.add_trace(_go.Scatter(x=_years_ax, y=_pf_vals, name="Plazo fijo",
+                line=dict(color="#f59e0b", width=2, dash="dot"), mode="lines"))
+            _fig_comp.add_trace(_go.Scatter(x=_years_ax, y=_col_vals, name="Dólares guardados",
+                line=dict(color="#ef4444", width=2, dash="dash"), mode="lines"))
+            _fig_comp.update_layout(
+                paper_bgcolor="#0f172a", plot_bgcolor="#0f172a",
+                font=dict(color="#94a3b8", size=12),
+                xaxis=dict(title="Años", tickmode="linear", dtick=1,
+                           gridcolor="#1e293b", zerolinecolor="#1e293b"),
+                yaxis=dict(title=_disp_curr, range=[min(_col_vals)*0.97, max(_port_vals)*1.03],
+                           gridcolor="#1e293b", zerolinecolor="#1e293b", tickformat=",.0f"),
+                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0,
+                            bgcolor="rgba(0,0,0,0)"),
+                margin=dict(l=0, r=0, t=40, b=0), hovermode="x unified",
+            )
+            st.plotly_chart(_fig_comp, use_container_width=True)
+        except Exception:
+            pass
 
     # ── Si agregás algo todos los meses ──────────────────────────────────────
-    st.markdown('<div class="section-title">💰 ¿Qué pasa si sumás un poco cada mes?</div>', unsafe_allow_html=True)
-    st.caption("La riqueza no se construye de una vez — se construye mes a mes. Incluso montos pequeños hacen una diferencia enorme a largo plazo.")
+    with st.expander("💰 ¿Qué pasa si sumás un poco cada mes?", expanded=False):
+        st.caption("La riqueza no se construye de una vez — se construye mes a mes. Incluso montos pequeños hacen una diferencia enorme a largo plazo.")
 
-    _aporte_key = "aporte_mensual_usd"
-    _col_aporte, _col_slider = st.columns([1, 2])
-    with _col_aporte:
-        if _currency_in == "ARS":
-            _aporte_label = f"Aporte mensual en ARS (≈ USD al MEP)"
-            _aporte_ars   = st.number_input(
-                _aporte_label, min_value=0, max_value=50_000_000,
-                value=st.session_state.get(_aporte_key + "_ars", 50_000),
-                step=50_000, key=_aporte_key + "_ars",
-            )
-            _aporte_usd_val = _aporte_ars / _MEP_RATE
-        else:
-            _aporte_usd_val = st.number_input(
-                "Aporte mensual en USD", min_value=0, max_value=500_000,
-                value=st.session_state.get(_aporte_key, 100),
-                step=100, key=_aporte_key,
-            )
+        _aporte_key = "aporte_mensual_usd"
+        _col_aporte, _col_slider = st.columns([1, 2])
+        with _col_aporte:
+            if _currency_in == "ARS":
+                _aporte_ars = st.number_input(
+                    "Aporte mensual en ARS (≈ USD al MEP)", min_value=0, max_value=50_000_000,
+                    value=st.session_state.get(_aporte_key + "_ars", 50_000),
+                    step=50_000, key=_aporte_key + "_ars",
+                )
+                _aporte_usd_val = _aporte_ars / _MEP_RATE
+            else:
+                _aporte_usd_val = st.number_input(
+                    "Aporte mensual en USD", min_value=0, max_value=500_000,
+                    value=st.session_state.get(_aporte_key, 100),
+                    step=100, key=_aporte_key,
+                )
 
-    _proy = proyectar_con_aportes(
-        _capital_usd, _aporte_usd_val, profile["horizon"], portfolio["expected_cagr"]
-    )
-    _proy_sin  = _proy["final_sin"]  * _disp_factor
-    _proy_con  = _proy["final_con"]  * _disp_factor
-    _proy_ext  = _proy["ganancia_extra"] * _disp_factor
-    _total_ap  = _proy["total_aportado"] * _disp_factor
+        _proy     = proyectar_con_aportes(_capital_usd, _aporte_usd_val, profile["horizon"], portfolio["expected_cagr"])
+        _proy_sin = _proy["final_sin"]      * _disp_factor
+        _proy_con = _proy["final_con"]      * _disp_factor
+        _proy_ext = _proy["ganancia_extra"] * _disp_factor
 
-    with _col_slider:
-        if _aporte_usd_val > 0:
-            st.markdown(f"""<div style="padding:16px;background:rgba(34,197,94,0.08);border-radius:12px;border:1px solid rgba(34,197,94,0.2);">
+        with _col_slider:
+            if _aporte_usd_val > 0:
+                st.markdown(f"""<div style="padding:16px;background:rgba(34,197,94,0.08);border-radius:12px;border:1px solid rgba(34,197,94,0.2);">
 <div style="font-size:0.85rem;opacity:0.7;">Aportando {_disp_prefix}{_aporte_usd_val*_disp_factor:,.0f}{_disp_suffix}/mes durante {profile['horizon']} años:</div>
 <div style="font-size:1.6rem;font-weight:800;color:#22c55e;">{_disp_prefix}{_proy_con:,.0f}{_disp_suffix}</div>
 <div style="font-size:0.8rem;opacity:0.6;">vs {_disp_prefix}{_proy_sin:,.0f}{_disp_suffix} sin aportar · ganancia extra: {_disp_prefix}{_proy_ext:,.0f}{_disp_suffix}</div>
 </div>""", unsafe_allow_html=True)
-        else:
-            st.info("Ingresá un monto mensual para ver el impacto")
+            else:
+                st.info("Ingresá un monto mensual para ver el impacto")
 
-    if _aporte_usd_val > 0:
-        try:
-            import plotly.graph_objects as _go2
-            _ap_años   = _proy["años"]
-            _ap_con    = [v * _disp_factor for v in _proy["con_aporte"]]
-            _ap_sin    = [v * _disp_factor for v in _proy["sin_aporte"]]
-            _ap_y_min  = min(_ap_sin) * 0.97
-            _ap_y_max  = max(_ap_con) * 1.03
-
-            _fig_ap = _go2.Figure()
-            _fig_ap.add_trace(_go2.Scatter(
-                x=_ap_años, y=_ap_con,
-                name=f"Con aportes mensuales", mode="lines",
-                line=dict(color="#22c55e", width=3),
-                fill="tonexty",
-                fillcolor="rgba(34,197,94,0.08)",
-            ))
-            _fig_ap.add_trace(_go2.Scatter(
-                x=_ap_años, y=_ap_sin,
-                name="Sin aportes", mode="lines",
-                line=dict(color="#60a5fa", width=2, dash="dot"),
-            ))
-            _fig_ap.update_layout(
-                paper_bgcolor="#0f172a",
-                plot_bgcolor="#0f172a",
-                font=dict(color="#94a3b8", size=12),
-                xaxis=dict(
-                    title="Años",
-                    tickmode="linear", dtick=1,
-                    gridcolor="#1e293b", zerolinecolor="#1e293b",
-                ),
-                yaxis=dict(
-                    title=_disp_curr,
-                    range=[_ap_y_min, _ap_y_max],
-                    gridcolor="#1e293b", zerolinecolor="#1e293b",
-                    tickformat=",.0f",
-                ),
-                legend=dict(
-                    orientation="h", yanchor="bottom", y=1.02,
-                    xanchor="left", x=0,
-                    bgcolor="rgba(0,0,0,0)",
-                ),
-                margin=dict(l=0, r=0, t=40, b=0),
-                hovermode="x unified",
-            )
-            st.plotly_chart(_fig_ap, use_container_width=True)
-        except Exception:
-            pass
-
-    st.markdown("<br>", unsafe_allow_html=True)
+        if _aporte_usd_val > 0:
+            try:
+                import plotly.graph_objects as _go2
+                _ap_años = _proy["años"]
+                _ap_con  = [v * _disp_factor for v in _proy["con_aporte"]]
+                _ap_sin  = [v * _disp_factor for v in _proy["sin_aporte"]]
+                _fig_ap  = _go2.Figure()
+                _fig_ap.add_trace(_go2.Scatter(x=_ap_años, y=_ap_con, name="Con aportes mensuales",
+                    line=dict(color="#22c55e", width=3), mode="lines",
+                    fill="tonexty", fillcolor="rgba(34,197,94,0.08)"))
+                _fig_ap.add_trace(_go2.Scatter(x=_ap_años, y=_ap_sin, name="Sin aportes",
+                    line=dict(color="#60a5fa", width=2, dash="dot"), mode="lines"))
+                _fig_ap.update_layout(
+                    paper_bgcolor="#0f172a", plot_bgcolor="#0f172a",
+                    font=dict(color="#94a3b8", size=12),
+                    xaxis=dict(title="Años", tickmode="linear", dtick=1,
+                               gridcolor="#1e293b", zerolinecolor="#1e293b"),
+                    yaxis=dict(title=_disp_curr, range=[min(_ap_sin)*0.97, max(_ap_con)*1.03],
+                               gridcolor="#1e293b", zerolinecolor="#1e293b", tickformat=",.0f"),
+                    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0,
+                                bgcolor="rgba(0,0,0,0)"),
+                    margin=dict(l=0, r=0, t=40, b=0), hovermode="x unified",
+                )
+                st.plotly_chart(_fig_ap, use_container_width=True)
+            except Exception:
+                pass
 
     st.markdown("<br>", unsafe_allow_html=True)
 
