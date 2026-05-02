@@ -13,7 +13,7 @@ from google.genai import types
 from typing import Dict, Any
 import streamlit as st
 
-_MODELS = ["gemini-2.0-flash", "gemini-1.5-flash"]
+_MODELS = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-flash-8b"]
 
 
 def _get_client() -> genai.Client:
@@ -33,10 +33,12 @@ class ApiKeyError(Exception):
     pass
 
 
-def _generate_with_retry(contents, config: types.GenerateContentConfig, retries: int = 2) -> str:
-    """Intenta generar contenido con fallback de modelo y reintentos ante 429/503."""
+def _generate_with_retry(contents, config: types.GenerateContentConfig, retries: int = 1) -> str:
+    """Intenta generar contenido con fallback entre modelos ante 429/503."""
     client = _get_client()
     last_err = None
+    quota_errors = 0
+
     for model in _MODELS:
         for attempt in range(retries + 1):
             try:
@@ -52,17 +54,22 @@ def _generate_with_retry(contents, config: types.GenerateContentConfig, retries:
                 is_429 = "429" in msg or "RESOURCE_EXHAUSTED" in msg
                 is_503 = "503" in msg or "UNAVAILABLE" in msg
                 is_403 = "403" in msg or "PERMISSION_DENIED" in msg or "API_KEY" in msg.upper() or "api key" in msg.lower()
+
                 if is_403:
                     raise ApiKeyError(msg)
                 if is_429:
+                    quota_errors += 1
                     if attempt < retries:
-                        time.sleep(10 * (attempt + 1))  # 10s, 20s — espera límite por minuto (15 req/min)
+                        time.sleep(8)  # espera breve antes de reintentar mismo modelo
                         continue
-                    raise QuotaExhaustedError(msg)
+                    break  # agoté reintentos en este modelo → probar el siguiente
                 if is_503 and attempt < retries:
-                    time.sleep(2 ** attempt)  # 1s, 2s
+                    time.sleep(2)
                     continue
                 break  # error no recuperable → probar modelo siguiente
+
+    if quota_errors == len(_MODELS) * (retries + 1):
+        raise QuotaExhaustedError(str(last_err))
     raise last_err
 
 
