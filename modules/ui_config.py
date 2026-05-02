@@ -49,6 +49,10 @@ def apply_custom_css():
     /* ── Hide Streamlit chrome ────────────────────────────────────── */
     #MainMenu, footer, header { visibility: hidden; }
     .stDeployButton { display: none; }
+    [data-testid="stToolbar"],
+    [data-testid="stHeader"],
+    [data-testid="stDecoration"],
+    [data-testid="stStatusWidget"] { display: none !important; }
     .block-container {
         padding: 0 2rem 4rem !important;
         max-width: 1280px !important;
@@ -1055,6 +1059,12 @@ def apply_custom_css():
     [data-testid="stVerticalBlock"]:has(.big-expander-green) > div > [data-testid="stExpander"] > details {
         border-left: 3px solid #22c55e !important;
     }
+    [data-testid="stVerticalBlock"]:has(.big-expander-blue) > div > [data-testid="stExpander"] > details {
+        border-left: 3px solid #38bdf8 !important;
+    }
+    [data-testid="stVerticalBlock"]:has(.big-expander-red) > div > [data-testid="stExpander"] > details {
+        border-left: 3px solid #ef4444 !important;
+    }
 
     /* ── Footer ───────────────────────────────────────────────────── */
     .app-footer {
@@ -1457,6 +1467,41 @@ def apply_custom_css():
         line-height: 1.75;
         text-align: center;
     }
+
+    .results-timeline-card {
+        margin-top: 0.75rem;
+        border-left: 3px solid #a78bfa !important;
+        background: rgba(167,139,250,0.06) !important;
+    }
+    .results-timeline-text {
+        font-size: 0.9rem !important;
+        color: var(--text-2) !important;
+        line-height: 1.65 !important;
+        padding-top: 0.25rem;
+    }
+
+    .worst-case-context {
+        margin-top: 0.6rem;
+        font-size: 0.8rem;
+        color: var(--text-3);
+        line-height: 1.55;
+        padding: 0.5rem 0.75rem;
+        background: rgba(249,115,22,0.06);
+        border-radius: 6px;
+        border-left: 2px solid #f97316;
+    }
+
+    .market-context-bar {
+        background: rgba(16, 217, 138, 0.06);
+        border: 1px solid rgba(16, 217, 138, 0.18);
+        border-radius: var(--radius-md);
+        padding: 0.55rem 1.2rem;
+        font-size: 0.82rem;
+        color: var(--text-3);
+        text-align: center;
+        margin-bottom: 0.5rem;
+    }
+    .market-context-bar strong { color: var(--text-2); }
 
     .action-guide {
         display: grid;
@@ -1923,6 +1968,23 @@ def apply_custom_css():
         color: var(--text-2);
         line-height: 1.6;
     }
+    .adc-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        margin-top: 0.55rem;
+    }
+    .adc-chip {
+        display: inline-block;
+        padding: 0.18rem 0.55rem;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+    }
+    .adc-chip-tir   { background: rgba(34,197,94,0.12);  color: #4ade80; border: 1px solid rgba(34,197,94,0.25); }
+    .adc-chip-dur   { background: rgba(96,165,250,0.10); color: #93c5fd; border: 1px solid rgba(96,165,250,0.22); }
+    .adc-chip-score { background: rgba(167,139,250,0.10);color: #c4b5fd; border: 1px solid rgba(167,139,250,0.22); }
     @media (max-width: 640px) {
         .adc-title { font-size: 0.83rem; }
         .adc-desc  { font-size: 0.76rem; }
@@ -2184,6 +2246,9 @@ div[data-testid="stRadio"] div[role="radiogroup"] label p { color: #334155 !impo
 .adc-pct   { color: #0f172a !important; }
 .adc-amt   { color: #64748b !important; }
 .adc-desc  { color: #334155 !important; }
+.adc-chip-tir   { background: rgba(22,163,74,0.08)  !important; color: #15803d !important; border-color: rgba(22,163,74,0.2) !important; }
+.adc-chip-dur   { background: rgba(59,130,246,0.08) !important; color: #1d4ed8 !important; border-color: rgba(59,130,246,0.2) !important; }
+.adc-chip-score { background: rgba(124,58,237,0.08) !important; color: #6d28d9 !important; border-color: rgba(124,58,237,0.2) !important; }
 
 /* Legal disclaimer en modo claro */
 .legal-disclaimer {
@@ -2228,17 +2293,6 @@ def render_header():
         if st.button("📚 Glosario", key="header_glosario", use_container_width=True):
             st.session_state._prev_step = st.session_state.get("step", "intro")
             st.session_state.step = "glosario"
-            st.rerun()
-        st.markdown('<div class="theme-toggle-row"></div>', unsafe_allow_html=True)
-        is_light = st.toggle(
-            label="Tema",
-            value=(theme == "light"),
-            key="theme_toggle_sw",
-            label_visibility="collapsed",
-            help="Cambiar entre modo oscuro y claro",
-        )
-        if is_light != (theme == "light"):
-            st.session_state.theme = "light" if is_light else "dark"
             st.rerun()
 
 

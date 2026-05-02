@@ -26,7 +26,7 @@ _CATEGORY_ORDER = [
 _CATEGORY_META = {
     "Liquidez": {
         "icon":        "💵",
-        "description": "Plata disponible en todo momento. La podés retirar cuando quieras, sin esperar ni pagar penalidades.",
+        "description": "Capital disponible en todo momento. Rescatable sin espera ni penalidades.",
         "color":       "#60a5fa",
     },
     "Cobertura cambiaria": {
@@ -517,12 +517,15 @@ def render_bar_simulation(portfolio: dict, initial_capital: float,
         worst     = vals_pess[2]
         worst_d   = disp_pess[2]
         worst_pct = pct(worst)
-        color = "#22c55e" if worst_pct >= 0 else "#ef4444"
+        color = "#22c55e" if worst_pct >= 0 else "#f59e0b"
         sign  = "+" if worst_pct >= 0 else ""
         st.markdown(f"""<div class="metric-card" style="text-align:center;">
 <div class="metric-label">Peor escenario a 10 años</div>
 <div class="metric-value" style="color:{color};">{sign}{worst_pct:.0f}%</div>
 <div class="metric-sub">${worst_d:,.0f} en el peor caso</div>
+</div>
+<div class="worst-case-context">
+  En horizontes de 10 años los mercados se recuperaron históricamente en todos los ciclos desde 1950.
 </div>""", unsafe_allow_html=True)
 
 
@@ -600,6 +603,19 @@ def render_allocation_table(portfolio: dict, capital: float, currency_label: str
                 ticker = p.get("ticker", "")
                 plat, _ = _PLATFORMS.get(p["id"], ("IOL, PPI", ""))
                 short_name = p["name"].split("(")[0].split("—")[0].strip()
+                # Build bond data chips if available
+                _bond_chips = ""
+                if p.get("bond_tir") is not None:
+                    _tir_label = "TNA" if p.get("bond_type") in ("lecap", "cer") else "TIR est."
+                    _bond_chips += f'<span class="adc-chip adc-chip-tir">{_tir_label} {p["bond_tir"]:.1f}%</span>'
+                if p.get("bond_duration") is not None:
+                    _bond_chips += f'<span class="adc-chip adc-chip-dur">Duración {p["bond_duration"]:.1f}a</span>'
+                if p.get("bond_score") is not None:
+                    _bond_chips += f'<span class="adc-chip adc-chip-score">Score {p["bond_score"]}/100</span>'
+                if p.get("score") is not None and not _bond_chips:
+                    _bond_chips = f'<span class="adc-chip adc-chip-score">Score Finviz {p["score"]}/100</span>'
+                _chips_row = f'<div class="adc-chips">{_bond_chips}</div>' if _bond_chips else ""
+
                 st.markdown(
                     f'<div class="asset-detail-card" style="border-left-color:{p["color"]};">'
                     f'  <div class="adc-top">'
@@ -613,6 +629,7 @@ def render_allocation_table(portfolio: dict, capital: float, currency_label: str
                     f'    </div>'
                     f'  </div>'
                     f'  <div class="adc-desc">{razon}</div>'
+                    f'  {_chips_row}'
                     f'</div>',
                     unsafe_allow_html=True,
                 )

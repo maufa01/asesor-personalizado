@@ -12,12 +12,58 @@ import json
 import time
 import re
 from pathlib import Path
-from datetime import date
+from datetime import date, datetime
 
 import requests
 
 BOND_SCORES_PATH = Path(__file__).parent.parent / "bond_scores.json"
 REQUEST_DELAY = 1.5
+
+# ─── Calendario de LECAPs vigentes ────────────────────────────────────────────
+# (ticker_BYMA, fecha_vencimiento, TNA_est%)
+# Fuente: Secretaría de Finanzas Argentina — licitaciones primarias.
+LECAP_SCHEDULE: list[tuple[str, date, float]] = [
+    ("S30J26", date(2026,  6, 30), 28.0),
+    ("S31L26", date(2026,  7, 31), 27.0),
+    ("S29A26", date(2026,  8, 28), 27.0),
+    ("S30S26", date(2026,  9, 30), 26.0),
+    ("S31O26", date(2026, 10, 31), 26.0),
+    ("S28N26", date(2026, 11, 27), 25.0),
+    ("S31D26", date(2026, 12, 31), 25.0),
+    ("S31E27", date(2027,  1, 29), 24.0),
+    ("S28F27", date(2027,  2, 26), 24.0),
+    ("S31M27", date(2027,  3, 31), 24.0),
+]
+
+def get_active_lecap(min_days: int = 7) -> dict | None:
+    """
+    Retorna la LECAP más corta con al menos `min_days` días hasta vencimiento.
+    Devuelve None si no hay ninguna en el calendario (requiere actualización manual).
+    """
+    today = date.today()
+    for ticker, expiry, tna_est in LECAP_SCHEDULE:
+        days_left = (expiry - today).days
+        if days_left >= min_days:
+            return {
+                "ticker":         ticker,
+                "expiry":         expiry,
+                "tna_est":        tna_est,
+                "days_left":      days_left,
+                "duration_years": round(days_left / 365, 3),
+            }
+    return None
+
+# ─── Credit spreads de ONs sobre el soberano (bps) ───────────────────────────
+# Negativo = ON cotiza debajo del soberano (menor riesgo percibido que la República)
+# Positivo = ON paga más que el soberano (mayor riesgo o menor liquidez)
+_ON_CREDIT_SPREADS_BPS: dict[str, int] = {
+    "on_tgs":      -100,   # monopolio de gasoductos regulado, cashflow predecible
+    "on_pampa":     -75,   # generación/distribución eléctrica, flujo estable
+    "on_corp":      -50,   # mix Pampa/Arcor/MELI — calidad investment-grade local
+    "on_tecpetrol":   0,   # upstream E&P, correlación con energía
+    "on_ypf":       +50,   # empresa estatal con riesgo político implícito
+    "on_macro":     +100,  # banco: exposición directa al ciclo económico ARG
+}
 
 HEADERS = {
     "User-Agent": (
@@ -60,12 +106,12 @@ BOND_DEFS = {
         "vol_est_m":    6.0,
     },
     "lecap": {
-        "label":        "LECAPs – Letras Capitalizables del Tesoro",
+        "label":        "LECAP – Letra Capitalizable del Tesoro (activa)",
         "type":         "lecap",
-        "ticker_rava":  "S31M26",
-        "ticker_ambito": "S31M26",
-        "tir_est":      62.0,
-        "duration_est": 0.25,
+        "ticker_rava":  "S30J26",    # reemplazado en runtime por get_active_lecap()
+        "ticker_ambito": "S30J26",
+        "tir_est":      28.0,        # TNA estimada de la letra activa
+        "duration_est": 0.16,        # ~60 días hasta vencimiento jun-2026
         "paridad_est":  99.5,
         "quality_pts":  18,
         "vol_est_m":    10.0,
@@ -367,14 +413,16 @@ def _rating(score: int) -> str:
 def score_bond(asset_id: str, live_data: dict | None = None) -> dict:
     """
     Calcula el score de un bono (0-100).
-    TIR y duration usan estimaciones estáticas (actualizables en BOND_DEFS).
-    Paridad y volumen se toman de live_data si está disponible.
+    TIR, duration, paridad y volumen se toman de live_data si están disponibles,
+    recayendo en los estimados estáticos de BOND_DEFS.
+
+    Para LECAPs, live_data puede incluir 'duration_years' para reflejar el vencimiento real.
     """
     defn = BOND_DEFS[asset_id]
 
-    # TIR: live > static fallback (live viene de Rava HTML scraping)
     tir      = (live_data.get("tir") if live_data else None) or defn["tir_est"]
-    duration = defn["duration_est"]
+    # Para LECAP activa, duration_years viene del calendario real
+    duration = (live_data.get("duration_years") if live_data else None) or defn["duration_est"]
     paridad  = live_data["paridad"] if live_data and "paridad" in live_data else defn["paridad_est"]
     vol_m    = live_data["vol_m"]   if live_data and "vol_m"   in live_data else defn["vol_est_m"]
 
@@ -407,15 +455,153 @@ def score_bond(asset_id: str, live_data: dict | None = None) -> dict:
     }
 
 
+# ─── Contexto de mercado en tiempo real ──────────────────────────────────────
+
+def _get_riesgo_pais_bps() -> float | None:
+    """EMBI+ Argentina desde ArgentinaDatos (último registro disponible)."""
+    try:
+        r = requests.get(
+            "https://api.argentinadatos.com/v1/finanzas/indices/riesgo-pais",
+            headers=HEADERS, timeout=5,
+        )
+        data = r.json()
+        if data and isinstance(data, list) and data[-1].get("valor"):
+            return float(data[-1]["valor"])
+    except Exception:
+        pass
+    return None
+
+
+def _get_us_treasury_yields() -> dict:
+    """Yields del Tesoro EE.UU. vía yfinance. Fallback a valores recientes."""
+    out = {"5y": 4.0, "10y": 4.4}
+    try:
+        import yfinance as yf
+        for ticker, key in {("^FVX", "5y"), ("^TNX", "10y")}:
+            hist = yf.Ticker(ticker).history(period="5d")
+            if not hist.empty:
+                out[key] = round(float(hist["Close"].iloc[-1]), 2)
+    except Exception:
+        pass
+    return out
+
+
+def get_market_context() -> dict:
+    """
+    Contexto de mercado en tiempo real.
+    Retorna {riesgo_pais_bps, us_treasury_5y, us_treasury_10y, as_of}.
+    Todos los campos pueden ser None si fallan las APIs.
+    """
+    rp      = _get_riesgo_pais_bps()
+    us_ylds = _get_us_treasury_yields()
+    return {
+        "riesgo_pais_bps": rp,
+        "us_treasury_5y":  us_ylds.get("5y"),
+        "us_treasury_10y": us_ylds.get("10y"),
+        "as_of":           str(date.today()),
+    }
+
+
+def _implied_sovereign_tir(duration_years: float, rp_bps: float, us_yields: dict) -> float:
+    """TIR implícita de bono soberano USD = Treasury + riesgo_país."""
+    treasury = us_yields["10y"] if duration_years > 4 else us_yields["5y"]
+    return round(treasury + rp_bps / 100, 2)
+
+
+def load_scores_live(path: Path = BOND_SCORES_PATH) -> tuple[dict, dict]:
+    """
+    Carga scores base del JSON y aplica overlay de mercado en tiempo real:
+
+      1. Bonos soberanos USD → TIR implícita = Treasury + riesgo_país
+      2. ONs corporativas   → TIR implícita = soberano + credit_spread por emisor
+      3. LECAP activa       → detecta vencimiento y usa la letra más corta vigente
+         (si todas vencieron, mantiene score estático como fallback)
+
+    Returns:
+        scores  dict {asset_id: score_int}
+        market  dict con riesgo_pais_bps, us_treasury_5y/10y, as_of, active_lecap
+    """
+    base_scores = load_scores(path)
+    market      = get_market_context()
+
+    # ── LECAP activa ──────────────────────────────────────────────────────────
+    active_lc = get_active_lecap()
+    market["active_lecap"] = active_lc  # expone al portfolio builder
+
+    rp_bps = market.get("riesgo_pais_bps")
+    if rp_bps is None:
+        # Sin riesgo país, aún podemos re-scorear la LECAP si hay una activa
+        if active_lc:
+            result = score_bond("lecap", {"tir": active_lc["tna_est"]})
+            updated = dict(base_scores)
+            updated["lecap"] = result["score"]
+            return updated, market
+        return base_scores, market
+
+    us_yields = {
+        "5y":  market.get("us_treasury_5y")  or 4.0,
+        "10y": market.get("us_treasury_10y") or 4.4,
+    }
+
+    updated = dict(base_scores)
+
+    # ── 1. Soberanos USD ──────────────────────────────────────────────────────
+    for asset_id, defn in BOND_DEFS.items():
+        if defn.get("type") != "soberano_usd":
+            continue
+        dynamic_tir = _implied_sovereign_tir(defn["duration_est"], rp_bps, us_yields)
+        result = score_bond(asset_id, {"tir": dynamic_tir})
+        updated[asset_id] = result["score"]
+
+    # ── 2. ONs corporativas: TIR = soberano_equiv + credit_spread ────────────
+    for asset_id, defn in BOND_DEFS.items():
+        if defn.get("type") != "on_corp":
+            continue
+        spread_bps  = _ON_CREDIT_SPREADS_BPS.get(asset_id, 0)
+        # Usamos el soberano de duración equivalente como base
+        base_sov    = _implied_sovereign_tir(defn["duration_est"], rp_bps, us_yields)
+        dynamic_tir = round(base_sov + spread_bps / 100, 2)
+        result = score_bond(asset_id, {"tir": dynamic_tir})
+        updated[asset_id] = result["score"]
+
+    # ── 3. LECAP: usar la letra vigente más corta ─────────────────────────────
+    if active_lc:
+        result = score_bond("lecap", {
+            "tir": active_lc["tna_est"],
+        })
+        updated["lecap"] = result["score"]
+        # Guarda también la duration real para que el portfolio builder la use
+        market["active_lecap"]["score"] = result["score"]
+
+    return updated, market
+
+
 # ─── Runner offline ───────────────────────────────────────────────────────────
 
 def run_and_save(path: Path = BOND_SCORES_PATH) -> dict:
     """
     Puntúa todos los bonos, muestra resultados en consola y guarda bond_scores.json.
+    Usa la LECAP activa según el calendario de vencimientos.
     """
     print(f"\n{'─'*60}")
     print(f"BOND SCORER — {date.today()}")
     print(f"{'─'*60}\n")
+
+    # Contexto de mercado para TIR dinámica
+    market    = get_market_context()
+    rp_bps    = market.get("riesgo_pais_bps")
+    us_yields = {
+        "5y":  market.get("us_treasury_5y")  or 4.0,
+        "10y": market.get("us_treasury_10y") or 4.4,
+    }
+
+    # LECAP activa
+    active_lc = get_active_lecap()
+    if active_lc:
+        print(f"  LECAP activa: {active_lc['ticker']} — vence {active_lc['expiry']} "
+              f"({active_lc['days_left']} días) TNA≈{active_lc['tna_est']}%\n")
+    else:
+        print("  ⚠️  Sin LECAP activa en el calendario — actualizar LECAP_SCHEDULE\n")
 
     results = {}
 
@@ -427,6 +613,24 @@ def run_and_save(path: Path = BOND_SCORES_PATH) -> dict:
             print(f"  Fetching {ticker} ({defn['label']})...")
             live = _fetch_live(ticker)
             time.sleep(REQUEST_DELAY)
+
+        # Override de TIR dinámico por tipo
+        if rp_bps:
+            if defn["type"] == "soberano_usd":
+                dyn_tir = _implied_sovereign_tir(defn["duration_est"], rp_bps, us_yields)
+                live = (live or {}) | {"tir": dyn_tir}
+            elif defn["type"] == "on_corp":
+                spread  = _ON_CREDIT_SPREADS_BPS.get(asset_id, 0)
+                dyn_tir = round(_implied_sovereign_tir(defn["duration_est"], rp_bps, us_yields)
+                                + spread / 100, 2)
+                live = (live or {}) | {"tir": dyn_tir}
+
+        # Para LECAP usar siempre la letra activa
+        if asset_id == "lecap" and active_lc:
+            live = (live or {}) | {
+                "tir":            active_lc["tna_est"],
+                "duration_years": active_lc["duration_years"],
+            }
 
         result = score_bond(asset_id, live)
         results[asset_id] = result
@@ -441,8 +645,9 @@ def run_and_save(path: Path = BOND_SCORES_PATH) -> dict:
         )
 
     output = {
-        "as_of":       str(date.today()),
-        "bond_scores": results,
+        "as_of":        str(date.today()),
+        "generated_at": datetime.now().isoformat(),
+        "bond_scores":  results,
     }
     with open(path, "w", encoding="utf-8") as f:
         json.dump(output, f, indent=2, ensure_ascii=False)

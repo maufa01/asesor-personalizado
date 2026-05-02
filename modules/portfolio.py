@@ -12,7 +12,14 @@ from modules.finviz_scorer import (
     return_factor, vol_factor, MIN_SCORE_BY_RISK,
     apply_argentina_adjustment, SECTOR_MAP,
 )
-from modules.bond_scorer import load_scores as load_bond_scores
+from modules.bond_scorer import (
+    load_scores as load_bond_scores,
+    load_scores_live as _load_bond_live,
+    get_active_lecap,
+    BOND_DEFS,
+    _implied_sovereign_tir,
+    _ON_CREDIT_SPREADS_BPS,
+)
 
 
 # ─── Universo de activos ───────────────────────────────────────────────────────
@@ -30,7 +37,7 @@ ASSET_UNIVERSE: List[Dict[str, Any]] = [
         "expected_return": 0.03,
         "volatility": 0.01,
         "risk_level": "mínimo",
-        "description": "Plata disponible al instante en cuentas como Naranja X o Ualá que pagan interés diario automático. No hacés nada: el dinero rinde solo mientras está ahí. Retiro en cualquier momento, sin costo.",
+        "description": "Capital disponible en todo momento en cuentas como Naranja X o Ualá que pagan interés diario automático. El dinero rinde solo mientras está depositado. Rescatable sin penalidades ni plazos mínimos.",
         "currency": "ARS",
         "market": "Banco",
         "simple_desc": "Dinero en Naranja X o Ualá rindiendo interés diario, retiro inmediato",
@@ -60,7 +67,7 @@ ASSET_UNIVERSE: List[Dict[str, Any]] = [
         "expected_return": 0.06,
         "volatility": 0.02,
         "risk_level": "mínimo",
-        "description": "Plazo fijo a 30 días en bancos como Galicia, Santander o BBVA. Tasa fija garantizada, sin riesgo de precio. Cubierto por el Fondo de Garantía de Depósitos hasta $20 millones. La pega: no podés sacarlo antes del vencimiento.",
+        "description": "Plazo fijo a 30 días en bancos como Galicia, Santander o BBVA. Tasa fija garantizada, sin riesgo de precio. Cubierto por el Fondo de Garantía de Depósitos hasta $20 millones. El capital no puede retirarse antes del vencimiento.",
         "currency": "ARS",
         "market": "Banco",
         "simple_desc": "Plazo fijo 30 días en Galicia o Santander, garantizado por el banco",
@@ -82,7 +89,7 @@ ASSET_UNIVERSE: List[Dict[str, Any]] = [
     },
     {
         "id": "lecap",
-        "name": "LECAPs del Tesoro (S31M26 / S30J26)",
+        "name": "LECAP del Tesoro (ticker vigente)",
         "category": "Pesos ARS",
         "sub": "Deuda Pública ARS",
         "ticker": "LECAP",
@@ -90,10 +97,10 @@ ASSET_UNIVERSE: List[Dict[str, Any]] = [
         "expected_return": 0.08,
         "volatility": 0.04,
         "risk_level": "bajo",
-        "description": "Letras del Tesoro argentino a tasa fija. Las más operadas son la S31M26 (vence 31 marzo 2026) y S30J26 (vence 30 junio 2026). Se compran en IOL, PPI o Balanz como si fuera una acción. Riesgo: si el gobierno no paga, se pierde. Por eso solo una parte de la cartera va acá.",
+        "description": "Letra Capitalizable del Tesoro argentino a tasa fija. Se adquiere en IOL, PPI o Balanz. Riesgo: contraparte soberana argentina.",
         "currency": "ARS",
         "market": "BYMA",
-        "simple_desc": "S31M26 o S30J26: letras del Tesoro a tasa fija, comprables en IOL o PPI",
+        "simple_desc": "Letra del Tesoro a tasa fija — ticker y vencimiento actualizados automáticamente",
     },
     {
         "id": "cer_bond",
@@ -138,7 +145,7 @@ ASSET_UNIVERSE: List[Dict[str, Any]] = [
         "expected_return": 0.00,
         "volatility": 0.08,
         "risk_level": "muy bajo",
-        "description": "Dólares legales comprados a través de la bolsa sin límite mensual. El proceso: comprás el bono AL30 en pesos y lo vendés en dólares — queda una diferencia que es el 'tipo de cambio MEP'. IOL y PPI lo hacen automático en 1 click. El dólar queda en tu cuenta del broker en USD.",
+        "description": "Dólares legales comprados a través de la bolsa sin límite mensual. El proceso: se adquiere el bono AL30 en pesos y se vende en dólares — la diferencia resultante es el tipo de cambio MEP. IOL y PPI lo ejecutan de forma automática en 1 clic. Los dólares quedan acreditados en la cuenta del broker.",
         "currency": "USD",
         "market": "BYMA",
         "simple_desc": "Dólares legales por la bolsa, 1 click en IOL o PPI, sin límite mensual",
@@ -171,7 +178,7 @@ ASSET_UNIVERSE: List[Dict[str, Any]] = [
         "expected_return": 0.10,
         "volatility": 0.17,
         "risk_level": "medio",
-        "description": "Igual que el AL30 pero bajo ley de Nueva York. Eso significa que si Argentina no paga, podés ir a juicio en EE.UU. — más protección legal. Es el bono soberano que más compran los fondos internacionales. Algo más caro que el AL30 por esa razón.",
+        "description": "Similar al AL30 pero bajo ley de Nueva York. Ante un incumplimiento de Argentina, el inversor puede recurrir a la justicia estadounidense — mayor protección legal. Es el bono soberano más demandado por fondos internacionales. Cotiza con una prima respecto al AL30 por esa razón.",
         "currency": "USD",
         "market": "BYMA",
         "simple_desc": "GD30: igual que AL30 pero con protección legal en NY, preferido por fondos",
@@ -189,10 +196,10 @@ ASSET_UNIVERSE: List[Dict[str, Any]] = [
         "expected_return": 0.09,
         "volatility": 0.10,
         "risk_level": "bajo-medio",
-        "description": "La obligación negociable YPFDS: YPF te pide prestados dólares y te devuelve el capital más intereses. Menor riesgo que comprar la acción de YPF porque en caso de quiebra los bonistas cobran antes que los accionistas. Comprala en IOL o PPI buscando el ticker YPFDS.",
+        "description": "La obligación negociable YPFDS: YPF toma dólares prestados y devuelve el capital más intereses. Menor riesgo que la acción de YPF porque en caso de quiebra los bonistas cobran antes que los accionistas. Se opera en IOL o PPI con el ticker YPFDS.",
         "currency": "USD",
         "market": "BYMA",
-        "simple_desc": "YPFDS: YPF te paga intereses en dólares, menos riesgo que la acción",
+        "simple_desc": "YPFDS: YPF paga intereses en dólares, menor riesgo que la acción",
     },
     {
         "id": "on_corp",
@@ -1739,14 +1746,14 @@ def _razon_en_cartera(asset_id: str, risk: str, horizon: int) -> str:
     """Una frase en lenguaje simple explicando por qué este activo está en la cartera."""
     _RAZONES = {
         # Liquidez
-        "cash_pesos":   "Tu colchón de liquidez — disponible al instante si lo necesitás, sin costo ni espera",
-        "money_market": "Rinde más que el banco todos los días de forma automática; retiro el mismo día",
-        "plazo_fijo":   "Tasa garantizada en pesos, sin sorpresas — ideal para plata que no vas a tocar en 30 días",
-        "fci_t0":       "Renta fija de corto plazo: retiro el mismo día hábil con mejor rendimiento que el banco",
-        "fci_renta":    "Fondo diversificado en pesos que crece mientras vos no hacés nada",
+        "cash_pesos":   "Reserva de liquidez — disponible al instante, sin costo ni espera",
+        "money_market": "Rinde más que el banco todos los días de forma automática; rescate el mismo día",
+        "plazo_fijo":   "Tasa garantizada en pesos, sin sorpresas — ideal para capital que no necesita moverse en 30 días",
+        "fci_t0":       "Renta fija de corto plazo: rescate el mismo día hábil con mejor rendimiento que el banco",
+        "fci_renta":    "Fondo diversificado en pesos que crece de forma automática sin ninguna acción adicional",
         # Cobertura
-        "mep":          "Tus pesos se convierten en dólares legales, sin bancos ni cuevas — protección directa contra la devaluación",
-        "dolar_mep":    "Tus pesos se convierten en dólares legales, sin bancos ni cuevas — protección directa contra la devaluación",
+        "mep":          "Sus pesos se convierten en dólares legales, sin necesidad de operar en mercados informales — protección directa contra la devaluación",
+        "dolar_mep":    "Sus pesos se convierten en dólares legales, sin necesidad de operar en mercados informales — protección directa contra la devaluación",
         # ETFs globales
         "spy":  "Las 500 empresas más grandes del mundo en una sola compra — Apple, Google, Amazon, todas juntas",
         "qqq":  "Las 100 empresas de tecnología más grandes: Microsoft, NVIDIA, Apple — el motor de la economía digital",
@@ -1817,8 +1824,8 @@ def _razon_en_cartera(asset_id: str, risk: str, horizon: int) -> str:
         "gd35":    "Global 35: mayor rendimiento que el GD30, con respaldo bajo ley de Nueva York",
         "gd38":    "Global 38: el bono de mayor duración — para quien apuesta fuerte al largo plazo argentino",
         "lecap":   "LECAP: letra del Tesoro a tasa fija en pesos — vencimiento en meses, sin riesgo de precio",
-        "cer_bond":"Bono CER: ajustado por inflación — protege tu plata en pesos contra la suba de precios",
-        "on_ypf":  "Bono corporativo YPF en dólares — YPF te paga interés en USD con sus activos de Vaca Muerta como respaldo",
+        "cer_bond":"Bono CER: ajustado por inflación — protege su capital en pesos contra la suba de precios",
+        "on_ypf":  "Bono corporativo YPF en dólares — paga interés en USD respaldado por los activos de Vaca Muerta",
         "on_pampa":"Bono Pampa Energía en dólares — empresa sólida con flujo de caja predecible y deuda baja",
         "on_tgs":  "Bono TGS en dólares — monopolio natural de gasoductos respaldando la deuda",
         "on_macro":"Bono Banco Macro en dólares — banco argentino sólido con buen historial de pago",
@@ -1829,12 +1836,119 @@ def _razon_en_cartera(asset_id: str, risk: str, horizon: int) -> str:
         return base
     cat = ASSET_INDEX.get(asset_id, {}).get("category", "")
     if "ETF" in cat:
-        return "Diversificación instantánea: una compra te da exposición a decenas de empresas a la vez"
+        return "Diversificación instantánea: una sola operación da exposición a decenas de empresas a la vez"
     if cat == "CEDEARs":
-        return "Acción de empresa internacional que podés comprar desde Argentina en pesos o dólares"
+        return "Acción de empresa internacional que puede comprar desde Argentina en pesos o dólares"
     if cat == "Acciones ARG":
         return "Empresa argentina que crece con el país — exposición directa a la economía local"
     return ASSET_INDEX.get(asset_id, {}).get("simple_desc", "")
+
+
+def generate_risk_scenarios(portfolio: dict, mkt_ctx: dict | None = None) -> list[dict]:
+    """
+    Genera escenarios de riesgo dinámicos según la composición de la cartera.
+    Cada escenario: {title, icon, severity, body, tip}.
+    severity: "bajo" | "medio" | "alto"
+    """
+    positions = portfolio["positions"]
+    mkt = mkt_ctx or portfolio.get("market_context", {}) or {}
+
+    ars_w  = sum(p["weight"] for p in positions if p.get("currency") == "ARS")
+    sov_w  = sum(p["weight"] for p in positions if p.get("bond_type") == "soberano_usd"
+                 or p.get("id") in {"al30", "gd30", "al35", "gd35", "gd38"})
+    arg_eq = sum(p["weight"] for p in positions if p.get("category") == "Acciones ARG")
+    eq_w   = sum(p["weight"] for p in positions if p.get("category") in
+                 {"CEDEARs", "Acciones ARG", "ETFs Globales", "ETFs"})
+    tech_ids = {"nvda", "aapl", "msft", "googl", "meta", "amzn", "tsla", "amd", "qqq", "nflx"}
+    tech_w = sum(p["weight"] for p in positions
+                 if "Tecno" in p.get("sub", "") or p.get("id") in tech_ids)
+    liq_w  = sum(p["weight"] for p in positions
+                 if p.get("id") in {"cash_pesos", "money_market", "fci_t0", "mep"})
+
+    rp_bps = mkt.get("riesgo_pais_bps")
+    arg_total = ars_w + arg_eq + sov_w
+    scenarios: list[dict] = []
+
+    if arg_total >= 0.15:
+        rp_str = f" (EMBI+ actual: {rp_bps:,.0f} bps)" if rp_bps else ""
+        scenarios.append({
+            "title":    "Riesgo soberano argentino",
+            "icon":     "🇦🇷",
+            "severity": "alto" if (sov_w > 0.10 or rp_bps and rp_bps >= 700) else "medio",
+            "body": (
+                f"El {arg_total*100:.0f}% de la cartera está expuesto a eventos macroeconómicos "
+                f"argentinos{rp_str}. Un shock político, corrida cambiaria o evento de deuda "
+                "afectaría pesos, acciones locales y bonos soberanos al mismo tiempo."
+            ),
+            "tip": "Aumentar exposición a activos USD sin correlación local (ETFs globales, ONs con ingresos dolarizados) reduce este riesgo.",
+        })
+
+    if ars_w >= 0.20:
+        scenarios.append({
+            "title":    "Devaluación del peso",
+            "icon":     "💱",
+            "severity": "alto" if ars_w > 0.45 else "medio",
+            "body": (
+                f"Con {ars_w*100:.0f}% en pesos, una devaluación abrupta erosionaría ese bloque "
+                "en USD. Históricamente Argentina registró saltos cambiarios del 30%–100% "
+                "en menos de 24 horas (2018, 2019, 2023). El plazo fijo no se protege entre renovaciones."
+            ),
+            "tip": "LECAP y bonos CER indexados cubren parcialmente contra inflación, pero no contra devaluación abrupta.",
+        })
+
+    if eq_w >= 0.20 or sov_w >= 0.05:
+        scenarios.append({
+            "title":    "Suba de tasas globales (Reserva Federal)",
+            "icon":     "🏦",
+            "severity": "medio",
+            "body": (
+                f"Con {eq_w*100:.0f}% en acciones/ETFs y {sov_w*100:.0f}% en bonos, "
+                "una política monetaria restrictiva de la Fed comprimiría los múltiplos de valuación "
+                "y subiría el costo de refinanciamiento. En 2022 el NASDAQ cayó 33% por este motivo."
+            ),
+            "tip": "Mantener el horizonte de inversión y no reaccionar a correcciones de corto plazo.",
+        })
+
+    if tech_w >= 0.25:
+        scenarios.append({
+            "title":    "Concentración en tecnología",
+            "icon":     "💻",
+            "severity": "alto" if tech_w > 0.45 else "medio",
+            "body": (
+                f"El {tech_w*100:.0f}% en tecnología genera alta correlación interna. "
+                "Si hay rotación sectorial, regulación antimonopolio o corrección de valuaciones "
+                "de IA, todos estos activos caerían simultáneamente."
+            ),
+            "tip": "Diversificar hacia salud, consumo masivo o energía reduce la correlación y suaviza la volatilidad.",
+        })
+
+    if liq_w < 0.05 and eq_w > 0.30:
+        scenarios.append({
+            "title":    "Liquidez de emergencia insuficiente en cartera",
+            "icon":     "⚠️",
+            "severity": "bajo",
+            "body": (
+                f"Solo {liq_w*100:.0f}% en activos de rescate inmediato. "
+                "Si necesitara el capital en menos de 5 días hábiles durante una corrección, "
+                "podría verse forzado a vender acciones o ETFs a precios desfavorables."
+            ),
+            "tip": "Separar 3–6 meses de gastos fuera de la cartera antes de invertir, como colchón de emergencia.",
+        })
+
+    if rp_bps is not None and rp_bps >= 800 and sov_w > 0:
+        scenarios.append({
+            "title":    "Riesgo de reestructuración soberana",
+            "icon":     "🌡️",
+            "severity": "alto",
+            "body": (
+                f"Con el riesgo país en {rp_bps:,.0f} bps, los bonos soberanos descuentan estrés. "
+                "Históricamente por encima de 1.000 bps el riesgo de reestructuración aumenta "
+                "significativamente — como ocurrió en 2019 (1.800 bps) y 2020 (reestructuración efectiva)."
+            ),
+            "tip": "Privilegiar ONs corporativas de empresas con ingresos en USD (TGS, Pampa, YPF) sobre bonos soberanos.",
+        })
+
+    return scenarios[:5]
 
 
 def build_portfolio(profile: dict) -> dict:
@@ -1854,10 +1968,10 @@ def build_portfolio(profile: dict) -> dict:
     horizon  = profile.get("horizon", 5)
 
     # ── 1. Cargar scores y sectores ───────────────────────────────────────────
-    eq_scores      = load_equity_scores()    # Finviz → acciones y ETFs
-    bond_scores    = load_bond_scores()      # bond_scorer → instrumentos de RF
-    asset_sectors  = load_asset_sectors()    # asset_id → sector_framework
-    eq_full        = load_equity_full()      # bloques + ratios completos por activo
+    eq_scores              = load_equity_scores()          # Finviz → acciones y ETFs
+    bond_scores, _mkt_ctx  = _load_bond_live()             # bonos con overlay riesgo país live
+    asset_sectors          = load_asset_sectors()          # asset_id → sector_framework
+    eq_full                = load_equity_full()            # bloques + ratios completos por activo
 
     # ── 2. Capa ARG: descuento regulatorio sobre scores de acciones locales ──
     if eq_scores:
@@ -1936,9 +2050,57 @@ def build_portfolio(profile: dict) -> dict:
                 asset["score"]   = fd["score"]
                 asset["bloques"] = fd["bloques"]
                 asset["ratios"]  = fd["ratios"]
+            if asset_id in BOND_DEFS:
+                _defn  = BOND_DEFS[asset_id]
+                _btype = _defn.get("type", "")
+                asset["bond_type"]     = _btype
+                asset["bond_duration"] = _defn.get("duration_est")
+                asset["bond_score"]    = bond_scores.get(asset_id)
+                _rp    = _mkt_ctx.get("riesgo_pais_bps")
+                _usyld = {
+                    "5y":  _mkt_ctx.get("us_treasury_5y")  or 4.0,
+                    "10y": _mkt_ctx.get("us_treasury_10y") or 4.4,
+                }
+                if _btype == "soberano_usd" and _rp is not None:
+                    asset["bond_tir"] = round(_implied_sovereign_tir(_defn["duration_est"], _rp, _usyld), 2)
+                elif _btype == "on_corp" and _rp is not None:
+                    _spread = _ON_CREDIT_SPREADS_BPS.get(asset_id, 0)
+                    asset["bond_tir"] = round(
+                        _implied_sovereign_tir(_defn["duration_est"], _rp, _usyld) + _spread / 100, 2
+                    )
+                elif _btype == "lecap":
+                    _lc = _mkt_ctx.get("active_lecap")
+                    asset["bond_tir"] = _lc.get("tna_est") if _lc else _defn.get("tir_est")
+                else:
+                    asset["bond_tir"] = _defn.get("tir_est")
             positions.append(asset)
 
     positions.sort(key=lambda x: x["weight"], reverse=True)
+
+    # ── LECAP: actualizar nombre/descripción con el ticker vigente ────────────
+    active_lc = _mkt_ctx.get("active_lecap") or get_active_lecap()
+    for pos in positions:
+        if pos["id"] == "lecap":
+            if active_lc:
+                ticker   = active_lc["ticker"]
+                expiry   = active_lc["expiry"]
+                days_lft = active_lc["days_left"]
+                pos["name"]        = f"LECAP {ticker} (vence {expiry.strftime('%d/%m/%Y')})"
+                pos["ticker"]      = ticker
+                pos["simple_desc"] = (
+                    f"{ticker}: letra del Tesoro a tasa fija — vence en {days_lft} días. "
+                    f"Comprala en IOL o PPI como si fuera una acción."
+                )
+                pos["description"] = (
+                    f"Letra Capitalizable del Tesoro argentino, serie {ticker}. "
+                    f"Vencimiento: {expiry.strftime('%d de %B de %Y')} ({days_lft} días). "
+                    f"Se compra a precio de mercado en IOL, PPI o Balanz. "
+                    f"Rinde la TNA descontada en el precio. Riesgo: contraparte soberana argentina."
+                )
+            else:
+                # Sin LECAP activa — el activo queda como placeholder
+                pos["name"]        = "LECAP (pendiente de nueva emisión)"
+                pos["simple_desc"] = "Aguardar próxima licitación del Tesoro para invertir en letras a tasa fija."
 
     # Adjuntar razón personalizada por activo
     for pos in positions:
@@ -2026,4 +2188,5 @@ def build_portfolio(profile: dict) -> dict:
         "hhi":                 round(hhi, 3),
         "hhi_label":           hhi_label,
         "avg_score":           avg_score,
+        "market_context":      _mkt_ctx,
     }

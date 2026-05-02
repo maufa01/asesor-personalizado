@@ -10,9 +10,10 @@ from pathlib import Path
 from datetime import datetime
 from modules.ui_config import apply_custom_css, render_header, render_footer
 from modules.profiler import render_profiler
-from modules.portfolio import build_portfolio
+from modules.portfolio import build_portfolio, generate_risk_scenarios
 from modules.charts import render_pie_chart, render_evolution_chart, render_bar_simulation, render_allocation_table
 from modules.simulator import simulate_portfolio, comparar_vs_alternativas, proyectar_con_aportes
+from modules.backtest import run_backtest
 from modules.ai_advisor import get_ai_analysis, get_rebalancing_advice, chat_with_advisor
 from modules.glossary import render_glossary
 from modules.costo_no_invertir import render_cost_of_not_investing, render_cost_results
@@ -44,10 +45,21 @@ def _run_scores_background():
 
 
 def _score_age(path: str):
+    import json as _json
     p = Path(path)
     if not p.exists():
         return None, "⚫ No encontrado"
-    delta = datetime.now() - datetime.fromtimestamp(p.stat().st_mtime)
+    # Prefer generated_at from JSON over file mtime (more accurate after manual edits)
+    try:
+        raw = _json.loads(p.read_text())
+        ts  = raw.get("generated_at") or raw.get("as_of")
+        if ts:
+            dt = datetime.fromisoformat(ts) if "T" in ts else datetime.strptime(ts, "%Y-%m-%d")
+            delta = datetime.now() - dt
+        else:
+            raise ValueError("no timestamp in json")
+    except Exception:
+        delta = datetime.now() - datetime.fromtimestamp(p.stat().st_mtime)
     days  = delta.days
     hours = delta.seconds // 3600
     if days == 0:
@@ -186,6 +198,16 @@ with st.sidebar:
     except Exception:
         pass
 
+    # Riesgo país en vivo
+    try:
+        from modules.bond_scorer import _get_riesgo_pais_bps as _sidebar_rp
+        _rp = _sidebar_rp()
+        if _rp is not None:
+            _rp_icon = "🟢" if _rp < 500 else ("🟡" if _rp < 800 else "🔴")
+            st.markdown(f"**Riesgo país:** {_rp_icon} {_rp:,.0f} bps")
+    except Exception:
+        pass
+
     # Estado del hilo de fondo
     _bg = _update_state().get("thread")
     if _bg is not None and _bg.is_alive():
@@ -232,18 +254,17 @@ step = st.session_state.step
 if step == "intro":
     st.markdown("""<div class="hero-card">
 <div class="hero-icon">🤝</div>
-<h1 class="hero-title">Tu plata puede trabajar para vos.<br>Sin letra chica. Sin tecnicismos.</h1>
+<h1 class="hero-title">Su capital puede trabajar para usted.<br>Sin letra chica. Sin tecnicismos.</h1>
 <p class="hero-subtitle">
-Si alguna vez sentiste que invertir es solo para gente que sabe,<br>
-o que ya te quemaste antes y no querés volver a pasar por eso —<br>
-<strong>esta herramienta es para vos.</strong>
+Si alguna vez sintió que invertir es solo para quienes ya saben,<br>
+o que tuvo una mala experiencia previa — <strong>esta herramienta es para usted.</strong>
 </p>
 <div class="hero-features">
 <div class="hero-feature-pill"><span class="hero-feature-icon">✅</span>Sin conocimientos previos</div>
-<div class="hero-feature-pill"><span class="hero-feature-icon">🛡️</span>Sin venderte nada</div>
+<div class="hero-feature-pill"><span class="hero-feature-icon">🛡️</span>Sin venderle nada</div>
 <div class="hero-feature-pill"><span class="hero-feature-icon">🇦🇷</span>Pensado para Argentina</div>
-<div class="hero-feature-pill"><span class="hero-feature-icon">⏱️</span>5 minutos y tenés tu cartera</div>
-<div class="hero-feature-pill"><span class="hero-feature-icon">💬</span>Te explicamos cada decisión</div>
+<div class="hero-feature-pill"><span class="hero-feature-icon">⏱️</span>5 minutos y obtiene su cartera sugerida</div>
+<div class="hero-feature-pill"><span class="hero-feature-icon">💬</span>Explicamos cada decisión</div>
 <div class="hero-feature-pill"><span class="hero-feature-icon">🔒</span>Educativo, no asesoramiento</div>
 </div>
 </div>""", unsafe_allow_html=True)
@@ -251,9 +272,9 @@ o que ya te quemaste antes y no querés volver a pasar por eso —<br>
     st.markdown("<br>", unsafe_allow_html=True)
 
     st.markdown("""<div class="audience-note">
-<strong>¿Qué hace esta herramienta?</strong> Analizamos tu situación en 5 minutos y te mostramos
-cómo podría estar invertida tu plata — qué instrumentos, en qué proporción y por qué cada uno.
-Vos después decidís si querés avanzar con un asesor real. Acá solo entendés tus opciones.
+<strong>¿Qué hace esta herramienta?</strong> Analizamos su situación en 5 minutos y le mostramos
+cómo podría estar invertido su capital — qué instrumentos, en qué proporción y por qué cada uno.
+Usted decide si desea avanzar con un asesor real. Aquí solo comprende sus opciones.
 </div>""", unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
@@ -462,6 +483,25 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
 <div class="summary-desc">{portfolio['summary']}</div>
 </div>""", unsafe_allow_html=True)
 
+    # ── Contexto de mercado live ──────────────────────────────────────────────
+    _mkt = portfolio.get("market_context", {})
+    if _mkt and _mkt.get("riesgo_pais_bps") is not None:
+        _rp   = _mkt["riesgo_pais_bps"]
+        _t5y  = _mkt.get("us_treasury_5y")
+        _t10y = _mkt.get("us_treasury_10y")
+        _rp_icon = "🟢" if _rp < 500 else ("🟡" if _rp < 800 else "🔴")
+        _mkt_parts = [f"{_rp_icon} Riesgo país: <strong>{_rp:,.0f} bps</strong>"]
+        if _t10y:
+            _mkt_parts.append(f"Treasury 10Y EE.UU.: <strong>{_t10y:.2f}%</strong>")
+        if _t5y:
+            _mkt_parts.append(f"Treasury 5Y EE.UU.: <strong>{_t5y:.2f}%</strong>")
+        _mkt_parts.append(f"Datos: <strong>{_mkt.get('as_of','hoy')}</strong>")
+        _mkt_str = " &nbsp;·&nbsp; ".join(_mkt_parts)
+        st.markdown(
+            f'<div class="market-context-bar">{_mkt_str}</div>',
+            unsafe_allow_html=True,
+        )
+
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── Métricas de simulación ────────────────────────────────────────────────
@@ -478,6 +518,8 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
     sign       = "+" if total_gain_disp >= 0 else ""
     cagr_sub   = "Rendimiento histórico esperado (base USD)"
 
+    _horizon = profile['horizon']
+    _results_timeline = "6 a 18 meses" if _horizon >= 3 else "3 a 6 meses"
     st.markdown(f"""<div class="metrics-grid">
 <div class="metric-card">
   <div class="metric-label">Retorno anual estimado</div>
@@ -485,12 +527,12 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
   <div class="metric-sub">{cagr_sub}</div>
 </div>
 <div class="metric-card">
-  <div class="metric-label">Volatilidad estimada</div>
-  <div class="metric-value" style="color:#f59e0b;">{vol*100:.1f}%</div>
-  <div class="metric-sub">Fluctuación anual de la cartera</div>
+  <div class="metric-label">¿Cuánto puede bajar?</div>
+  <div class="metric-value" style="color:#f59e0b;">Hasta un {vol*100:.0f}% en un mal año</div>
+  <div class="metric-sub">Caída máxima probable en un mal año</div>
 </div>
 <div class="metric-card">
-  <div class="metric-label">Capital proyectado en {profile['horizon']}a</div>
+  <div class="metric-label">Capital proyectado en {_horizon}a</div>
   <div class="metric-value" style="color:#60a5fa;">{_disp_prefix}{total_end_disp:,.0f}{_disp_suffix}</div>
   <div class="metric-sub">Escenario base</div>
 </div>
@@ -499,6 +541,10 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
   <div class="metric-value" style="color:{gain_color};">{sign}{_disp_prefix}{abs(total_gain_disp):,.0f}{_disp_suffix}</div>
   <div class="metric-sub">Sobre el capital inicial</div>
 </div>
+</div>
+<div class="metric-card results-timeline-card">
+  <div class="metric-label">🕐 ¿Cuándo ver resultados?</div>
+  <div class="metric-sub results-timeline-text">Con un horizonte de <strong>{_horizon} años</strong>, los primeros resultados visibles suelen notarse entre <strong>{_results_timeline}</strong>. Las inversiones requieren paciencia — el tiempo es el principal aliado del inversor.</div>
 </div>""", unsafe_allow_html=True)
 
     if _currency_in == "ARS":
@@ -570,7 +616,7 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── Tabla de activos + razón por activo ──────────────────────────────────
-    st.markdown('<div class="section-title">📋 En qué está tu plata y por qué</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">📋 Composición de su cartera</div>', unsafe_allow_html=True)
     render_allocation_table(portfolio, _disp_capital, currency_label=_disp_curr)
 
     # ── Análisis fundamental por activo (solo modo avanzado) ─────────────────
@@ -629,30 +675,157 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # ── ¿Qué pasa si no hacés nada? ───────────────────────────────────────────
+    # ── Riesgos específicos de esta cartera ──────────────────────────────────
+    _risk_scenarios = generate_risk_scenarios(portfolio, portfolio.get("market_context"))
+    if _risk_scenarios:
+        st.markdown('<div class="big-expander-wrap big-expander-red"></div>', unsafe_allow_html=True)
+        with st.expander("⚠️ Riesgos específicos de esta cartera", expanded=False):
+            st.markdown(
+                '<p style="font-size:0.88rem;color:#94a3b8;margin-bottom:1rem;">'
+                'Estos escenarios son relevantes para <strong>esta cartera en particular</strong> '
+                'según su composición actual y el contexto de mercado. '
+                'No son predicciones — son riesgos a tener presentes al tomar la decisión de invertir.'
+                '</p>',
+                unsafe_allow_html=True,
+            )
+            _sev_colors = {"bajo": "#60a5fa", "medio": "#f59e0b", "alto": "#ef4444"}
+            _sev_labels = {"bajo": "BAJO", "medio": "MEDIO", "alto": "ALTO"}
+            for _sc in _risk_scenarios:
+                _sev = _sc.get("severity", "medio")
+                _col = _sev_colors.get(_sev, "#f59e0b")
+                _lbl = _sev_labels.get(_sev, "MEDIO")
+                st.markdown(f"""<div style="background:rgba(255,255,255,0.03);border-left:3px solid {_col};
+border-radius:10px;padding:14px 18px;margin-bottom:12px;">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+    <span style="font-size:1.1rem;">{_sc['icon']}</span>
+    <span style="font-weight:700;color:#e2e8f0;font-size:0.95rem;">{_sc['title']}</span>
+    <span style="font-size:0.67rem;font-weight:700;letter-spacing:0.06em;
+          background:{_col}22;color:{_col};border:1px solid {_col}44;
+          padding:2px 8px;border-radius:999px;">{_lbl}</span>
+  </div>
+  <p style="font-size:0.84rem;color:#94a3b8;line-height:1.65;margin:0 0 8px 0;">{_sc['body']}</p>
+  <p style="font-size:0.8rem;color:#64748b;margin:0;">
+    <strong style="color:#94a3b8;">Mitigación:</strong> {_sc['tip']}
+  </p>
+</div>""", unsafe_allow_html=True)
+            st.caption("Análisis basado en la composición de la cartera y datos de mercado actuales. No constituye asesoramiento financiero regulado.")
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # ── Costo de oportunidad ─────────────────────────────────────────────────
     st.markdown('<div class="big-expander-wrap big-expander-orange"></div>', unsafe_allow_html=True)
-    with st.expander("📊 ¿Qué pasa con tu plata si no la invertís?", expanded=False):
+    with st.expander("📊 ¿Qué ocurre con su capital si no lo invierte?", expanded=False):
         st.markdown(f"""
 <div style="background:rgba(255,255,255,0.04);border-radius:12px;padding:18px 22px;margin-bottom:20px;border-left:3px solid #f59e0b;">
   <div style="font-size:1rem;font-weight:700;color:#e2e8f0;margin-bottom:8px;">¿Qué es el costo de oportunidad?</div>
   <div style="font-size:0.9rem;color:#94a3b8;line-height:1.6;">
-    Cada peso que no invertís no está "guardado" — está <strong style="color:#f59e0b;">perdiendo valor</strong>.
+    Cada peso que no se invierte no está guardado — está <strong style="color:#f59e0b;">perdiendo valor</strong>.
     Los dólares bajo el colchón pierden poder de compra con la inflación global.
     El plazo fijo en pesos, históricamente, apenas empata con el dólar.
     <br><br>
-    El <strong style="color:#a78bfa;">costo de oportunidad</strong> es lo que dejás de ganar por no poner tu plata a trabajar.
-    No es una pérdida visible en tu cuenta — pero sí es real: es la diferencia entre
-    lo que tendrías con esta cartera y lo que tendrías si no hacés nada.
+    El <strong style="color:#a78bfa;">costo de oportunidad</strong> es lo que se deja de ganar por no invertir el capital.
+    No es una pérdida visible en el extracto bancario — pero sí es real: es la diferencia entre
+    lo que se obtendría con esta cartera y lo que ocurre si no se hace nada.
   </div>
 </div>
 """, unsafe_allow_html=True)
-        _comp = comparar_vs_alternativas(_capital_usd, profile["horizon"], portfolio["expected_cagr"])
-        _cp_f   = _comp["portfolio_final"] * _disp_factor
-        _cp_pf  = _comp["pf_final"]        * _disp_factor
-        _cp_col = _comp["colchon_final"]   * _disp_factor
-        _dif_col = _comp["diferencia_vs_colchon"] * _disp_factor
 
-        st.markdown(f"""<div class="metrics-grid">
+        # ── Backtest histórico (5 años reales en USD) ─────────────────────────
+        @st.cache_data(ttl=86_400, show_spinner=False)
+        def _cached_backtest(positions_frozen: tuple, cap: float) -> dict | None:
+            positions_list = [{"id": pid, "weight": pw} for pid, pw in positions_frozen]
+            return run_backtest(positions_list, cap)
+
+        _pos_frozen = tuple(sorted((p["id"], p["weight"]) for p in portfolio["positions"]))
+        _bt = _cached_backtest(_pos_frozen, _capital_usd)
+
+        if _bt:
+            # Métricas históricas reales
+            _bt_port = _bt["port_final"] * _disp_factor
+            _bt_pf   = _bt["pf_final"]   * _disp_factor
+            _bt_usd  = _bt["capital"]    * _disp_factor
+            _bt_diff = _bt["diff"]       * _disp_factor
+            _bt_gp   = _bt["gain_port"] * 100
+            _bt_gpf  = _bt["gain_pf"]   * 100
+            _bt_sign = "+" if _bt_gp >= 0 else ""
+            _pf_sign = "+" if _bt_gpf >= 0 else ""
+            _pf_color = "#22c55e" if _bt_gpf >= 0 else "#ef4444"
+
+            st.markdown(f"""<div class="metrics-grid">
+<div class="metric-card">
+  <div class="metric-label">Esta cartera — últimos 5 años</div>
+  <div class="metric-value" style="color:#22c55e;">{_disp_prefix}{_bt_port:,.0f}{_disp_suffix}</div>
+  <div class="metric-sub">{_bt_sign}{_bt_gp:.0f}% en USD sobre capital inicial</div>
+</div>
+<div class="metric-card">
+  <div class="metric-label">Solo plazo fijo — últimos 5 años</div>
+  <div class="metric-value" style="color:{_pf_color};">{_disp_prefix}{_bt_pf:,.0f}{_disp_suffix}</div>
+  <div class="metric-sub">{_pf_sign}{_bt_gpf:.0f}% en USD (TNA real BCRA + devaluación)</div>
+</div>
+<div class="metric-card">
+  <div class="metric-label">Dólares guardados (sin invertir)</div>
+  <div class="metric-value" style="color:#64748b;">{_disp_prefix}{_bt_usd:,.0f}{_disp_suffix}</div>
+  <div class="metric-sub">0% nominal — pierden contra inflación global</div>
+</div>
+<div class="metric-card">
+  <div class="metric-label">Diferencia cartera vs plazo fijo</div>
+  <div class="metric-value" style="color:#a78bfa;">{_disp_prefix}{_bt_diff:,.0f}{_disp_suffix}</div>
+  <div class="metric-sub">En dólares reales, últimos 5 años</div>
+</div>
+</div>""", unsafe_allow_html=True)
+
+            if _bt.get("skipped"):
+                _skip_str = ", ".join(a.upper() for a in _bt["skipped"])
+                st.caption(f"Activos excluidos del backtest (sin historial limpio post-reestructuración 2020): {_skip_str}. Su peso se redistribuyó entre los demás activos.")
+
+            try:
+                import plotly.graph_objects as _go
+                _fig_bt = _go.Figure()
+                _bt_port_d = [v * _disp_factor for v in _bt["portfolio"]]
+                _bt_pf_d   = [v * _disp_factor for v in _bt["pf"]]
+                _bt_usd_d  = [v * _disp_factor for v in _bt["usd_held"]]
+                _fig_bt.add_trace(_go.Scatter(
+                    x=_bt["dates"], y=_bt_port_d, name="Esta cartera",
+                    line=dict(color="#22c55e", width=3), mode="lines",
+                    hovertemplate=f"{_disp_prefix}%{{y:,.0f}}{_disp_suffix}<extra>Esta cartera</extra>",
+                ))
+                _fig_bt.add_trace(_go.Scatter(
+                    x=_bt["dates"], y=_bt_pf_d, name="Plazo fijo (TNA real)",
+                    line=dict(color="#f59e0b", width=2, dash="dot"), mode="lines",
+                    hovertemplate=f"{_disp_prefix}%{{y:,.0f}}{_disp_suffix}<extra>Plazo fijo</extra>",
+                ))
+                _fig_bt.add_trace(_go.Scatter(
+                    x=_bt["dates"], y=_bt_usd_d, name="Dólares guardados",
+                    line=dict(color="#64748b", width=2, dash="dash"), mode="lines",
+                    hovertemplate=f"{_disp_prefix}%{{y:,.0f}}{_disp_suffix}<extra>USD guardados</extra>",
+                ))
+                _y_min = min(min(_bt_pf_d), min(_bt_usd_d)) * 0.95
+                _y_max = max(_bt_port_d) * 1.05
+                _fig_bt.update_layout(
+                    paper_bgcolor="#0f172a", plot_bgcolor="#0f172a",
+                    font=dict(color="#94a3b8", size=12),
+                    xaxis=dict(title="", gridcolor="#1e293b", zerolinecolor="#1e293b",
+                               tickangle=-30),
+                    yaxis=dict(title=f"USD", range=[_y_min, _y_max],
+                               gridcolor="#1e293b", zerolinecolor="#1e293b", tickformat=",.0f"),
+                    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0,
+                                bgcolor="rgba(0,0,0,0)"),
+                    margin=dict(l=0, r=0, t=40, b=0), hovermode="x unified",
+                )
+                st.plotly_chart(_fig_bt, use_container_width=True)
+            except Exception:
+                pass
+
+            st.caption(f"Backtest histórico {_bt['n_months']} meses — datos reales: TNA BCRA, tipo de cambio MEP y precios de mercado internacionales. No garantiza rendimientos futuros.")
+
+        else:
+            # Fallback: proyección estática si no hay datos de API
+            _comp = comparar_vs_alternativas(_capital_usd, profile["horizon"], portfolio["expected_cagr"])
+            _cp_f    = _comp["portfolio_final"] * _disp_factor
+            _cp_pf   = _comp["pf_final"]        * _disp_factor
+            _cp_col  = _comp["colchon_final"]   * _disp_factor
+            _dif_col = _comp["diferencia_vs_colchon"] * _disp_factor
+            st.markdown(f"""<div class="metrics-grid">
 <div class="metric-card">
   <div class="metric-label">Esta cartera en {profile['horizon']} años</div>
   <div class="metric-value" style="color:#22c55e;">{_disp_prefix}{_cp_f:,.0f}{_disp_suffix}</div>
@@ -665,48 +838,48 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
 </div>
 <div class="metric-card">
   <div class="metric-label">Dólares guardados en {profile['horizon']} años</div>
-  <div class="metric-value" style="color:#ef4444;">{_disp_prefix}{_cp_col:,.0f}{_disp_suffix}</div>
+  <div class="metric-value" style="color:#64748b;">{_disp_prefix}{_cp_col:,.0f}{_disp_suffix}</div>
   <div class="metric-sub">Pierden ~2.5% por año contra la inflación global</div>
 </div>
 <div class="metric-card">
-  <div class="metric-label">Lo que ganás vs dejarlo parado</div>
+  <div class="metric-label">Diferencia vs no invertir</div>
   <div class="metric-value" style="color:#a78bfa;">{_disp_prefix}{_dif_col:,.0f}{_disp_suffix}</div>
-  <div class="metric-sub">Diferencia real a {profile['horizon']} años vs dólares sin invertir</div>
+  <div class="metric-sub">Diferencia real a {profile['horizon']} años</div>
 </div>
 </div>""", unsafe_allow_html=True)
-
-        try:
-            import plotly.graph_objects as _go
-            _years_ax  = _comp["years"]
-            _port_vals = [v * _disp_factor for v in _comp["portfolio"]]
-            _pf_vals   = [v * _disp_factor for v in _comp["pf"]]
-            _col_vals  = [v * _disp_factor for v in _comp["colchon"]]
-            _fig_comp  = _go.Figure()
-            _fig_comp.add_trace(_go.Scatter(x=_years_ax, y=_port_vals, name="Esta cartera",
-                line=dict(color="#22c55e", width=3), mode="lines"))
-            _fig_comp.add_trace(_go.Scatter(x=_years_ax, y=_pf_vals, name="Plazo fijo",
-                line=dict(color="#f59e0b", width=2, dash="dot"), mode="lines"))
-            _fig_comp.add_trace(_go.Scatter(x=_years_ax, y=_col_vals, name="Dólares guardados",
-                line=dict(color="#ef4444", width=2, dash="dash"), mode="lines"))
-            _fig_comp.update_layout(
-                paper_bgcolor="#0f172a", plot_bgcolor="#0f172a",
-                font=dict(color="#94a3b8", size=12),
-                xaxis=dict(title="Años", tickmode="linear", dtick=1,
-                           gridcolor="#1e293b", zerolinecolor="#1e293b"),
-                yaxis=dict(title=_disp_curr, range=[min(_col_vals)*0.97, max(_port_vals)*1.03],
-                           gridcolor="#1e293b", zerolinecolor="#1e293b", tickformat=",.0f"),
-                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0,
-                            bgcolor="rgba(0,0,0,0)"),
-                margin=dict(l=0, r=0, t=40, b=0), hovermode="x unified",
-            )
-            st.plotly_chart(_fig_comp, use_container_width=True)
-        except Exception:
-            pass
+            try:
+                import plotly.graph_objects as _go
+                _years_ax  = _comp["years"]
+                _port_vals = [v * _disp_factor for v in _comp["portfolio"]]
+                _pf_vals   = [v * _disp_factor for v in _comp["pf"]]
+                _col_vals  = [v * _disp_factor for v in _comp["colchon"]]
+                _fig_comp  = _go.Figure()
+                _fig_comp.add_trace(_go.Scatter(x=_years_ax, y=_port_vals, name="Esta cartera",
+                    line=dict(color="#22c55e", width=3), mode="lines"))
+                _fig_comp.add_trace(_go.Scatter(x=_years_ax, y=_pf_vals, name="Plazo fijo",
+                    line=dict(color="#f59e0b", width=2, dash="dot"), mode="lines"))
+                _fig_comp.add_trace(_go.Scatter(x=_years_ax, y=_col_vals, name="Dólares guardados",
+                    line=dict(color="#64748b", width=2, dash="dash"), mode="lines"))
+                _fig_comp.update_layout(
+                    paper_bgcolor="#0f172a", plot_bgcolor="#0f172a",
+                    font=dict(color="#94a3b8", size=12),
+                    xaxis=dict(title="Años", tickmode="linear", dtick=1,
+                               gridcolor="#1e293b", zerolinecolor="#1e293b"),
+                    yaxis=dict(title=_disp_curr,
+                               range=[min(_col_vals)*0.97, max(_port_vals)*1.03],
+                               gridcolor="#1e293b", zerolinecolor="#1e293b", tickformat=",.0f"),
+                    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0,
+                                bgcolor="rgba(0,0,0,0)"),
+                    margin=dict(l=0, r=0, t=40, b=0), hovermode="x unified",
+                )
+                st.plotly_chart(_fig_comp, use_container_width=True)
+            except Exception:
+                pass
 
     # ── Si agregás algo todos los meses ──────────────────────────────────────
     st.markdown('<div class="big-expander-wrap big-expander-green"></div>', unsafe_allow_html=True)
-    with st.expander("💰 ¿Qué pasa si sumás un poco cada mes?", expanded=False):
-        st.caption("La riqueza no se construye de una vez — se construye mes a mes. Incluso montos pequeños hacen una diferencia enorme a largo plazo.")
+    with st.expander("💰 ¿Qué ocurre si realiza aportes mensuales?", expanded=False):
+        st.caption("El patrimonio no se construye de una vez — se consolida mes a mes. Incluso montos pequeños generan una diferencia significativa a largo plazo.")
 
         _aporte_key = "aporte_mensual_usd"
         _col_aporte, _col_slider = st.columns([1, 2])
@@ -738,7 +911,7 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
 <div style="font-size:0.8rem;opacity:0.6;">vs {_disp_prefix}{_proy_sin:,.0f}{_disp_suffix} sin aportar · ganancia extra: {_disp_prefix}{_proy_ext:,.0f}{_disp_suffix}</div>
 </div>""", unsafe_allow_html=True)
             else:
-                st.info("Ingresá un monto mensual para ver el impacto")
+                st.info("Ingrese un monto mensual para ver el impacto")
 
         if _aporte_usd_val > 0:
             try:
@@ -766,6 +939,36 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
                 st.plotly_chart(_fig_ap, use_container_width=True)
             except Exception:
                 pass
+
+    # ── ¿Qué pasa si necesito el dinero antes? ───────────────────────────────
+    st.markdown('<div class="big-expander-wrap big-expander-blue"></div>', unsafe_allow_html=True)
+    with st.expander("❓ ¿Qué pasa si necesita el dinero antes de tiempo?", expanded=False):
+        st.markdown("""
+<div style="font-size:0.95rem;color:#cbd5e1;line-height:1.75;">
+<p>Esta es una de las preguntas más importantes antes de invertir. La respuesta depende del instrumento:</p>
+
+<div style="background:rgba(56,189,248,0.07);border-left:3px solid #38bdf8;border-radius:8px;padding:14px 18px;margin:12px 0;">
+  <strong style="color:#38bdf8;">💧 LIQUIDEZ INMEDIATA — retiro en el día</strong><br>
+  · Fondo Money Market: rescate en 24 hs hábiles<br>
+  · Dólar MEP: venta en 48 hs hábiles
+</div>
+
+<div style="background:rgba(245,158,11,0.07);border-left:3px solid #f59e0b;border-radius:8px;padding:14px 18px;margin:12px 0;">
+  <strong style="color:#f59e0b;">📅 LIQUIDEZ MEDIA — 1 a 5 días hábiles</strong><br>
+  · LECAPs y bonos soberanos: se pueden vender en el mercado secundario cualquier día hábil, aunque el precio puede variar<br>
+  · ONs Corporativas: misma lógica, mercado secundario disponible
+</div>
+
+<div style="background:rgba(16,217,138,0.07);border-left:3px solid #10d98a;border-radius:8px;padding:14px 18px;margin:12px 0;">
+  <strong style="color:#10d98a;">📈 LIQUIDEZ CONDICIONADA — conviene esperar</strong><br>
+  · CEDEARs y ETFs: se pueden vender cualquier día hábil, pero si el mercado está bajo puede implicar una pérdida. Lo ideal es respetar el horizonte sugerido.
+</div>
+
+<div style="background:rgba(167,139,250,0.07);border-left:3px solid #a78bfa;border-radius:8px;padding:14px 18px;margin:12px 0;">
+  <strong style="color:#a78bfa;">📌 Recomendación</strong><br>
+  Antes de invertir, asegúrese de tener un fondo de emergencia separado equivalente a 3–6 meses de gastos. Ese dinero nunca debe invertirse — su función es protegerlo ante imprevistos sin necesidad de vender sus inversiones en un mal momento.
+</div>
+</div>""", unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -836,6 +1039,13 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
     <div class="action-step-copy">El proceso es gratuito y demora aproximadamente 10 minutos.</div>
     <details class="action-step-help"><summary>¿Cómo hacerlo?</summary>
       <div>Seleccione la plataforma, complete sus datos personales y verifique su identidad con DNI y selfie.</div>
+    </details>
+    <details class="action-step-help"><summary>¿Cuánto necesito para empezar?</summary>
+      <div>No existe un mínimo formal. En la práctica:<br>
+      • Desde $10.000 ARS ya puede invertir en un Fondo Money Market<br>
+      • Desde $50.000 ARS puede armar una cartera básica con 2 o 3 instrumentos<br>
+      • Con $200.000 ARS o más puede replicar la cartera sugerida completa<br>
+      Lo importante es empezar, aunque sea con poco.</div>
     </details>
   </div>
 </div>

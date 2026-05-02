@@ -11,6 +11,7 @@ Requiere: pip install finvizfinance requests pandas
 
 import json
 import time
+from datetime import datetime
 from pathlib import Path
 
 # ─── Tickers del universo ─────────────────────────────────────────────────────
@@ -1077,7 +1078,12 @@ def run_and_save(output_path: str = "finviz_scores.json"):
     # Guardar medianas compuestas por sector (portfolio + benchmarks combinados)
     _guardar_medianas_sector_batch(raw_results + bench_results)
 
-    output = {"by_asset_id": by_asset_id, "by_ticker": by_ticker, "etf_scores": etf_scores}
+    output = {
+        "generated_at": datetime.now().isoformat(),
+        "by_asset_id":  by_asset_id,
+        "by_ticker":    by_ticker,
+        "etf_scores":   etf_scores,
+    }
     Path(output_path).write_text(json.dumps(output, indent=2, ensure_ascii=False))
     print(f"\nGuardado en {output_path}")
     return output
