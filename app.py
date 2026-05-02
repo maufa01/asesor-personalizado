@@ -630,6 +630,7 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── ¿Qué pasa si no hacés nada? ───────────────────────────────────────────
+    st.markdown('<div class="big-expander-wrap big-expander-orange"></div>', unsafe_allow_html=True)
     with st.expander("📊 ¿Qué pasa con tu plata si no la invertís?", expanded=False):
         st.markdown(f"""
 <div style="background:rgba(255,255,255,0.04);border-radius:12px;padding:18px 22px;margin-bottom:20px;border-left:3px solid #f59e0b;">
@@ -703,6 +704,7 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
             pass
 
     # ── Si agregás algo todos los meses ──────────────────────────────────────
+    st.markdown('<div class="big-expander-wrap big-expander-green"></div>', unsafe_allow_html=True)
     with st.expander("💰 ¿Qué pasa si sumás un poco cada mes?", expanded=False):
         st.caption("La riqueza no se construye de una vez — se construye mes a mes. Incluso montos pequeños hacen una diferencia enorme a largo plazo.")
 

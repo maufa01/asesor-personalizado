@@ -1030,6 +1030,41 @@ def apply_custom_css():
         border-top: none !important;
     }
 
+    /* ── Expanders grandes (estilo category card) ───────────────────── */
+    .big-expander-wrap + [data-testid="stExpander"] > details,
+    .big-expander-wrap + [data-testid="stExpander"] > details[open] {
+        border-left-width: 3px !important;
+        border-radius: var(--radius-sm) !important;
+        outline: none !important;
+        box-shadow: none !important;
+    }
+    .big-expander-orange + [data-testid="stExpander"] > details {
+        border-left-color: #f59e0b !important;
+    }
+    .big-expander-green + [data-testid="stExpander"] > details {
+        border-left-color: #22c55e !important;
+    }
+    .big-expander-wrap + [data-testid="stExpander"] > details > summary {
+        padding: 20px 24px !important;
+        font-size: 1rem !important;
+        font-weight: 700 !important;
+        color: var(--text-1) !important;
+        min-height: 64px !important;
+        display: flex !important;
+        align-items: center !important;
+        border: none !important;
+        border-radius: var(--radius-sm) !important;
+        outline: none !important;
+        box-shadow: none !important;
+    }
+    .big-expander-wrap + [data-testid="stExpander"] > details > summary:hover {
+        background: rgba(255,255,255,0.03) !important;
+    }
+    .big-expander-wrap + [data-testid="stExpander"] > details > summary > span {
+        font-size: 1rem !important;
+        font-weight: 700 !important;
+    }
+
     /* ── Footer ───────────────────────────────────────────────────── */
     .app-footer {
         margin-top: 4rem;
