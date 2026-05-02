@@ -5,6 +5,7 @@ y lo compara contra SPY como benchmark.
 """
 
 from datetime import datetime, timedelta
+import pandas as pd
 
 # Mapeo asset_id → ticker yfinance para los activos que tienen datos históricos
 _ASSET_TO_YF: dict = {
@@ -104,10 +105,19 @@ def backtest_portfolio(positions: list, days: int = 90) -> dict:
     if raw.empty:
         return {"error": "yfinance no devolvió datos para el período", "portfolio_return": None}
 
-    close = raw["Close"] if "Close" in raw else raw
-    # Para un solo ticker, yfinance devuelve Series → convertir a DataFrame
-    if hasattr(close, "squeeze") and len(tickers_needed) == 1:
+    # Extraer columna Close — yfinance varía según versión y nº de tickers
+    try:
+        close = raw["Close"]
+    except KeyError:
+        close = raw
+
+    # Serie → DataFrame (un solo ticker en versiones viejas de yfinance)
+    if isinstance(close, pd.Series):
         close = close.to_frame(name=tickers_needed[0])
+
+    # MultiIndex columns (yfinance >= 0.2 con múltiples tickers) → aplanar
+    if isinstance(close.columns, pd.MultiIndex):
+        close.columns = close.columns.get_level_values(-1)
 
     # Normalizar al primer día disponible
     first_valid = close.dropna(how="all").index[0]
