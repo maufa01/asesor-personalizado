@@ -1001,12 +1001,28 @@ def apply_custom_css():
     .stTabs [data-baseweb="tab-highlight"] { display: none !important; }
 
     /* ── Expander ─────────────────────────────────────────────────── */
-    .streamlit-expanderHeader {
+    .streamlit-expanderHeader,
+    [data-testid="stExpander"] > details > summary,
+    [data-testid="stExpander"] > details {
         background: var(--bg-2) !important;
         border: 1px solid var(--border) !important;
         border-radius: var(--radius-sm) !important;
         font-size: 0.85rem !important;
         color: var(--text-2) !important;
+        outline: none !important;
+        box-shadow: none !important;
+    }
+    [data-testid="stExpander"] > details[open],
+    [data-testid="stExpander"] > details[open] > summary {
+        border-color: var(--border) !important;
+        outline: none !important;
+        box-shadow: none !important;
+    }
+    [data-testid="stExpander"] > details > summary:focus,
+    [data-testid="stExpander"] > details > summary:active {
+        outline: none !important;
+        box-shadow: none !important;
+        border-color: var(--border) !important;
     }
     .streamlit-expanderContent {
         background: var(--bg-1) !important;
