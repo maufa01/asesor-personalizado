@@ -1282,15 +1282,15 @@ PORTFOLIO_TEMPLATES = {
         "expected_cagr": 0.165,
         "expected_volatility": 0.28,
         "description": "Maximiza el crecimiento a largo plazo, aceptando que puede haber caídas fuertes en el camino.",
-        "summary": "Su cartera apunta al máximo crecimiento. Asume caídas de corto plazo a cambio de mejores resultados a largo plazo. Tecnología global, energía argentina y exposición a activos de alto potencial.",
+        "summary": "Su cartera apunta al máximo crecimiento. Asume caídas de corto plazo a cambio de mejores resultados a largo plazo. Tecnología global diversificada vía ETFs, energía argentina y exposición a activos de alto potencial.",
         "allocations": {
-            "qqq":     0.25,   # tech growth: Nasdaq 100
-            "spy":     0.14,   # base global amplia
-            "nvda":    0.14,   # chips para inteligencia artificial
+            "qqq":     0.30,   # Nasdaq 100: ya incluye NVDA, MSFT, AAPL, META, AMZN
             "mep":     0.18,   # base en dólares
-            "ypf":     0.11,   # energía argentina: Vaca Muerta
-            "galicia": 0.09,   # financiero argentino
+            "ypf":     0.14,   # energía argentina: Vaca Muerta
+            "galicia": 0.11,   # financiero argentino
             "al30":    0.09,   # bono soberano USD
+            "eem":     0.09,   # mercados emergentes: diversificación geográfica
+            "meli":    0.09,   # MercadoLibre: tech latam (no está en QQQ ni SPY)
         },
     },
 }
@@ -1491,19 +1491,23 @@ def _adjust_for_emergency(allocations: dict, has_emergency: bool) -> dict:
 
 
 # ─── Reglas de solapamiento ────────────────────────────────────────────────────
-# Si ya hay un ETF broad, agregar el stock individual duplica exposición sin saberlo
+# Top holdings reales de cada ETF (datos 2025). Si el ETF está en la cartera,
+# agregar el stock individualmente duplica la exposición sin que el usuario lo sepa.
 _OVERLAP_RULES = {
     "spy": {
-        "excludes": ["aapl", "msft"],
-        "reason": "SPY ya incluye ~7% Apple y ~6% Microsoft — tener ambos duplica esa exposición",
+        # Top 8 de SPY: AAPL 7%, MSFT 6%, NVDA 6%, AMZN 4%, META 3%, GOOGL 3%, TSLA 2%, BRK-B 2%
+        "excludes": ["aapl", "msft", "nvda", "amzn", "meta", "googl", "tsla", "brk"],
+        "reason":   "SPY ya incluye estas empresas entre sus mayores posiciones — agregarlas individualmente duplica la exposición",
     },
     "vti": {
-        "excludes": ["aapl", "msft"],
-        "reason": "VTI ya incluye Apple y Microsoft entre sus mayores posiciones",
+        # VTI = mercado total EE.UU., composición similar a SPY en el top
+        "excludes": ["aapl", "msft", "nvda", "amzn", "meta", "googl", "tsla"],
+        "reason":   "VTI ya incluye estas empresas entre sus mayores posiciones",
     },
     "qqq": {
-        "excludes": ["aapl", "meli"],
-        "reason": "QQQ ya incluye ~9% Apple y MercadoLibre — tener ambos duplica esa exposición",
+        # Top 8 de QQQ: MSFT 9%, AAPL 9%, NVDA 8%, AMZN 5%, META 5%, GOOGL 5%, TSLA 3%, COST 3%
+        "excludes": ["aapl", "msft", "nvda", "amzn", "meta", "googl", "tsla", "cost", "nflx", "adbe"],
+        "reason":   "QQQ ya incluye estas empresas en su cartera — agregarlas individualmente duplica la exposición",
     },
 }
 
