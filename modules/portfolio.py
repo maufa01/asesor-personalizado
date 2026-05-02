@@ -7,6 +7,7 @@ con activos del mercado argentino e internacional.
 from typing import List, Dict, Any
 from modules.finviz_scorer import (
     load_scores as load_equity_scores,
+    load_asset_sectors,
     return_factor, vol_factor, MIN_SCORE_BY_RISK,
     apply_argentina_adjustment, SECTOR_MAP,
 )
@@ -1667,6 +1668,68 @@ def _trim_to_max(allocations: dict, max_pos: int, scores: dict = None) -> dict:
     return {k: v / total for k, v in trimmed.items()}
 
 
+_EQUITY_CATEGORIES = {"CEDEARs", "Acciones ARG"}
+
+
+def _adjust_for_sector_valuations(
+    allocs: dict,
+    asset_sectors: dict,
+    signals: dict,
+) -> dict:
+    """
+    Ajusta pesos de equity según la valuación histórica del sector.
+
+    Para cada activo de renta variable con señal de sector conocida:
+      - señal > 0 (sector barato vs historia) → sube el peso hasta +15%
+      - señal < 0 (sector caro vs historia)   → baja el peso hasta -15%
+
+    Bonos, liquidez y MEP no se tocan.
+    Renormaliza al final para que la suma siga siendo 1.
+
+    Si no hay señales (datos insuficientes) retorna allocs sin cambios.
+    """
+    if not signals:
+        return allocs
+
+    adj = dict(allocs)
+    ajustes_log = []
+
+    for asset_id, weight in allocs.items():
+        asset = ASSET_INDEX.get(asset_id, {})
+        if asset.get("category") not in _EQUITY_CATEGORIES:
+            continue
+        if asset_id in _ETF_IDS:
+            continue
+
+        sector = asset_sectors.get(asset_id)
+        if not sector:
+            continue
+        signal = signals.get(sector, 0.0)
+        if signal == 0.0:
+            continue
+
+        # Ajuste amortiguado: señal × 0.5, clampeado a ±15% del peso original
+        delta = weight * signal * 0.5
+        delta = max(-weight * 0.15, min(weight * 0.15, delta))
+        adj[asset_id] = max(0.0, weight + delta)
+
+        if abs(delta) > 0.001:
+            ajustes_log.append(
+                f"  {asset_id:<10} sector={sector:<22} señal={signal:+.2f} "
+                f"peso {weight:.3f}→{adj[asset_id]:.3f}"
+            )
+
+    if ajustes_log:
+        print("  [sector_val] Ajustes por valuación histórica:")
+        for line in ajustes_log:
+            print(line)
+
+    total = sum(adj.values())
+    if total > 0:
+        adj = {k: v / total for k, v in adj.items()}
+    return adj
+
+
 def build_portfolio(profile: dict) -> dict:
     """
     Construye la cartera personalizada según el perfil del inversor.
@@ -1683,9 +1746,10 @@ def build_portfolio(profile: dict) -> dict:
     template = PORTFOLIO_TEMPLATES[risk]
     horizon  = profile.get("horizon", 5)
 
-    # ── 1. Cargar scores ──────────────────────────────────────────────────────
-    eq_scores   = load_equity_scores()   # Finviz → acciones y ETFs
-    bond_scores = load_bond_scores()     # bond_scorer → instrumentos de RF
+    # ── 1. Cargar scores y sectores ───────────────────────────────────────────
+    eq_scores      = load_equity_scores()    # Finviz → acciones y ETFs
+    bond_scores    = load_bond_scores()      # bond_scorer → instrumentos de RF
+    asset_sectors  = load_asset_sectors()    # asset_id → sector_framework
 
     # ── 2. Capa ARG: descuento regulatorio sobre scores de acciones locales ──
     if eq_scores:
@@ -1697,8 +1761,6 @@ def build_portfolio(profile: dict) -> dict:
                 eq_scores[asset_id] = adj["score_adj"]
 
     # ── 3. Construir asignación base score-driven ─────────────────────────────
-    # _build_from_buckets selecciona top-N por score en cada categoría y
-    # pondera proporcionalmente al score. Fallback a pesos iguales si no hay scores.
     allocs = _build_from_buckets(risk, eq_scores, bond_scores)
 
     # Fallback al template hardcodeado si la construcción quedó vacía
@@ -1715,6 +1777,16 @@ def build_portfolio(profile: dict) -> dict:
     # ── 5. Ajustes por experiencia e ingresos ────────────────────────────────
     allocs = _adjust_for_experience(allocs, profile.get("experience", ""))
     allocs = _adjust_for_income_stability(allocs, profile.get("income_stability", ""))
+
+    # ── 5b. Ajuste dinámico por valuación histórica de sector ─────────────────
+    # Solo actúa cuando hay ≥ 5 snapshots por sector en memory.json.
+    # En las primeras semanas de uso el bloque es neutral (señales vacías).
+    try:
+        from memory_manager import get_sector_valuation_signals
+        sector_signals = get_sector_valuation_signals()
+        allocs = _adjust_for_sector_valuations(allocs, asset_sectors, sector_signals)
+    except Exception:
+        pass
 
     # ── 6. Filtros estructurales ──────────────────────────────────────────────
     allocs = _filter_by_liquidity(allocs, risk, horizon)

@@ -346,6 +346,33 @@ def get_parametros() -> dict:
     }
 
 
+def get_sector_valuation_signals(min_snapshots: int = 4) -> dict:
+    """
+    Compara la mediana más reciente de P/E de cada sector con su promedio histórico.
+    Requiere al menos min_snapshots entradas previas para calcular señal.
+    Retorna {sector: signal} donde signal ∈ [-0.30, +0.30]:
+      > 0 → sector barato vs historia → sobreponderar
+      < 0 → sector caro vs historia  → subponderar
+      = 0 → sin datos suficientes    → neutral
+    """
+    mem      = load_memory()
+    historial = mem["aprendizaje"].get("historial_medianas_sector", {})
+    signals: dict = {}
+
+    for sector, snapshots in historial.items():
+        pes = [s["pe"] for s in snapshots if s.get("pe") and s["pe"] > 0]
+        if len(pes) < min_snapshots + 1:   # necesita al menos N históricos + 1 actual
+            continue
+        current_pe = pes[-1]
+        hist_avg   = sum(pes[:-1]) / len(pes[:-1])   # promedio de todos menos el más reciente
+        if hist_avg == 0:
+            continue
+        raw = (hist_avg - current_pe) / hist_avg      # positivo = más barato que historia
+        signals[sector] = round(max(-0.30, min(0.30, raw)), 4)
+
+    return signals
+
+
 def get_score_adjustment(ticker: str) -> int:
     """Retorna el ajuste acumulado de score para el ticker (rango -20 a +10, default 0)."""
     mem = load_memory()
