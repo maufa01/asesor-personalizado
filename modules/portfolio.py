@@ -6,9 +6,11 @@ con activos del mercado argentino e internacional.
 
 from typing import List, Dict, Any
 from modules.finviz_scorer import (
-    load_scores, return_factor, vol_factor, MIN_SCORE_BY_RISK,
+    load_scores as load_equity_scores,
+    return_factor, vol_factor, MIN_SCORE_BY_RISK,
     apply_argentina_adjustment, SECTOR_MAP,
 )
+from modules.bond_scorer import load_scores as load_bond_scores
 
 
 # ─── Universo de activos ───────────────────────────────────────────────────────
@@ -807,6 +809,134 @@ PORTFOLIO_TEMPLATES = {
 }
 
 
+# ─── Buckets de construcción por perfil ───────────────────────────────────────
+# Cada bucket define la CATEGORÍA que ocupa, su peso objetivo, cuántas posiciones
+# puede aportar y qué activos son candidatos.
+#
+# score_src:
+#   "equity" → usa scores Finviz (con ARG adjustment y min_score por perfil)
+#   "bond"   → usa scores de bond_scorer (ranking relativo, sin min_score absoluto)
+#   None     → activo estructural fijo, no filtrable por score
+#
+# La selección dentro del bucket: top-N por score, ponderados por score.
+# Si no hay scores disponibles: igual ponderación entre los candidatos.
+
+_BUCKET_DEFS: Dict[str, list] = {
+    "conservador": [
+        # Peso objetivo: 1.00 total → 6 posiciones
+        {"id": "liquidez",   "target": 0.20, "max_pos": 1, "score_src": None,
+         "candidates": ["money_market"]},
+        {"id": "cobertura",  "target": 0.24, "max_pos": 1, "score_src": None,
+         "candidates": ["mep"]},
+        {"id": "rf_pesos",   "target": 0.14, "max_pos": 1, "score_src": "bond",
+         "candidates": ["lecap", "cer_bond"]},
+        {"id": "rf_usd",     "target": 0.31, "max_pos": 2, "score_src": "bond",
+         "candidates": ["on_corp", "on_ypf", "on_pampa", "on_tecpetrol", "al30", "gd30"]},
+        {"id": "globales",   "target": 0.11, "max_pos": 1, "score_src": "equity",
+         "candidates": ["spy", "vti", "iau"]},
+    ],
+    "estable": [
+        # 6 posiciones
+        {"id": "liquidez",  "target": 0.15, "max_pos": 1, "score_src": None,
+         "candidates": ["money_market"]},
+        {"id": "cobertura", "target": 0.25, "max_pos": 1, "score_src": None,
+         "candidates": ["mep"]},
+        {"id": "rf",        "target": 0.45, "max_pos": 3, "score_src": "bond",
+         "candidates": ["lecap", "cer_bond", "on_corp", "on_ypf", "on_pampa", "al30", "gd30"]},
+        {"id": "globales",  "target": 0.15, "max_pos": 1, "score_src": "equity",
+         "candidates": ["spy", "vti", "qqq"]},
+    ],
+    "moderado": [
+        # 7 posiciones
+        {"id": "liquidez",      "target": 0.12, "max_pos": 1, "score_src": None,
+         "candidates": ["money_market"]},
+        {"id": "cobertura",     "target": 0.15, "max_pos": 1, "score_src": None,
+         "candidates": ["mep"]},
+        {"id": "rf_usd",        "target": 0.23, "max_pos": 1, "score_src": "bond",
+         "candidates": ["on_corp", "on_ypf", "on_pampa", "al30", "gd30"]},
+        {"id": "etf_global",    "target": 0.22, "max_pos": 2, "score_src": "equity",
+         "candidates": ["spy", "qqq", "vti"]},
+        {"id": "equity_global", "target": 0.18, "max_pos": 1, "score_src": "equity",
+         "candidates": ["nvda", "msft", "meta", "googl", "brk", "amzn", "aapl"]},
+        {"id": "equity_arg",    "target": 0.10, "max_pos": 1, "score_src": "equity",
+         "candidates": ["ypf", "galicia", "vist", "pampa", "meli"]},
+    ],
+    "agresivo": [
+        # 8 posiciones
+        {"id": "cobertura",     "target": 0.18, "max_pos": 1, "score_src": None,
+         "candidates": ["mep"]},
+        {"id": "rf_usd",        "target": 0.09, "max_pos": 1, "score_src": "bond",
+         "candidates": ["al30", "gd30", "on_corp"]},
+        {"id": "etf_global",    "target": 0.25, "max_pos": 2, "score_src": "equity",
+         "candidates": ["qqq", "spy", "vti"]},
+        {"id": "equity_global", "target": 0.28, "max_pos": 3, "score_src": "equity",
+         "candidates": ["nvda", "msft", "meta", "googl", "amzn", "meli", "aapl", "tsla"]},
+        {"id": "equity_arg",    "target": 0.20, "max_pos": 2, "score_src": "equity",
+         "candidates": ["ypf", "galicia", "vist", "pampa", "bbar"]},
+    ],
+}
+
+
+def _build_from_buckets(
+    risk: str,
+    eq_scores: dict,
+    bond_scores: dict,
+) -> dict:
+    """
+    Construye la asignación base usando el framework de scoring.
+
+    Por cada bucket del perfil:
+    - Filtra candidatos por min_score (solo equity; bonos siempre pasan).
+    - Elige top-N por score.
+    - Pondera cada activo proporcionalmente a su score dentro del bucket.
+    - Escala al peso objetivo del bucket.
+
+    Si los scores están vacíos recae en peso igual entre candidatos.
+    """
+    allocs: dict = {}
+    min_eq = MIN_SCORE_BY_RISK.get(risk, 40)
+
+    for bucket in _BUCKET_DEFS[risk]:
+        cands  = [c for c in bucket["candidates"] if c in ASSET_INDEX]
+        target = bucket["target"]
+        max_p  = bucket["max_pos"]
+        src    = bucket.get("score_src")
+
+        if not cands:
+            continue
+
+        # Determinar fuente de score y aplicar filtro de mínimo
+        if src == "equity" and eq_scores:
+            scores = eq_scores
+            cands  = [c for c in cands if c not in scores or scores[c] >= min_eq]
+        elif src == "bond" and bond_scores:
+            scores = bond_scores
+        else:
+            scores = {}
+
+        if not cands:
+            continue
+
+        # Ranking por score → top N
+        ranked = sorted(cands, key=lambda c: scores.get(c, 0), reverse=True) if scores else cands
+        top    = ranked[:max_p]
+
+        # Peso proporcional al score dentro del bucket
+        total_s = sum(scores.get(c, 50) for c in top) if scores else 0
+        for c in top:
+            if total_s > 0:
+                allocs[c] = target * (scores.get(c, 50) / total_s)
+            else:
+                allocs[c] = target / len(top)
+
+    # Normalizar al 100% por si algún bucket quedó vacío
+    total = sum(allocs.values())
+    if total > 0:
+        allocs = {k: v / total for k, v in allocs.items()}
+
+    return allocs
+
+
 def _adjust_for_horizon(allocations: dict, horizon: int, risk: str) -> dict:
     """Ajusta ponderaciones según horizonte temporal."""
     adj = dict(allocations)
@@ -966,36 +1096,53 @@ def _trim_to_max(allocations: dict, max_pos: int, scores: dict = None) -> dict:
 
 
 def build_portfolio(profile: dict) -> dict:
-    """Construye la cartera personalizada según el perfil del inversor."""
+    """
+    Construye la cartera personalizada según el perfil del inversor.
+
+    Flujo:
+    1. Carga scores Finviz (equity) y bond_scorer (bonos).
+    2. Aplica descuentos regulatorios ARG sobre scores de acciones locales.
+    3. _build_from_buckets(): elige los mejores activos por score dentro de
+       cada categoría (bucket) y los pondera proporcionalmente a su score.
+    4. Ajusta por horizonte temporal y fondo de emergencia.
+    5. Excluye solapamientos ETF/CEDEAR.
+    """
     risk     = profile["risk_profile"]
     template = PORTFOLIO_TEMPLATES[risk]
-    allocs   = dict(template["allocations"])
+    horizon  = profile.get("horizon", 5)
 
-    horizon       = profile.get("horizon", 5)
-    allocs        = _adjust_for_horizon(allocs, horizon, risk)
+    # ── 1. Cargar scores ──────────────────────────────────────────────────────
+    eq_scores   = load_equity_scores()   # Finviz → acciones y ETFs
+    bond_scores = load_bond_scores()     # bond_scorer → instrumentos de RF
 
-    has_emergency = ("más de" in profile.get("emergency_fund", "").lower()
-                     or "6 meses" in profile.get("emergency_fund", "").lower())
-    allocs        = _adjust_for_emergency(allocs, has_emergency)
-
-    # Scores Finviz (vacío si no se corrió el scorer aún → sin efecto)
-    scores = load_scores()
-
-    # Aplicar capa ARG: descuento regulatorio sobre scores de acciones argentinas
-    if scores:
-        for asset_id, score_val in list(scores.items()):
+    # ── 2. Capa ARG: descuento regulatorio sobre scores de acciones locales ──
+    if eq_scores:
+        for asset_id, score_val in list(eq_scores.items()):
             asset  = ASSET_INDEX.get(asset_id, {})
             sector = SECTOR_MAP.get(asset.get("category", ""), "default")
             adj    = apply_argentina_adjustment(score_val, asset_id, sector)
             if adj["descuento"] > 0:
-                scores[asset_id] = adj["score_adj"]
+                eq_scores[asset_id] = adj["score_adj"]
 
-    # Filtros de calidad
+    # ── 3. Construir asignación base score-driven ─────────────────────────────
+    # _build_from_buckets selecciona top-N por score en cada categoría y
+    # pondera proporcionalmente al score. Fallback a pesos iguales si no hay scores.
+    allocs = _build_from_buckets(risk, eq_scores, bond_scores)
+
+    # Fallback al template hardcodeado si la construcción quedó vacía
+    if not allocs:
+        allocs = dict(template["allocations"])
+
+    # ── 4. Ajustes por perfil del inversor ───────────────────────────────────
+    allocs = _adjust_for_horizon(allocs, horizon, risk)
+
+    has_emergency = ("más de" in profile.get("emergency_fund", "").lower()
+                     or "6 meses" in profile.get("emergency_fund", "").lower())
+    allocs = _adjust_for_emergency(allocs, has_emergency)
+
+    # ── 5. Filtros estructurales ──────────────────────────────────────────────
     allocs = _filter_by_liquidity(allocs, risk, horizon)
     allocs = _apply_overlap_exclusion(allocs)
-    if scores:
-        allocs = _apply_score_filter(allocs, scores, risk)
-    allocs = _trim_to_max(allocs, _MAX_POSITIONS.get(risk, 8), scores or None)
 
     # Construir posiciones
     positions = []
