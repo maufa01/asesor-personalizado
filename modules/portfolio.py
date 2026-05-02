@@ -1785,12 +1785,36 @@ def build_portfolio(profile: dict) -> dict:
     allocs = _adjust_for_income_stability(allocs, profile.get("income_stability", ""))
 
     # ── 5b. Ajuste dinámico por valuación histórica de sector ─────────────────
-    # Solo actúa cuando hay ≥ 5 snapshots por sector en memory.json.
-    # En las primeras semanas de uso el bloque es neutral (señales vacías).
     try:
         from memory_manager import get_sector_valuation_signals
         sector_signals = get_sector_valuation_signals()
         allocs = _adjust_for_sector_valuations(allocs, asset_sectors, sector_signals)
+    except Exception:
+        pass
+
+    # ── 5c. Optimización Markowitz sobre la porción equity ────────────────────
+    # Reemplaza los pesos heurísticos de acciones/ETFs por pesos óptimos
+    # calculados con la matriz de covarianza histórica (yfinance, 1 año).
+    # Falla silenciosamente: si yfinance no está disponible o hay pocos datos,
+    # la cartera conserva los pesos score-driven del paso anterior.
+    try:
+        from modules.optimizer import optimize_equity_slice
+        _EQ_CATS = {"CEDEARs", "Acciones ARG", "ETFs Globales", "ETFs"}
+        equity_ids = [
+            aid for aid in allocs
+            if ASSET_INDEX.get(aid, {}).get("category") in _EQ_CATS
+        ]
+        if len(equity_ids) >= 2:
+            opt_weights = optimize_equity_slice(equity_ids, risk)
+            if opt_weights:
+                # Mantener el peso total asignado a equity; redistribuir internamente
+                total_eq_weight = sum(allocs[aid] for aid in equity_ids)
+                for aid, opt_w in opt_weights.items():
+                    allocs[aid] = opt_w * total_eq_weight
+                # Renormalizar toda la cartera
+                total = sum(allocs.values())
+                if total > 0:
+                    allocs = {k: v / total for k, v in allocs.items()}
     except Exception:
         pass
 

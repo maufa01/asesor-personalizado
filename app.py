@@ -194,7 +194,7 @@ with st.sidebar:
         st.success("✅ Scores actualizados")
 
     st.markdown("---")
-    st.caption("Los scores determinan qué activos entran a tu cartera y con qué peso. Se actualizan automáticamente cuando tienen más de 7 días.")
+    st.caption("Los scores se actualizan automáticamente cuando tienen más de 7 días.")
     if st.button("🔄 Actualizar ahora", use_container_width=True):
         with st.spinner("Actualizando scores de equity... (~2 min)"):
             try:
@@ -211,6 +211,18 @@ with st.sidebar:
         st.session_state.scores_refreshed = True
         st.success("✅ Scores actualizados")
         st.rerun()
+
+    # Modo avanzado — solo para el administrador de la app
+    with st.expander("⚙️ Avanzado", expanded=False):
+        st.session_state["_modo_avanzado"] = st.checkbox(
+            "Modo presentación académica",
+            value=st.session_state.get("_modo_avanzado", False),
+        )
+        if st.session_state.get("_modo_avanzado"):
+            if st.button("🎓 Metodología del sistema", use_container_width=True):
+                st.session_state._prev_step = st.session_state.get("step", "intro")
+                st.session_state.step = "metodologia"
+                st.rerun()
 
 step = st.session_state.step
 
@@ -251,12 +263,6 @@ independientemente de su experiencia previa en el mercado de capitales.
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button("Iniciar Evaluación", key="start_btn", use_container_width=True):
         st.session_state.step = "profiling"
-        st.rerun()
-
-    st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("🎓 Ver Metodología del Sistema", key="method_btn", use_container_width=True):
-        st.session_state._prev_step = "intro"
-        st.session_state.step = "metodologia"
         st.rerun()
 
     st.markdown("""<p class="disclaimer">
@@ -502,19 +508,20 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
             unsafe_allow_html=True,
         )
 
-    # ── Métricas cuantitativas avanzadas ─────────────────────────────────────
-    _beta   = portfolio.get("beta_portfolio", 0)
-    _sharpe = portfolio.get("sharpe_ratio", 0)
-    _hhi    = portfolio.get("hhi", 0)
-    _hhi_lb = portfolio.get("hhi_label", "")
-    _avgsco = portfolio.get("avg_score")
+    # ── Métricas cuantitativas — solo modo avanzado ───────────────────────────
+    if st.session_state.get("_modo_avanzado"):
+        _beta   = portfolio.get("beta_portfolio", 0)
+        _sharpe = portfolio.get("sharpe_ratio", 0)
+        _hhi    = portfolio.get("hhi", 0)
+        _hhi_lb = portfolio.get("hhi_label", "")
+        _avgsco = portfolio.get("avg_score")
 
-    _beta_color   = "#22c55e" if _beta < 1.0 else ("#f59e0b" if _beta < 1.3 else "#ef4444")
-    _sharpe_color = "#22c55e" if _sharpe >= 0.5 else ("#f59e0b" if _sharpe >= 0 else "#ef4444")
-    _hhi_color    = "#22c55e" if _hhi < 0.15 else ("#f59e0b" if _hhi < 0.25 else "#ef4444")
+        _beta_color   = "#22c55e" if _beta < 1.0 else ("#f59e0b" if _beta < 1.3 else "#ef4444")
+        _sharpe_color = "#22c55e" if _sharpe >= 0.5 else ("#f59e0b" if _sharpe >= 0 else "#ef4444")
+        _hhi_color    = "#22c55e" if _hhi < 0.15 else ("#f59e0b" if _hhi < 0.25 else "#ef4444")
 
-    with st.expander("📐 Métricas cuantitativas del portafolio", expanded=False):
-        st.markdown(f"""<div class="metrics-grid">
+        with st.expander("📐 Métricas cuantitativas del portafolio", expanded=True):
+            st.markdown(f"""<div class="metrics-grid">
 <div class="metric-card">
   <div class="metric-label">Beta del portafolio</div>
   <div class="metric-value" style="color:{_beta_color};">{_beta:.2f}</div>
@@ -532,13 +539,7 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
 </div>
 {f'<div class="metric-card"><div class="metric-label">Score promedio ponderado</div><div class="metric-value" style="color:#a78bfa;">{_avgsco}/100</div><div class="metric-sub">Calidad fundamental de los activos scorables</div></div>' if _avgsco else ""}
 </div>""", unsafe_allow_html=True)
-
-        st.caption("Beta: promedio ponderado de betas individuales (Finviz). Sharpe: (CAGR − 4.5%) / volatilidad. HHI: Herfindahl-Hirschman Index.")
-
-        if st.button("🎓 Ver metodología completa", key="method_from_results"):
-            st.session_state._prev_step = "results"
-            st.session_state.step = "metodologia"
-            st.rerun()
+            st.caption("Beta: ponderado por betas Finviz. Sharpe: (CAGR − 4.5%) / σ. HHI: Herfindahl-Hirschman. Pesos equity optimizados con Markowitz (scipy).")
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -571,9 +572,9 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
     st.markdown('<div class="section-title">📋 En qué está invertido su dinero</div>', unsafe_allow_html=True)
     render_allocation_table(portfolio, _disp_capital, currency_label=_disp_curr)
 
-    # ── Análisis fundamental por activo (para rector/presentación) ────────────
+    # ── Análisis fundamental por activo (solo modo avanzado) ─────────────────
     _scored = [p for p in portfolio["positions"] if p.get("score") and p.get("bloques")]
-    if _scored:
+    if _scored and st.session_state.get("_modo_avanzado"):
         with st.expander(f"🔬 Análisis fundamental detallado ({len(_scored)} activos con score Finviz)", expanded=False):
             st.caption("Score calculado sobre 5 bloques: Valuación (25) + Calidad (25) + Solvencia (20) + Crecimiento (20) + Cualitativo (10) = 100 pts")
             for pos in sorted(_scored, key=lambda x: x.get("score", 0), reverse=True):
