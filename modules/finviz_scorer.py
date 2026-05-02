@@ -45,6 +45,18 @@ SCOREABLE_TICKERS = [
     # ETFs — NO van aquí; se scorean por el motor ETF estático en run_and_save()
 ]
 
+# Tickers benchmark por sector — se usan SOLO para calcular medianas de sector.
+# No están en ASSET_TO_FINVIZ (nunca entran al portfolio), pero enriquecen
+# los sectores con pocos CEDEARs para que las señales históricas sean confiables.
+BENCHMARK_TICKERS: dict[str, list[str]] = {
+    # Utilities: NEE + CEPU solo dan 2 puntos → insuficiente
+    "utilities": ["DUK", "SO", "EXC", "AES", "D"],
+    # Materiales: LOMA solo da 1 punto → insuficiente
+    "materiales": ["FCX", "NEM", "LIN", "APD", "ECL"],
+    # Transporte: no tenemos ninguno en CEDEARs ARG
+    "transporte": ["UPS", "FDX", "CSX", "NSC", "DAL"],
+}
+
 # Mapeo asset_id (portfolio.py) → ticker Finviz
 ASSET_TO_FINVIZ = {
     # CEDEARs originales
@@ -966,18 +978,22 @@ def run_and_save(output_path: str = "finviz_scores.json"):
     except ImportError:
         raise SystemExit("Instalá finvizfinance: pip install finvizfinance")
 
-    by_ticker   = {}
-    by_asset_id = {}
-    raw_results = []   # para el formatter de tabla y summary
+    by_ticker    = {}
+    by_asset_id  = {}
+    raw_results  = []   # portfolio tickers — para scores y tabla de consola
+    bench_results= []   # benchmark tickers — solo para medianas de sector
 
-    print(f"Scoring {len(SCOREABLE_TICKERS)} tickers...\n")
+    all_scoreable = list(SCOREABLE_TICKERS)
+    benchmark_flat = {t: sect for sect, tickers in BENCHMARK_TICKERS.items() for t in tickers}
 
-    for ticker in SCOREABLE_TICKERS:
+    print(f"Scoring {len(all_scoreable)} tickers + "
+          f"{len(benchmark_flat)} benchmarks de sector...\n")
+
+    for ticker in all_scoreable:
         try:
             data      = finvizfinance(ticker).ticker_fundament()
             sector    = SECTOR_OVERRIDE.get(ticker) or SECTOR_MAP.get(data.get("Sector", ""), "default")
             result    = score_ticker(ticker, data, sector)
-            # Ajuste ARG (si aplica)
             asset_id_guess = next(
                 (aid for aid, fv in ASSET_TO_FINVIZ.items() if fv == ticker), None
             )
@@ -993,6 +1009,19 @@ def run_and_save(output_path: str = "finviz_scores.json"):
             raw_results.append(result)
         except Exception as exc:
             print(f"{ticker:8s}  ERROR: {exc}")
+        time.sleep(1.5)
+
+    # Benchmarks — score para medianas de sector, NO se guardan en by_asset_id
+    print(f"\nDescargando benchmarks de sector...")
+    for ticker, forced_sector in benchmark_flat.items():
+        try:
+            data   = finvizfinance(ticker).ticker_fundament()
+            result = score_ticker(ticker, data, forced_sector)
+            result["sector"] = forced_sector   # asegurar sector correcto
+            bench_results.append(result)
+            print(f"  {ticker:<8} [{forced_sector}]  score={result['score']}")
+        except Exception as exc:
+            print(f"  {ticker:8s}  ERROR: {exc}")
         time.sleep(1.5)
 
     # Mapear ticker Finviz → asset_id (acciones)
@@ -1016,8 +1045,8 @@ def run_and_save(output_path: str = "finviz_scores.json"):
     print(format_console_table(all_results, "Universo completo"))
     print(format_summary(raw_results, "default"))
 
-    # Guardar medianas compuestas por sector en memoria
-    _guardar_medianas_sector_batch(raw_results)
+    # Guardar medianas compuestas por sector (portfolio + benchmarks combinados)
+    _guardar_medianas_sector_batch(raw_results + bench_results)
 
     output = {"by_asset_id": by_asset_id, "by_ticker": by_ticker, "etf_scores": etf_scores}
     Path(output_path).write_text(json.dumps(output, indent=2, ensure_ascii=False))
