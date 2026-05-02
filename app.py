@@ -11,7 +11,7 @@ from datetime import datetime
 from modules.ui_config import apply_custom_css, render_header, render_footer
 from modules.profiler import render_profiler
 from modules.portfolio import build_portfolio
-from modules.charts import render_pie_chart, render_evolution_chart, render_bar_simulation, render_allocation_table, render_buy_guide
+from modules.charts import render_pie_chart, render_evolution_chart, render_bar_simulation, render_allocation_table
 from modules.simulator import simulate_portfolio, comparar_vs_alternativas, proyectar_con_aportes
 from modules.ai_advisor import get_ai_analysis, get_rebalancing_advice, chat_with_advisor
 from modules.glossary import render_glossary
@@ -810,9 +810,6 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
             pass
 
     st.markdown("<br>", unsafe_allow_html=True)
-
-    # ── Guía de compra ────────────────────────────────────────────────────────
-    render_buy_guide(portfolio)
 
     st.markdown("<br>", unsafe_allow_html=True)
 

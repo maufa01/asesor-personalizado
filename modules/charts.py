@@ -70,51 +70,57 @@ _MACRO_MAP = {
 }
 
 # ── Guía de compra: plataforma + cómo buscarlo ────────────────────────────────
+_BROKERS_FONDOS   = "IOL, Cocos, PPI, Balanz, Bullmarket"
+_BROKERS_BONOS    = "IOL, Cocos, PPI, Balanz, Bullmarket"
+_BROKERS_MEP      = "IOL, Cocos, PPI, Balanz, Bullmarket"
+_BROKERS_CEDEARS  = "IOL, Cocos, PPI, Balanz, Bullmarket"
+_BROKERS_ACCIONES = "IOL, Cocos, PPI, Balanz, Bullmarket"
+
 _PLATFORMS = {
-    "cash_pesos":      ("Naranja X, Ualá, Mercado Pago",    "App → sección 'Cuenta'"),
-    "money_market":    ("IOL, Mercado Pago, Ualá, Balanz",  "Fondos → Money Market"),
-    "plazo_fijo":      ("Tu banco (Galicia, Santander…)",   "App del banco → Inversiones"),
-    "fci_t0":          ("IOL, PPI, Balanz",                 "Fondos → Renta Fija T+0"),
-    "lecap":           ("IOL, PPI, Balanz",                 "Renta Fija → S31M26 / S30J26"),
-    "cer_bond":        ("IOL, PPI, Balanz",                 "Renta Fija → TX26 / TX28"),
-    "fci_renta_pesos": ("IOL, PPI, SBS",                   "Fondos → Renta Fija"),
-    "mep":             ("IOL, PPI, Balanz, Cocos",          "Dólar MEP → operación AL30 48hs"),
-    "al30":            ("IOL, PPI, Balanz, Cocos",          "Renta Fija → AL30"),
-    "gd30":            ("IOL, PPI, Balanz",                 "Renta Fija → GD30"),
-    "on_ypf":          ("IOL, PPI",                        "Renta Fija → YPFDS"),
-    "on_corp":         ("IOL, PPI",                        "Renta Fija → PTSTO / TCCUD"),
-    "on_pampa":        ("IOL, PPI",                        "Renta Fija → PTSTO"),
-    "on_tecpetrol":    ("IOL, PPI",                        "Renta Fija → TCCUD"),
-    "spy":             ("IOL, PPI, Balanz",                 "CEDEARs → SPY"),
-    "qqq":             ("IOL, PPI, Balanz",                 "CEDEARs → QQQ"),
-    "eem":             ("IOL, PPI",                        "CEDEARs → EEM"),
-    "iau":             ("IOL, PPI",                        "CEDEARs → IAU"),
-    "vti":             ("IOL, PPI",                        "CEDEARs → VTI"),
-    "gld":             ("IOL, PPI",                        "CEDEARs → GLD"),
-    "aapl":            ("IOL, PPI, Balanz",                 "CEDEARs → AAPL"),
-    "msft":            ("IOL, PPI, Balanz",                 "CEDEARs → MSFT"),
-    "googl":           ("IOL, PPI",                        "CEDEARs → GOOGL"),
-    "amzn":            ("IOL, PPI",                        "CEDEARs → AMZN"),
-    "nvda":            ("IOL, PPI, Balanz",                 "CEDEARs → NVDA"),
-    "meli":            ("IOL, PPI, Balanz",                 "CEDEARs → MELI"),
-    "meta":            ("IOL, PPI",                        "CEDEARs → META"),
-    "brk":             ("IOL, PPI",                        "CEDEARs → BRKB"),
-    "jpm":             ("IOL, PPI",                        "CEDEARs → JPM"),
-    "ko":              ("IOL, PPI",                        "CEDEARs → KO"),
-    "wmt":             ("IOL, PPI",                        "CEDEARs → WMT"),
-    "jnj":             ("IOL, PPI",                        "CEDEARs → JNJ"),
-    "pfe":             ("IOL, PPI",                        "CEDEARs → PFE"),
-    "xom":             ("IOL, PPI",                        "CEDEARs → XOM"),
-    "tsla":            ("IOL, PPI, Balanz",                 "CEDEARs → TSLA"),
-    "bac":             ("IOL, PPI",                        "CEDEARs → BAC"),
-    "dis":             ("IOL, PPI",                        "CEDEARs → DIS"),
-    "ypf":             ("IOL, PPI, Balanz",                 "Acciones → YPFD"),
-    "galicia":         ("IOL, PPI, Balanz",                 "Acciones → GGAL"),
-    "teco2":           ("IOL, PPI",                        "Acciones → TECO2"),
-    "pampa":           ("IOL, PPI, Balanz",                 "Acciones → PAMP"),
-    "vist":            ("IOL, PPI",                        "Acciones → VIST"),
-    "bbar":            ("IOL, PPI",                        "Acciones → BBAR"),
-    "loma":            ("IOL, PPI",                        "Acciones → LOMA"),
+    "cash_pesos":      ("Naranja X, Ualá, Mercado Pago",  "App → sección 'Cuenta'"),
+    "money_market":    (f"Mercado Pago, Ualá, {_BROKERS_FONDOS}", "Fondos → Money Market"),
+    "plazo_fijo":      ("Tu banco (Galicia, Santander…)", "App del banco → Inversiones"),
+    "fci_t0":          (_BROKERS_FONDOS,                  "Fondos → Renta Fija T+0"),
+    "lecap":           (_BROKERS_BONOS,                   "Renta Fija → S31M26 / S30J26"),
+    "cer_bond":        (_BROKERS_BONOS,                   "Renta Fija → TX26 / TX28"),
+    "fci_renta_pesos": (_BROKERS_FONDOS,                  "Fondos → Renta Fija"),
+    "mep":             (_BROKERS_MEP,                     "Dólar MEP → operación AL30 48hs"),
+    "al30":            (_BROKERS_BONOS,                   "Renta Fija → AL30"),
+    "gd30":            (_BROKERS_BONOS,                   "Renta Fija → GD30"),
+    "on_ypf":          (_BROKERS_BONOS,                   "Renta Fija → YPFDS"),
+    "on_corp":         (_BROKERS_BONOS,                   "Renta Fija → PTSTO / TCCUD"),
+    "on_pampa":        (_BROKERS_BONOS,                   "Renta Fija → PTSTO"),
+    "on_tecpetrol":    (_BROKERS_BONOS,                   "Renta Fija → TCCUD"),
+    "spy":             (_BROKERS_CEDEARS,                 "CEDEARs → SPY"),
+    "qqq":             (_BROKERS_CEDEARS,                 "CEDEARs → QQQ"),
+    "eem":             (_BROKERS_CEDEARS,                 "CEDEARs → EEM"),
+    "iau":             (_BROKERS_CEDEARS,                 "CEDEARs → IAU"),
+    "vti":             (_BROKERS_CEDEARS,                 "CEDEARs → VTI"),
+    "gld":             (_BROKERS_CEDEARS,                 "CEDEARs → GLD"),
+    "aapl":            (_BROKERS_CEDEARS,                 "CEDEARs → AAPL"),
+    "msft":            (_BROKERS_CEDEARS,                 "CEDEARs → MSFT"),
+    "googl":           (_BROKERS_CEDEARS,                 "CEDEARs → GOOGL"),
+    "amzn":            (_BROKERS_CEDEARS,                 "CEDEARs → AMZN"),
+    "nvda":            (_BROKERS_CEDEARS,                 "CEDEARs → NVDA"),
+    "meli":            (_BROKERS_CEDEARS,                 "CEDEARs → MELI"),
+    "meta":            (_BROKERS_CEDEARS,                 "CEDEARs → META"),
+    "brk":             (_BROKERS_CEDEARS,                 "CEDEARs → BRKB"),
+    "jpm":             (_BROKERS_CEDEARS,                 "CEDEARs → JPM"),
+    "ko":              (_BROKERS_CEDEARS,                 "CEDEARs → KO"),
+    "wmt":             (_BROKERS_CEDEARS,                 "CEDEARs → WMT"),
+    "jnj":             (_BROKERS_CEDEARS,                 "CEDEARs → JNJ"),
+    "pfe":             (_BROKERS_CEDEARS,                 "CEDEARs → PFE"),
+    "xom":             (_BROKERS_CEDEARS,                 "CEDEARs → XOM"),
+    "tsla":            (_BROKERS_CEDEARS,                 "CEDEARs → TSLA"),
+    "bac":             (_BROKERS_CEDEARS,                 "CEDEARs → BAC"),
+    "dis":             (_BROKERS_CEDEARS,                 "CEDEARs → DIS"),
+    "ypf":             (_BROKERS_ACCIONES,                "Acciones → YPFD"),
+    "galicia":         (_BROKERS_ACCIONES,                "Acciones → GGAL"),
+    "teco2":           (_BROKERS_ACCIONES,                "Acciones → TECO2"),
+    "pampa":           (_BROKERS_ACCIONES,                "Acciones → PAMP"),
+    "vist":            (_BROKERS_ACCIONES,                "Acciones → VIST"),
+    "bbar":            (_BROKERS_ACCIONES,                "Acciones → BBAR"),
+    "loma":            (_BROKERS_ACCIONES,                "Acciones → LOMA"),
 }
 
 
@@ -613,6 +619,9 @@ def render_allocation_table(portfolio: dict, capital: float, currency_label: str
 
         st.markdown('<div style="height:0.4rem;"></div>', unsafe_allow_html=True)
 
+    # Guía de compra al final de la tabla, sin separación visual
+    render_buy_guide(portfolio)
+
 
 def render_buy_guide(portfolio: dict):
     """Tabla compacta: ticker + plataforma para cada activo de la cartera."""
@@ -656,8 +665,9 @@ def render_buy_guide(portfolio: dict):
 
         st.markdown(
             '<p style="font-size:0.72rem;color:#64748b;margin-top:0.75rem;">'
-            'IOL = InvertirOnline · PPI = Portfolio Personal Inversiones · Cocos = Cocos Capital. '
-            'Verificá disponibilidad y costos operativos en cada plataforma antes de operar.'
+            'IOL = InvertirOnline · Cocos = Cocos Capital · PPI = Portfolio Personal Inversiones · '
+            'Balanz = Balanz Capital · Bullmarket = Bullmarket Brokers. '
+            'Verificá disponibilidad y costos en cada plataforma antes de operar.'
             '</p>',
             unsafe_allow_html=True,
         )
