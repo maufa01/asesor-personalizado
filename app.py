@@ -378,7 +378,7 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── Tabla de activos ──────────────────────────────────────────────────────
-    st.markdown('<div class="section-title">📋 Instrumentos de la Cartera</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">📋 En qué está invertido su dinero</div>', unsafe_allow_html=True)
     render_allocation_table(portfolio, _disp_capital, currency_label=_disp_curr)
 
     # ── Advertencias de solapamiento ──────────────────────────────────────────

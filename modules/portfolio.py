@@ -5,6 +5,10 @@ con activos del mercado argentino e internacional.
 """
 
 from typing import List, Dict, Any
+from modules.finviz_scorer import (
+    load_scores, return_factor, vol_factor, MIN_SCORE_BY_RISK,
+    apply_argentina_adjustment, SECTOR_MAP,
+)
 
 
 # ─── Universo de activos ───────────────────────────────────────────────────────
@@ -967,16 +971,40 @@ def _filter_by_liquidity(allocations: dict, risk: str, horizon: int) -> dict:
     return {k: v / total for k, v in filtered.items()}
 
 
-def _trim_to_max(allocations: dict, max_pos: int) -> dict:
-    """Mantiene las top N posiciones por ratio Sharpe (retorno ajustado por riesgo)."""
+def _apply_score_filter(allocations: dict, scores: dict, risk: str) -> dict:
+    """
+    Excluye activos cuyo score Finviz está por debajo del mínimo del perfil.
+    Activos sin score (bonos, MM, MEP) pasan siempre — no son scorables vía Finviz.
+    """
+    min_score = MIN_SCORE_BY_RISK.get(risk, 40)
+    filtered = {
+        asset_id: w
+        for asset_id, w in allocations.items()
+        if asset_id not in scores or scores[asset_id] >= min_score
+    }
+    if not filtered:
+        return allocations  # fallback: no filtrar si todos quedan excluidos
+    total = sum(filtered.values())
+    return {k: v / total for k, v in filtered.items()}
+
+
+def _trim_to_max(allocations: dict, max_pos: int, scores: dict = None) -> dict:
+    """
+    Mantiene las top N posiciones por Sharpe ajustado por score Finviz.
+    Si scores está vacío o un activo no tiene score, usa los valores hardcodeados.
+    """
     if len(allocations) <= max_pos:
         return allocations
     risk_free = 0.05
 
     def sharpe(asset_id: str) -> float:
-        a = ASSET_INDEX.get(asset_id, {})
-        r = a.get("expected_return", 0)
-        v = a.get("volatility", 0.1)
+        a     = ASSET_INDEX.get(asset_id, {})
+        r     = a.get("expected_return", 0)
+        v     = a.get("volatility", 0.1)
+        score = (scores or {}).get(asset_id)
+        if score is not None:
+            r = r * return_factor(score)
+            v = v * vol_factor(score)
         return (r - risk_free) / v if v > 0 else 0
 
     top_ids = sorted(allocations, key=sharpe, reverse=True)[:max_pos]
@@ -998,10 +1026,24 @@ def build_portfolio(profile: dict) -> dict:
                      or "6 meses" in profile.get("emergency_fund", "").lower())
     allocs        = _adjust_for_emergency(allocs, has_emergency)
 
+    # Scores Finviz (vacío si no se corrió el scorer aún → sin efecto)
+    scores = load_scores()
+
+    # Aplicar capa ARG: descuento regulatorio sobre scores de acciones argentinas
+    if scores:
+        for asset_id, score_val in list(scores.items()):
+            asset  = ASSET_INDEX.get(asset_id, {})
+            sector = SECTOR_MAP.get(asset.get("category", ""), "default")
+            adj    = apply_argentina_adjustment(score_val, asset_id, sector)
+            if adj["descuento"] > 0:
+                scores[asset_id] = adj["score_adj"]
+
     # Filtros de calidad
     allocs = _filter_by_liquidity(allocs, risk, horizon)
     allocs = _apply_overlap_exclusion(allocs)
-    allocs = _trim_to_max(allocs, _MAX_POSITIONS.get(risk, 8))
+    if scores:
+        allocs = _apply_score_filter(allocs, scores, risk)
+    allocs = _trim_to_max(allocs, _MAX_POSITIONS.get(risk, 8), scores or None)
 
     # Construir posiciones
     positions = []
