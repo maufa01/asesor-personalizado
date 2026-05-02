@@ -1030,39 +1030,30 @@ def apply_custom_css():
         border-top: none !important;
     }
 
-    /* ── Expanders grandes (estilo category card) ───────────────────── */
-    .big-expander-wrap + [data-testid="stExpander"] > details,
-    .big-expander-wrap + [data-testid="stExpander"] > details[open] {
-        border-left-width: 3px !important;
-        border-radius: var(--radius-sm) !important;
-        outline: none !important;
-        box-shadow: none !important;
-    }
-    .big-expander-orange + [data-testid="stExpander"] > details {
-        border-left-color: #f59e0b !important;
-    }
-    .big-expander-green + [data-testid="stExpander"] > details {
-        border-left-color: #22c55e !important;
-    }
-    .big-expander-wrap + [data-testid="stExpander"] > details > summary {
+    /* ── Expanders grandes — aplica a todos los de la página principal ── */
+    [data-testid="stExpander"] > details > summary {
         padding: 20px 24px !important;
         font-size: 1rem !important;
-        font-weight: 700 !important;
+        font-weight: 600 !important;
         color: var(--text-1) !important;
-        min-height: 64px !important;
+        min-height: 68px !important;
         display: flex !important;
         align-items: center !important;
-        border: none !important;
-        border-radius: var(--radius-sm) !important;
-        outline: none !important;
-        box-shadow: none !important;
     }
-    .big-expander-wrap + [data-testid="stExpander"] > details > summary:hover {
+    [data-testid="stExpander"] > details > summary > span,
+    [data-testid="stExpander"] > details > summary p {
+        font-size: 1rem !important;
+        font-weight: 600 !important;
+    }
+    [data-testid="stExpander"] > details > summary:hover {
         background: rgba(255,255,255,0.03) !important;
     }
-    .big-expander-wrap + [data-testid="stExpander"] > details > summary > span {
-        font-size: 1rem !important;
-        font-weight: 700 !important;
+    /* Borde izquierdo por color usando el marcador en el DOM padre */
+    [data-testid="stVerticalBlock"]:has(.big-expander-orange) > div > [data-testid="stExpander"] > details {
+        border-left: 3px solid #f59e0b !important;
+    }
+    [data-testid="stVerticalBlock"]:has(.big-expander-green) > div > [data-testid="stExpander"] > details {
+        border-left: 3px solid #22c55e !important;
     }
 
     /* ── Footer ───────────────────────────────────────────────────── */
