@@ -12,7 +12,7 @@ from modules.ui_config import apply_custom_css, render_header, render_footer
 from modules.profiler import render_profiler
 from modules.portfolio import build_portfolio
 from modules.charts import render_pie_chart, render_evolution_chart, render_bar_simulation, render_allocation_table, render_buy_guide
-from modules.simulator import simulate_portfolio
+from modules.simulator import simulate_portfolio, comparar_vs_alternativas, proyectar_con_aportes
 from modules.ai_advisor import get_ai_analysis, get_rebalancing_advice, chat_with_advisor
 from modules.glossary import render_glossary
 from modules.costo_no_invertir import render_cost_of_not_investing, render_cost_results
@@ -231,28 +231,29 @@ step = st.session_state.step
 # ══════════════════════════════════════════════════════════════════════════════
 if step == "intro":
     st.markdown("""<div class="hero-card">
-<div class="hero-icon">📊</div>
-<h1 class="hero-title">Su asesor financiero digital<br>personalizado para Argentina</h1>
+<div class="hero-icon">🤝</div>
+<h1 class="hero-title">Tu plata puede trabajar para vos.<br>Sin letra chica. Sin tecnicismos.</h1>
 <p class="hero-subtitle">
-Respondá un breve cuestionario sobre sus objetivos financieros.<br>
-Nuestro sistema analizará su perfil y le sugerirá una cartera<br>
-diversificada acorde a su situación.
+Si alguna vez sentiste que invertir es solo para gente que sabe,<br>
+o que ya te quemaste antes y no querés volver a pasar por eso —<br>
+<strong>esta herramienta es para vos.</strong>
 </p>
 <div class="hero-features">
-<div class="hero-feature-pill"><span class="hero-feature-icon">🎯</span>Perfil personalizado</div>
-<div class="hero-feature-pill"><span class="hero-feature-icon">💼</span>Cartera sugerida</div>
-<div class="hero-feature-pill"><span class="hero-feature-icon">🤖</span>Análisis con IA</div>
-<div class="hero-feature-pill"><span class="hero-feature-icon">📈</span>Simulación de crecimiento</div>
-<div class="hero-feature-pill"><span class="hero-feature-icon">🇦🇷</span>Activos argentinos</div>
-<div class="hero-feature-pill"><span class="hero-feature-icon">💱</span>Opciones en pesos y USD</div>
+<div class="hero-feature-pill"><span class="hero-feature-icon">✅</span>Sin conocimientos previos</div>
+<div class="hero-feature-pill"><span class="hero-feature-icon">🛡️</span>Sin venderte nada</div>
+<div class="hero-feature-pill"><span class="hero-feature-icon">🇦🇷</span>Pensado para Argentina</div>
+<div class="hero-feature-pill"><span class="hero-feature-icon">⏱️</span>5 minutos y tenés tu cartera</div>
+<div class="hero-feature-pill"><span class="hero-feature-icon">💬</span>Te explicamos cada decisión</div>
+<div class="hero-feature-pill"><span class="hero-feature-icon">🔒</span>Educativo, no asesoramiento</div>
 </div>
 </div>""", unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
 
     st.markdown("""<div class="audience-note">
-<strong>¿Para quién es esta herramienta?</strong> Para cualquier persona en Argentina que desee optimizar su estrategia de inversión,
-independientemente de su experiencia previa en el mercado de capitales.
+<strong>¿Qué hace esta herramienta?</strong> Analizamos tu situación en 5 minutos y te mostramos
+cómo podría estar invertida tu plata — qué instrumentos, en qué proporción y por qué cada uno.
+Vos después decidís si querés avanzar con un asesor real. Acá solo entendés tus opciones.
 </div>""", unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
@@ -568,9 +569,27 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # ── Tabla de activos ──────────────────────────────────────────────────────
-    st.markdown('<div class="section-title">📋 En qué está invertido su dinero</div>', unsafe_allow_html=True)
+    # ── Tabla de activos + razón por activo ──────────────────────────────────
+    st.markdown('<div class="section-title">📋 En qué está tu plata y por qué</div>', unsafe_allow_html=True)
     render_allocation_table(portfolio, _disp_capital, currency_label=_disp_curr)
+
+    # Razón por activo — en lenguaje simple
+    st.markdown("<br>", unsafe_allow_html=True)
+    for pos in portfolio["positions"]:
+        razon = pos.get("razon_en_cartera", "")
+        if not razon:
+            continue
+        peso_pct  = round(pos["weight"] * 100)
+        monto_disp = pos["weight"] * _disp_capital
+        st.markdown(
+            f"""<div style="border-left:3px solid {pos.get('color','#60a5fa')};
+            padding:10px 14px;margin-bottom:8px;border-radius:0 8px 8px 0;background:rgba(255,255,255,0.03);">
+            <span style="font-weight:700;font-size:1rem;">{pos['name']}</span>
+            <span style="opacity:0.5;font-size:0.8rem;margin-left:8px;">{peso_pct}% · {_disp_prefix}{monto_disp:,.0f}{_disp_suffix}</span><br>
+            <span style="opacity:0.8;font-size:0.88rem;">{razon}</span>
+            </div>""",
+            unsafe_allow_html=True,
+        )
 
     # ── Análisis fundamental por activo (solo modo avanzado) ─────────────────
     _scored = [p for p in portfolio["positions"] if p.get("score") and p.get("bloques")]
@@ -625,6 +644,107 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
 <div><strong>Solapamiento detectado: {etf} + {conflicts}</strong><br>
 <span>{reason}</span></div>
 </div>""", unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # ── ¿Qué pasa si no hacés nada? ───────────────────────────────────────────
+    st.markdown('<div class="section-title">📊 ¿Qué pasa con tu plata si no la invertís?</div>', unsafe_allow_html=True)
+    st.caption("Comparación en dólares reales a lo largo del tiempo. El plazo fijo rinde ~1% real anual en dólares. Los dólares guardados pierden poder adquisitivo con la inflación global.")
+
+    _comp = comparar_vs_alternativas(_capital_usd, profile["horizon"], portfolio["expected_cagr"])
+    _cp_f = _comp["portfolio_final"] * _disp_factor
+    _cp_pf = _comp["pf_final"] * _disp_factor
+    _cp_col = _comp["colchon_final"] * _disp_factor
+    _dif_pf  = (_comp["diferencia_vs_pf"]) * _disp_factor
+    _dif_col = (_comp["diferencia_vs_colchon"]) * _disp_factor
+
+    st.markdown(f"""<div class="metrics-grid">
+<div class="metric-card">
+  <div class="metric-label">Esta cartera en {profile['horizon']} años</div>
+  <div class="metric-value" style="color:#22c55e;">{_disp_prefix}{_cp_f:,.0f}{_disp_suffix}</div>
+  <div class="metric-sub">Rendimiento estimado {portfolio['expected_cagr']*100:.1f}% anual</div>
+</div>
+<div class="metric-card">
+  <div class="metric-label">Solo plazo fijo en {profile['horizon']} años</div>
+  <div class="metric-value" style="color:#f59e0b;">{_disp_prefix}{_cp_pf:,.0f}{_disp_suffix}</div>
+  <div class="metric-sub">~1% real anual en dólares (históricamente)</div>
+</div>
+<div class="metric-card">
+  <div class="metric-label">Dólares guardados en {profile['horizon']} años</div>
+  <div class="metric-value" style="color:#ef4444;">{_disp_prefix}{_cp_col:,.0f}{_disp_suffix}</div>
+  <div class="metric-sub">Pierden ~2.5% por año contra la inflación global</div>
+</div>
+<div class="metric-card">
+  <div class="metric-label">Lo que ganás vs dejarlo parado</div>
+  <div class="metric-value" style="color:#a78bfa;">{_disp_prefix}{_dif_col:,.0f}{_disp_suffix}</div>
+  <div class="metric-sub">Diferencia real a {profile['horizon']} años vs dólares sin invertir</div>
+</div>
+</div>""", unsafe_allow_html=True)
+
+    # Gráfico de comparación
+    try:
+        import pandas as _pd
+        _comp_df = _pd.DataFrame({
+            "Esta cartera":     [v * _disp_factor for v in _comp["portfolio"]],
+            "Plazo fijo":       [v * _disp_factor for v in _comp["pf"]],
+            "Dólares guardados":[v * _disp_factor for v in _comp["colchon"]],
+        }, index=_comp["years"])
+        st.line_chart(_comp_df, use_container_width=True)
+    except Exception:
+        pass
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # ── Si agregás algo todos los meses ──────────────────────────────────────
+    st.markdown('<div class="section-title">💰 ¿Qué pasa si sumás un poco cada mes?</div>', unsafe_allow_html=True)
+    st.caption("La riqueza no se construye de una vez — se construye mes a mes. Incluso montos pequeños hacen una diferencia enorme a largo plazo.")
+
+    _aporte_key = "aporte_mensual_usd"
+    _col_aporte, _col_slider = st.columns([1, 2])
+    with _col_aporte:
+        if _currency_in == "ARS":
+            _aporte_label = f"Aporte mensual en ARS (≈ USD al MEP)"
+            _aporte_ars   = st.number_input(
+                _aporte_label, min_value=0, max_value=5_000_000,
+                value=st.session_state.get(_aporte_key + "_ars", 50_000),
+                step=10_000, key=_aporte_key + "_ars",
+            )
+            _aporte_usd_val = _aporte_ars / _MEP_RATE
+        else:
+            _aporte_usd_val = st.number_input(
+                "Aporte mensual en USD", min_value=0, max_value=10_000,
+                value=st.session_state.get(_aporte_key, 100),
+                step=50, key=_aporte_key,
+            )
+
+    _proy = proyectar_con_aportes(
+        _capital_usd, _aporte_usd_val, profile["horizon"], portfolio["expected_cagr"]
+    )
+    _proy_sin  = _proy["final_sin"]  * _disp_factor
+    _proy_con  = _proy["final_con"]  * _disp_factor
+    _proy_ext  = _proy["ganancia_extra"] * _disp_factor
+    _total_ap  = _proy["total_aportado"] * _disp_factor
+
+    with _col_slider:
+        if _aporte_usd_val > 0:
+            st.markdown(f"""<div style="padding:16px;background:rgba(34,197,94,0.08);border-radius:12px;border:1px solid rgba(34,197,94,0.2);">
+<div style="font-size:0.85rem;opacity:0.7;">Aportando {_disp_prefix}{_aporte_usd_val*_disp_factor:,.0f}{_disp_suffix}/mes durante {profile['horizon']} años:</div>
+<div style="font-size:1.6rem;font-weight:800;color:#22c55e;">{_disp_prefix}{_proy_con:,.0f}{_disp_suffix}</div>
+<div style="font-size:0.8rem;opacity:0.6;">vs {_disp_prefix}{_proy_sin:,.0f}{_disp_suffix} sin aportar · ganancia extra: {_disp_prefix}{_proy_ext:,.0f}{_disp_suffix}</div>
+</div>""", unsafe_allow_html=True)
+        else:
+            st.info("Ingresá un monto mensual para ver el impacto")
+
+    if _aporte_usd_val > 0:
+        try:
+            import pandas as _pd2
+            _ap_df = _pd2.DataFrame({
+                f"Con {_disp_prefix}{_aporte_usd_val*_disp_factor:,.0f}{_disp_suffix}/mes": [v * _disp_factor for v in _proy["con_aporte"]],
+                "Sin aportes mensuales": [v * _disp_factor for v in _proy["sin_aporte"]],
+            }, index=_proy["años"])
+            st.line_chart(_ap_df, use_container_width=True)
+        except Exception:
+            pass
 
     st.markdown("<br>", unsafe_allow_html=True)
 

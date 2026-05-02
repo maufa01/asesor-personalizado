@@ -1735,6 +1735,108 @@ def _adjust_for_sector_valuations(
     return adj
 
 
+def _razon_en_cartera(asset_id: str, risk: str, horizon: int) -> str:
+    """Una frase en lenguaje simple explicando por qué este activo está en la cartera."""
+    _RAZONES = {
+        # Liquidez
+        "cash_pesos":   "Tu colchón de liquidez — disponible al instante si lo necesitás, sin costo ni espera",
+        "money_market": "Rinde más que el banco todos los días de forma automática; retiro el mismo día",
+        "plazo_fijo":   "Tasa garantizada en pesos, sin sorpresas — ideal para plata que no vas a tocar en 30 días",
+        "fci_t0":       "Renta fija de corto plazo: retiro el mismo día hábil con mejor rendimiento que el banco",
+        "fci_renta":    "Fondo diversificado en pesos que crece mientras vos no hacés nada",
+        # Cobertura
+        "mep":          "Tus pesos se convierten en dólares legales, sin bancos ni cuevas — protección directa contra la devaluación",
+        "dolar_mep":    "Tus pesos se convierten en dólares legales, sin bancos ni cuevas — protección directa contra la devaluación",
+        # ETFs globales
+        "spy":  "Las 500 empresas más grandes del mundo en una sola compra — Apple, Google, Amazon, todas juntas",
+        "qqq":  "Las 100 empresas de tecnología más grandes: Microsoft, NVIDIA, Apple — el motor de la economía digital",
+        "vti":  "Todo el mercado americano (4.000+ empresas) en un solo instrumento — la diversificación máxima",
+        "iau":  "Oro: sube cuando todo lo demás cae — es el ancla histórica de las carteras en épocas de crisis",
+        "gld":  "Oro físico en formato digital — la reserva de valor más antigua del mundo, protege contra la inflación global",
+        "eem":  "India, Brasil, Corea — los países que van a crecer más en los próximos 20 años, todos juntos",
+        # CEDEARs tech
+        "aapl":  "Apple: más de 2.000 millones de personas usan sus productos todos los días y renuevan cada 2 años",
+        "msft":  "Microsoft: el 90% de las empresas del mundo usan sus servicios — negocio estable y predecible",
+        "nvda":  "NVIDIA hace los chips que corren toda la inteligencia artificial del mundo — domina el mercado",
+        "amzn":  "Amazon vende de todo Y es el dueño de la nube donde viven Netflix, Airbnb y miles de empresas",
+        "meta":  "Facebook, Instagram y WhatsApp: 4 de cada 5 personas en internet los usan todos los días",
+        "googl": "Google controla el 90% de las búsquedas; cada vez que alguien busca algo, Google cobra",
+        "tsla":  "Tesla es la empresa que está redefiniendo cómo se fabrican y venden los autos en el mundo",
+        "nflx":  "Netflix tiene 260 millones de suscriptores que pagan todos los meses sin falta",
+        "amd":   "AMD fabrica los procesadores que compiten con Intel y NVIDIA — con ganancia de mercado sostenida",
+        # CEDEARs finanzas
+        "v":    "Visa cobra una comisión en cada compra con tarjeta en el mundo — 200+ países, sin riesgo de crédito",
+        "ma":   "Mastercard: mismo modelo que Visa, dos empresas que dominan los pagos globales juntas",
+        "jpm":  "JPMorgan: el banco más grande de EE.UU., sobrevivió 2008 y salió más fuerte que antes",
+        "gs":   "Goldman Sachs: el banco de inversión más reconocido del mundo, gana con cada gran operación",
+        "brk":  "Berkshire Hathaway: Warren Buffett eligió cada empresa — diversificación con criterio de décadas",
+        # CEDEARs salud
+        "unh":  "UnitedHealth es el seguro médico más grande de EE.UU. — sector defensivo que crece sin parar",
+        "lly":  "Eli Lilly fabrica los medicamentos para diabetes y obesidad más usados del mundo — demanda récord",
+        "mrk":  "Merck tiene una de las mejores carteras de vacunas y oncología del mercado farmacéutico global",
+        "jnj":  "Johnson & Johnson: el laboratorio más diversificado del mundo, paga dividendos hace 60 años",
+        "pfe":  "Pfizer: la vacuna COVID le abrió la puerta a pipeline de oncología y antivirales de próxima generación",
+        # CEDEARs consumo
+        "ko":   "Coca-Cola vende en 200 países, paga dividendos hace 60 años — la marca más reconocida del mundo",
+        "wmt":  "Walmart es el mayor empleador privado del mundo y sigue creciendo en e-commerce",
+        "mcd":  "McDonald's gana dinero con las franquicias, no con las hamburguesas — modelo de negocio irrompible",
+        "cost": "Costco: los socios pagan para poder comprar ahí — lealtad de cliente que ningún competidor tiene",
+        "pg":   "Procter & Gamble hace jabón, shampoo y pañales — productos que la gente compra siempre, en crisis o no",
+        "ko":   "Coca-Cola: la marca más reconocida del mundo, vende en 200 países, paga dividendos hace 60 años",
+        "hd":   "Home Depot crece con cada casa que se construye o refacciona en EE.UU.",
+        "nke":  "Nike es la marca deportiva más importante del mundo — fidelidad de marca y márgenes altos",
+        # CEDEARs energía
+        "xom":  "ExxonMobil: una de las empresas de petróleo más grandes del mundo, con dividendo sólido",
+        "cvx":  "Chevron: petróleo y gas con posición financiera muy sólida — uno de los dividendos más confiables",
+        # CEDEARs emergentes/especiales
+        "meli": "MercadoLibre es el Amazon de Latinoamérica — domina e-commerce y pagos en toda la región",
+        "baba": "Alibaba es el Amazon de China — precio muy castigado con potencial de recuperación",
+        "tsm":  "TSMC fabrica los chips más avanzados del mundo para Apple, NVIDIA y AMD — monopolio tecnológico",
+        "qcom": "Qualcomm hace los chips de cada celular Android — dominan el mercado de semiconductores móviles",
+        "shop": "Shopify es la plataforma donde los pequeños negocios compiten con Amazon",
+        "uber": "Uber está en 70 países y crece con delivery además de transporte — dos negocios en uno",
+        "glob": "Globant es la empresa argentina de tecnología que trabaja para Disney, Google y FIFA",
+        # Acciones ARG
+        "ypf":     "YPF extrae el petróleo de Vaca Muerta — Argentina va a ser uno de los mayores exportadores de energía",
+        "vist":    "Vista Energy explota Vaca Muerta de forma privada y eficiente — crecimiento sostenido",
+        "galicia": "Banco Galicia: el banco privado más sólido de Argentina, crece con la economía",
+        "bma":     "Banco Macro: fuerte en el interior del país, bien capitalizado y con bajo riesgo crediticio",
+        "bbar":    "BBVA Argentina: banco sólido con respaldo internacional de uno de los mayores grupos del mundo",
+        "supv":    "Supervielle: banco mediano con foco en consumo y PyMEs, posicionado para el crédito que viene",
+        "pampa":   "Pampa Energía genera el 10% de la electricidad de Argentina — infraestructura crítica",
+        "tgs":     "TGS opera el gasoducto que conecta Vaca Muerta con Buenos Aires — monopolio natural",
+        "cepu":    "Central Puerto: la mayor generadora eléctrica térmica del país, se beneficia de la desregulación",
+        "loma":    "Loma Negra produce el cemento que necesita toda la obra pública y privada de Argentina",
+        "teco2":   "Telecom Argentina: internet y celular para millones de hogares — demanda que no para",
+        "irsa":    "IRSA es el dueño de los shoppings más importantes del país — apuesta al consumo argentino",
+        "cres":    "Cresud: campo argentino y propiedades urbanas — doble exposición al agro y los bienes raíces",
+        # Bonos
+        "al30":    "Bono soberano argentino en dólares 2030 — alto rendimiento con riesgo soberano; apostar a que Argentina paga",
+        "gd30":    "Global 30: el bono más líquido de Argentina, con rendimiento muy alto y respaldo bajo ley NY",
+        "al35":    "Bono soberano 2035 — más plazo implica mayor rendimiento potencial si Argentina normaliza",
+        "gd35":    "Global 35: mayor rendimiento que el GD30, con respaldo bajo ley de Nueva York",
+        "gd38":    "Global 38: el bono de mayor duración — para quien apuesta fuerte al largo plazo argentino",
+        "lecap":   "LECAP: letra del Tesoro a tasa fija en pesos — vencimiento en meses, sin riesgo de precio",
+        "cer_bond":"Bono CER: ajustado por inflación — protege tu plata en pesos contra la suba de precios",
+        "on_ypf":  "Bono corporativo YPF en dólares — YPF te paga interés en USD con sus activos de Vaca Muerta como respaldo",
+        "on_pampa":"Bono Pampa Energía en dólares — empresa sólida con flujo de caja predecible y deuda baja",
+        "on_tgs":  "Bono TGS en dólares — monopolio natural de gasoductos respaldando la deuda",
+        "on_macro":"Bono Banco Macro en dólares — banco argentino sólido con buen historial de pago",
+        "on_corp": "Obligación negociable corporativa en dólares — rendimiento mejor que soberano con empresa privada de respaldo",
+    }
+    base = _RAZONES.get(asset_id)
+    if base:
+        return base
+    cat = ASSET_INDEX.get(asset_id, {}).get("category", "")
+    if "ETF" in cat:
+        return "Diversificación instantánea: una compra te da exposición a decenas de empresas a la vez"
+    if cat == "CEDEARs":
+        return "Acción de empresa internacional que podés comprar desde Argentina en pesos o dólares"
+    if cat == "Acciones ARG":
+        return "Empresa argentina que crece con el país — exposición directa a la economía local"
+    return ASSET_INDEX.get(asset_id, {}).get("simple_desc", "")
+
+
 def build_portfolio(profile: dict) -> dict:
     """
     Construye la cartera personalizada según el perfil del inversor.
@@ -1837,6 +1939,10 @@ def build_portfolio(profile: dict) -> dict:
             positions.append(asset)
 
     positions.sort(key=lambda x: x["weight"], reverse=True)
+
+    # Adjuntar razón personalizada por activo
+    for pos in positions:
+        pos["razon_en_cartera"] = _razon_en_cartera(pos["id"], risk, horizon)
 
     # Detectar solapamientos para advertir al usuario
     overlaps = _detect_overlaps(positions)

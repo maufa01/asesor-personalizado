@@ -8,6 +8,80 @@ import numpy as np
 from typing import Dict, Any
 
 
+def comparar_vs_alternativas(
+    capital_usd: float,
+    years: int,
+    portfolio_cagr: float,
+) -> Dict[str, Any]:
+    """
+    Compara el portafolio contra plazo fijo y dólares en el colchón.
+    Todos los valores en USD (poder adquisitivo real).
+
+    Supuestos:
+      - Plazo fijo ARS: tasa nominal alta pero inflación mayor → real ≈ 1% anual en USD
+      - Dólares en el colchón: 0% nominal, pierden contra inflación global (~2.5%/año)
+      - Inflación global: 2.5% anual (reduce poder adquisitivo del colchón)
+    """
+    t = np.arange(0, years + 1)
+
+    portfolio_vals = capital_usd * (1 + portfolio_cagr) ** t
+    pf_vals        = capital_usd * (1 + 0.01) ** t          # plazo fijo ~1% real en USD
+    colchon_vals   = capital_usd * (1 - 0.025) ** t         # dólares pierden vs inflación global
+
+    return {
+        "years":     t.tolist(),
+        "portfolio": portfolio_vals.tolist(),
+        "pf":        pf_vals.tolist(),
+        "colchon":   colchon_vals.tolist(),
+        "diferencia_vs_pf":      round(portfolio_vals[-1] - pf_vals[-1], 0),
+        "diferencia_vs_colchon": round(portfolio_vals[-1] - colchon_vals[-1], 0),
+        "portfolio_final":       round(portfolio_vals[-1], 0),
+        "pf_final":              round(pf_vals[-1], 0),
+        "colchon_final":         round(colchon_vals[-1], 0),
+    }
+
+
+def proyectar_con_aportes(
+    capital_usd: float,
+    aporte_mensual_usd: float,
+    years: int,
+    cagr: float,
+) -> Dict[str, Any]:
+    """
+    Proyecta el capital final con aportes mensuales.
+    FV = PV*(1+r)^n + PMT * ((1+r)^n - 1) / r   (r mensual)
+    """
+    r_mensual = (1 + cagr) ** (1 / 12) - 1
+    n_meses   = years * 12
+
+    meses      = np.arange(0, n_meses + 1)
+    sin_aporte = capital_usd * (1 + r_mensual) ** meses
+
+    # Con aportes: capital inicial + valor futuro de anualidad
+    if r_mensual > 0:
+        fv_aportes = aporte_mensual_usd * ((1 + r_mensual) ** meses - 1) / r_mensual
+    else:
+        fv_aportes = aporte_mensual_usd * meses
+
+    con_aporte   = sin_aporte + fv_aportes
+    total_aportado = capital_usd + aporte_mensual_usd * n_meses
+
+    # Reducir a puntos anuales para el gráfico
+    años_idx = list(range(0, years + 1))
+    sin_anual = [float(sin_aporte[m * 12]) for m in años_idx]
+    con_anual = [float(con_aporte[m * 12]) for m in años_idx]
+
+    return {
+        "años":           años_idx,
+        "sin_aporte":     sin_anual,
+        "con_aporte":     con_anual,
+        "final_sin":      round(float(sin_aporte[-1]), 0),
+        "final_con":      round(float(con_aporte[-1]), 0),
+        "total_aportado": round(total_aportado, 0),
+        "ganancia_extra": round(float(con_aporte[-1]) - total_aportado, 0),
+    }
+
+
 def simulate_portfolio(
     portfolio: dict,
     years: int = 5,
