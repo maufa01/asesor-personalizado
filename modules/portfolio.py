@@ -710,53 +710,6 @@ ASSET_UNIVERSE: List[Dict[str, Any]] = [
         "simple_desc": "Loma Negra: la cementera más grande de Argentina",
     },
 
-    # ══ CRIPTOMONEDAS ══════════════════════════════════════════════════════════
-
-    {
-        "id": "btc",
-        "name": "Bitcoin (BTC)",
-        "category": "Cripto",
-        "sub": "Cripto principal",
-        "ticker": "BTC",
-        "color": "#f97316",
-        "expected_return": 0.25,
-        "volatility": 0.70,
-        "risk_level": "alto",
-        "description": "La criptomoneda más conocida y de mayor capitalización. Muy volátil pero con crecimiento histórico enorme. Solo apta para perfil agresivo.",
-        "currency": "USD",
-        "market": "Exchanges",
-        "simple_desc": "Bitcoin: la crypto más conocida, alto riesgo y alto potencial",
-    },
-    {
-        "id": "eth",
-        "name": "Ethereum (ETH)",
-        "category": "Cripto",
-        "sub": "Cripto principal",
-        "ticker": "ETH",
-        "color": "#8b5cf6",
-        "expected_return": 0.22,
-        "volatility": 0.75,
-        "risk_level": "alto",
-        "description": "Segunda cripto por capitalización. Base de contratos inteligentes y apps descentralizadas. Más volatilidad que Bitcoin.",
-        "currency": "USD",
-        "market": "Exchanges",
-        "simple_desc": "Ethereum: la plataforma de apps descentralizadas más usada",
-    },
-    {
-        "id": "usdt",
-        "name": "USDT / Stablecoin",
-        "category": "Cripto",
-        "sub": "Stablecoin",
-        "ticker": "USDT",
-        "color": "#22c55e",
-        "expected_return": 0.05,
-        "volatility": 0.01,
-        "risk_level": "muy bajo",
-        "description": "Moneda digital atada al dólar. Vale siempre cerca de 1 USD. No sube ni baja de precio, pero permite estar en dólares dentro de exchanges.",
-        "currency": "USD",
-        "market": "Exchanges",
-        "simple_desc": "Dólar digital estable, sin riesgo de precio",
-    },
 ]
 
 # ─── Índice por ID ─────────────────────────────────────────────────────────────
@@ -769,10 +722,10 @@ ASSET_INDEX = {a["id"]: a for a in ASSET_UNIVERSE}
 _LIQUIDITY_LEVELS = {
     "alta":  {"cash_pesos","money_market","plazo_fijo","fci_t0","lecap",
               "cer_bond","fci_renta_pesos","mep","al30","gd30",
-              "spy","qqq","aapl","meli","ypf","galicia","usdt"},
+              "spy","qqq","aapl","meli","ypf","galicia"},
     "media": {"on_ypf","on_corp","on_pampa","on_tecpetrol","gld","iau","vti",
               "eem","msft","nvda","googl","amzn","meta","brk","jpm",
-              "bac","tsla","btc","eth"},
+              "bac","tsla"},
 }
 for _a in ASSET_UNIVERSE:
     for _lev, _ids in _LIQUIDITY_LEVELS.items():
@@ -842,14 +795,13 @@ PORTFOLIO_TEMPLATES = {
         "description": "Maximiza el crecimiento a largo plazo, aceptando que puede haber caídas fuertes en el camino.",
         "summary": "Su cartera apunta al máximo crecimiento. Asume caídas de corto plazo a cambio de mejores resultados a largo plazo. Tecnología global, energía argentina y exposición a activos de alto potencial.",
         "allocations": {
-            "qqq":     0.22,   # tech growth: Nasdaq 100
-            "spy":     0.12,   # base global amplia
-            "nvda":    0.12,   # chips para inteligencia artificial
-            "mep":     0.16,   # base en dólares
-            "ypf":     0.10,   # energía argentina: Vaca Muerta
-            "galicia": 0.08,   # financiero argentino
-            "al30":    0.08,   # bono soberano USD
-            "btc":     0.12,   # cripto: reserva de valor digital
+            "qqq":     0.25,   # tech growth: Nasdaq 100
+            "spy":     0.14,   # base global amplia
+            "nvda":    0.14,   # chips para inteligencia artificial
+            "mep":     0.18,   # base en dólares
+            "ypf":     0.11,   # energía argentina: Vaca Muerta
+            "galicia": 0.09,   # financiero argentino
+            "al30":    0.09,   # bono soberano USD
         },
     },
 }
@@ -861,7 +813,7 @@ def _adjust_for_horizon(allocations: dict, horizon: int, risk: str) -> dict:
 
     if horizon <= 2:
         # Corto plazo: más liquidez, menos equity volátil
-        risky = ["ypf", "galicia", "pampa", "teco2", "qqq", "meli", "nvda", "tsla", "btc", "eth"]
+        risky = ["ypf", "galicia", "pampa", "teco2", "qqq", "meli", "nvda", "tsla"]
         safe  = ["money_market", "plazo_fijo", "fci_t0", "mep", "lecap"]
         rescued = 0.0
         for k in risky:

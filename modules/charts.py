@@ -52,11 +52,11 @@ _CATEGORY_META = {
 }
 
 _CATEGORY_ASSET_IDS = {
-    "Liquidez": {"cash_pesos", "money_market", "plazo_fijo", "fci_t0", "usdt"},
+    "Liquidez": {"cash_pesos", "money_market", "plazo_fijo", "fci_t0"},
     "Cobertura cambiaria": {"mep"},
     "Renta fija": {"lecap", "cer_bond", "fci_renta_pesos", "al30", "gd30", "on_ypf", "on_corp", "on_pampa", "on_tecpetrol"},
     "Fondos globales": {"spy", "qqq", "vti"},
-    "Renta variable": {"aapl", "msft", "nvda", "meli", "ypf", "galicia", "btc", "eth"},
+    "Renta variable": {"aapl", "msft", "nvda", "meli", "ypf", "galicia"},
 }
 
 # ── Macro-categorías para el gráfico de 2 capas ────────────────────────────────
@@ -67,7 +67,6 @@ _MACRO_MAP = {
     "CEDEARs":      ("Renta Variable Intl.",     "#a78bfa"),
     "ETFs":         ("Fondos Globales (ETFs)",   "#10d98a"),
     "Acciones ARG": ("Acciones Argentinas",      "#f59e0b"),
-    "Cripto":       ("Alternativos",             "#f97316"),
 }
 
 # ── Guía de compra: plataforma + cómo buscarlo ────────────────────────────────
@@ -116,9 +115,6 @@ _PLATFORMS = {
     "vist":            ("IOL, PPI",                        "Acciones → VIST"),
     "bbar":            ("IOL, PPI",                        "Acciones → BBAR"),
     "loma":            ("IOL, PPI",                        "Acciones → LOMA"),
-    "btc":             ("Lemon, Buenbit, Ripio, Belo",     "Cripto → BTC"),
-    "eth":             ("Lemon, Buenbit, Ripio",           "Cripto → ETH"),
-    "usdt":            ("Lemon, Buenbit, Belo",            "Cripto → USDT"),
 }
 
 
@@ -538,7 +534,7 @@ def _asset_to_user_category(asset: dict) -> str:
         return "Renta fija"
     if aid in _CATEGORY_ASSET_IDS["Renta variable"]:
         return "Renta variable"
-    if asset.get("category") in {"CEDEARs", "Acciones ARG", "Acciones", "Cripto"}:
+    if asset.get("category") in {"CEDEARs", "Acciones ARG", "Acciones"}:
         return "Renta variable"
     if asset.get("category") in {"Bonos USD", "Dólar MEP", "Pesos ARS"}:
         return "Renta fija"

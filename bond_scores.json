@@ -1,0 +1,157 @@
+{
+  "as_of": "2026-05-02",
+  "bond_scores": {
+    "al30": {
+      "score": 62,
+      "rating": "HOLD",
+      "live": false,
+      "label": "AL30 – Bono Global USD Ley Argentina",
+      "breakdown": {
+        "rendimiento": 26,
+        "duration": 2,
+        "calidad": 16,
+        "paridad": 10,
+        "liquidez": 8
+      },
+      "inputs": {
+        "tir": 8.5,
+        "duration": 3.5,
+        "paridad": 47.0,
+        "vol_m": 4.0
+      }
+    },
+    "gd30": {
+      "score": 63,
+      "rating": "HOLD",
+      "live": false,
+      "label": "GD30 – Bono Global USD Ley Nueva York",
+      "breakdown": {
+        "rendimiento": 26,
+        "duration": 2,
+        "calidad": 17,
+        "paridad": 10,
+        "liquidez": 8
+      },
+      "inputs": {
+        "tir": 8.5,
+        "duration": 4.0,
+        "paridad": 47.0,
+        "vol_m": 6.0
+      }
+    },
+    "lecap": {
+      "score": 79,
+      "rating": "BUY",
+      "live": false,
+      "label": "LECAPs – Letras Capitalizables del Tesoro",
+      "breakdown": {
+        "rendimiento": 26,
+        "duration": 20,
+        "calidad": 18,
+        "paridad": 5,
+        "liquidez": 10
+      },
+      "inputs": {
+        "tir": 62.0,
+        "duration": 0.25,
+        "paridad": 99.5,
+        "vol_m": 10.0
+      }
+    },
+    "cer_bond": {
+      "score": 62,
+      "rating": "HOLD",
+      "live": false,
+      "label": "Bono CER – Ajuste por Inflación",
+      "breakdown": {
+        "rendimiento": 26,
+        "duration": 9,
+        "calidad": 17,
+        "paridad": 5,
+        "liquidez": 5
+      },
+      "inputs": {
+        "tir": 5.0,
+        "duration": 1.5,
+        "paridad": 96.0,
+        "vol_m": 2.5
+      }
+    },
+    "on_ypf": {
+      "score": 60,
+      "rating": "HOLD",
+      "live": false,
+      "label": "ON YPF USD",
+      "breakdown": {
+        "rendimiento": 26,
+        "duration": 2,
+        "calidad": 22,
+        "paridad": 5,
+        "liquidez": 5
+      },
+      "inputs": {
+        "tir": 9.0,
+        "duration": 2.5,
+        "paridad": 98.0,
+        "vol_m": 2.0
+      }
+    },
+    "on_corp": {
+      "score": 62,
+      "rating": "HOLD",
+      "live": false,
+      "label": "ONs Corporativas Mix (Pampa / Arcor / MELI)",
+      "breakdown": {
+        "rendimiento": 26,
+        "duration": 9,
+        "calidad": 20,
+        "paridad": 2,
+        "liquidez": 5
+      },
+      "inputs": {
+        "tir": 8.5,
+        "duration": 2.0,
+        "paridad": 100.0,
+        "vol_m": 2.0
+      }
+    },
+    "on_pampa": {
+      "score": 64,
+      "rating": "HOLD",
+      "live": false,
+      "label": "ON Pampa Energía USD",
+      "breakdown": {
+        "rendimiento": 26,
+        "duration": 9,
+        "calidad": 22,
+        "paridad": 2,
+        "liquidez": 5
+      },
+      "inputs": {
+        "tir": 8.0,
+        "duration": 2.0,
+        "paridad": 100.0,
+        "vol_m": 1.5
+      }
+    },
+    "on_tecpetrol": {
+      "score": 60,
+      "rating": "HOLD",
+      "live": false,
+      "label": "ON Tecpetrol USD",
+      "breakdown": {
+        "rendimiento": 26,
+        "duration": 2,
+        "calidad": 22,
+        "paridad": 5,
+        "liquidez": 5
+      },
+      "inputs": {
+        "tir": 8.0,
+        "duration": 2.5,
+        "paridad": 99.0,
+        "vol_m": 1.0
+      }
+    }
+  }
+}
