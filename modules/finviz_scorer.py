@@ -15,7 +15,7 @@ from pathlib import Path
 
 # ─── Tickers del universo ─────────────────────────────────────────────────────
 SCOREABLE_TICKERS = [
-    "AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "META", "BRK/B",
+    "AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "META", "BRK-B",
     "JPM",  "KO",   "WMT",   "JNJ",  "PFE",  "XOM",  "TSLA", "BAC", "DIS",
     "MELI", "YPF",  "VIST",  "GGAL", "LOMA", "TEO",  "PAM",  "BBAR",
 ]
@@ -28,7 +28,7 @@ ASSET_TO_FINVIZ = {
     "amzn":    "AMZN",
     "nvda":    "NVDA",
     "meta":    "META",
-    "brk":     "BRK/B",
+    "brk":     "BRK-B",
     "jpm":     "JPM",
     "ko":      "KO",
     "wmt":     "WMT",
@@ -68,6 +68,12 @@ SECTOR_MAP = {
     "Communication Services":     "telecom",
     "Telecommunication Services": "telecom",
     "Transportation":             "transporte",
+}
+
+# Override de sector para tickers que Finviz clasifica incorrectamente.
+# BRK-B es un holding diversificado (no banco puro) → usar "default".
+SECTOR_OVERRIDE = {
+    "BRK-B": "default",
 }
 
 # ─── Tablas de umbrales por sector ────────────────────────────────────────────
@@ -887,7 +893,7 @@ def run_and_save(output_path: str = "finviz_scores.json"):
     for ticker in SCOREABLE_TICKERS:
         try:
             data      = finvizfinance(ticker).ticker_fundament()
-            sector    = SECTOR_MAP.get(data.get("Sector", ""), "default")
+            sector    = SECTOR_OVERRIDE.get(ticker) or SECTOR_MAP.get(data.get("Sector", ""), "default")
             result    = score_ticker(ticker, data, sector)
             # Ajuste ARG (si aplica)
             asset_id_guess = next(
