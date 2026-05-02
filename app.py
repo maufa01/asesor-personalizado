@@ -748,16 +748,16 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
         if _currency_in == "ARS":
             _aporte_label = f"Aporte mensual en ARS (≈ USD al MEP)"
             _aporte_ars   = st.number_input(
-                _aporte_label, min_value=0, max_value=5_000_000,
+                _aporte_label, min_value=0, max_value=50_000_000,
                 value=st.session_state.get(_aporte_key + "_ars", 50_000),
-                step=10_000, key=_aporte_key + "_ars",
+                step=50_000, key=_aporte_key + "_ars",
             )
             _aporte_usd_val = _aporte_ars / _MEP_RATE
         else:
             _aporte_usd_val = st.number_input(
-                "Aporte mensual en USD", min_value=0, max_value=10_000,
+                "Aporte mensual en USD", min_value=0, max_value=500_000,
                 value=st.session_state.get(_aporte_key, 100),
-                step=50, key=_aporte_key,
+                step=100, key=_aporte_key,
             )
 
     _proy = proyectar_con_aportes(
