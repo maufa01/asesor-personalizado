@@ -836,8 +836,8 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
     )
     _bt_days_sel = _bt_days_opts[_bt_label_sel]
 
-    # Cache estable por perfil + días seleccionados
-    _bt_cache_key = f"_bt_human_{_bt_days_sel}_{profile['risk_profile']}_{int(_capital_usd)}"
+    # Cache estable por perfil + días seleccionados (v2 para limpiar cache con bug anterior)
+    _bt_cache_key = f"_bt_human_v2_{_bt_days_sel}_{profile['risk_profile']}_{int(_capital_usd)}"
     if _bt_cache_key not in st.session_state:
         with st.spinner("Calculando..."):
             try:

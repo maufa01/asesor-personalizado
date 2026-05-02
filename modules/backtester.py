@@ -69,11 +69,11 @@ def backtest_portfolio(positions: list, days: int = 90) -> dict:
     start_str = start_dt.strftime("%Y-%m-%d")
     end_str   = end_dt.strftime("%Y-%m-%d")
 
-    # Filtrar posiciones equity con ticker conocido
+    # Filtrar posiciones equity con ticker conocido (campo "id" en positions)
     equity_positions = [
         p for p in positions
         if p.get("category") in _EQUITY_CATEGORIES
-        and p.get("asset_id") in _ASSET_TO_YF
+        and p.get("id") in _ASSET_TO_YF
     ]
 
     if not equity_positions:
@@ -88,7 +88,7 @@ def backtest_portfolio(positions: list, days: int = 90) -> dict:
             "skipped":          [],
         }
 
-    tickers_needed = list({_ASSET_TO_YF[p["asset_id"]] for p in equity_positions})
+    tickers_needed = list({_ASSET_TO_YF[p["id"]] for p in equity_positions})
     if _BENCHMARK not in tickers_needed:
         tickers_needed.append(_BENCHMARK)
 
@@ -128,22 +128,22 @@ def backtest_portfolio(positions: list, days: int = 90) -> dict:
 
     # Retorno ponderado de la cartera (solo equity, re-normaliza pesos)
     total_eq_weight = sum(p["weight"] for p in equity_positions
-                          if _ASSET_TO_YF[p["asset_id"]] in ticker_returns)
+                          if _ASSET_TO_YF[p["id"]] in ticker_returns)
     positions_used = []
     portfolio_return = 0.0
 
     for pos in equity_positions:
-        yf_ticker = _ASSET_TO_YF[pos["asset_id"]]
+        yf_ticker = _ASSET_TO_YF[pos["id"]]
         if yf_ticker not in ticker_returns:
-            skipped.append(pos["asset_id"])
+            skipped.append(pos["id"])
             continue
         ret          = ticker_returns[yf_ticker]
         norm_weight  = pos["weight"] / total_eq_weight if total_eq_weight > 0 else 0
         portfolio_return += norm_weight * ret
         positions_used.append({
-            "asset_id": pos["asset_id"],
+            "asset_id": pos["id"],
             "ticker":   yf_ticker,
-            "label":    pos.get("label", pos["asset_id"]),
+            "label":    pos.get("label", pos["id"]),
             "weight":   round(norm_weight, 4),
             "return":   round(ret * 100, 2),
         })
@@ -158,7 +158,7 @@ def backtest_portfolio(positions: list, days: int = 90) -> dict:
     # Construir serie de portfolio ponderado
     port_series = None
     for pos in equity_positions:
-        yf_ticker = _ASSET_TO_YF.get(pos["asset_id"])
+        yf_ticker = _ASSET_TO_YF.get(pos["id"])
         if yf_ticker not in close_norm.columns:
             continue
         norm_weight = pos["weight"] / total_eq_weight if total_eq_weight > 0 else 0
