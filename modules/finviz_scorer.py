@@ -1016,10 +1016,58 @@ def run_and_save(output_path: str = "finviz_scores.json"):
     print(format_console_table(all_results, "Universo completo"))
     print(format_summary(raw_results, "default"))
 
+    # Guardar medianas compuestas por sector en memoria
+    _guardar_medianas_sector_batch(raw_results)
+
     output = {"by_asset_id": by_asset_id, "by_ticker": by_ticker, "etf_scores": etf_scores}
     Path(output_path).write_text(json.dumps(output, indent=2, ensure_ascii=False))
     print(f"\nGuardado en {output_path}")
     return output
+
+
+def _guardar_medianas_sector_batch(raw_results: list) -> None:
+    """
+    Agrupa raw_results por sector, calcula medianas de P/E, EV/EBITDA,
+    score compuesto y cada bloque, y llama a guardar_mediana_sector().
+    Requiere ≥ 3 activos por sector para guardar.
+    """
+    import statistics
+    from collections import defaultdict
+
+    try:
+        from memory_manager import guardar_mediana_sector
+    except ImportError:
+        return
+
+    groups: dict = defaultdict(list)
+    for r in raw_results:
+        s = r.get("sector", "default")
+        if s != "default":
+            groups[s].append(r)
+
+    for sector, results in groups.items():
+        if len(results) < 3:
+            continue
+
+        pes  = [r["ratios"]["forward_pe"] for r in results
+                if r.get("ratios", {}).get("forward_pe") and r["ratios"]["forward_pe"] > 0]
+        evs  = [r["ratios"]["ev_ebitda"]  for r in results
+                if r.get("ratios", {}).get("ev_ebitda") and r["ratios"]["ev_ebitda"] > 0]
+        scrs = [r["score"] for r in results if r.get("score") is not None]
+
+        bloques_med: dict = {}
+        for bloque in ("valuacion", "calidad", "solvencia", "crecimiento"):
+            vals = [r["bloques"].get(bloque, 0) for r in results if r.get("bloques")]
+            if vals:
+                bloques_med[bloque] = round(statistics.median(vals), 1)
+
+        guardar_mediana_sector(
+            sector,
+            pe           = round(statistics.median(pes), 2) if pes else 0.0,
+            ev_ebitda    = round(statistics.median(evs), 2) if evs else 0.0,
+            score_mediano= round(statistics.median(scrs))   if scrs else None,
+            bloques      = bloques_med or None,
+        )
 
 
 def load_scores(path: str = "finviz_scores.json") -> dict:

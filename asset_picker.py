@@ -181,21 +181,21 @@ def run_screener(sectores: list, top_n: int = 10) -> dict:
             sectores_sin_cands.append(sector)
             continue
 
-        # Medianas del sector
+        # Medianas de valuación del sector
         med_pe, med_ev = calcular_medianas(todos_ratios)
         medianas_usadas[sector] = {"pe": med_pe, "ev_ebitda": med_ev}
 
-        if med_pe is not None:
-            guardar_mediana_sector(sector_fw, med_pe or 0.0, med_ev or 0.0)
-            pe_s = f"{med_pe:.1f}" if med_pe else "N/A"
-            ev_s = f"{med_ev:.1f}" if med_ev else "N/A"
-            print(f"\n  Mediana sector: P/E={pe_s} | EV/EBITDA={ev_s}")
+        pe_s = f"{med_pe:.1f}" if med_pe else "N/A"
+        ev_s = f"{med_ev:.1f}" if med_ev else "N/A"
+        print(f"\n  Mediana sector: P/E={pe_s} | EV/EBITDA={ev_s}")
 
         # Filtros + scoring por ticker
         candidatos_sector = []
+        scored_results    = []   # acumula scores para mediana compuesta
         for ratios in todos_ratios:
-            score_r  = calcular_score(ratios, mem)
+            score_r   = calcular_score(ratios, mem)
             resultado = aplicar_filtros(ratios, score_r.score_total, med_pe, med_ev)
+            scored_results.append(score_r)
 
             if resultado.paso_fallo is None:
                 candidatos_sector.append({
@@ -222,6 +222,24 @@ def run_screener(sectores: list, top_n: int = 10) -> dict:
                 })
             else:
                 todos_excluidos.append(resultado)
+
+        # Guardar mediana compuesta del sector (PE + score + bloques)
+        if med_pe is not None and scored_results:
+            import statistics as _stats
+            scrs = [r.score_total for r in scored_results]
+            bloques_med = {
+                "valuacion":   round(_stats.median(r.bloque_valuacion   for r in scored_results), 1),
+                "calidad":     round(_stats.median(r.bloque_calidad     for r in scored_results), 1),
+                "solvencia":   round(_stats.median(r.bloque_solvencia   for r in scored_results), 1),
+                "crecimiento": round(_stats.median(r.bloque_crecimiento for r in scored_results), 1),
+            }
+            guardar_mediana_sector(
+                sector_fw,
+                pe           = med_pe or 0.0,
+                ev_ebitda    = med_ev or 0.0,
+                score_mediano= round(_stats.median(scrs)),
+                bloques      = bloques_med,
+            )
 
         if not candidatos_sector:
             sectores_sin_cands.append(sector)
@@ -438,16 +456,16 @@ def run_cedear_screener(top_n: int = 10) -> dict:
 
         med_pe, med_ev = calcular_medianas(ratios_list)
         medianas_usadas[sector_fw] = {"pe": med_pe, "ev_ebitda": med_ev}
-
-        if med_pe is not None:
-            guardar_mediana_sector(sector_fw, med_pe or 0.0, med_ev or 0.0)
-            print(f"  Mediana sector: P/E={med_pe:.1f} | EV/EBITDA={med_ev:.1f}" if med_ev else
-                  f"  Mediana sector: P/E={med_pe:.1f} | EV/EBITDA=N/A")
+        pe_s = f"{med_pe:.1f}" if med_pe else "N/A"
+        ev_s = f"{med_ev:.1f}" if med_ev else "N/A"
+        print(f"  Mediana sector: P/E={pe_s} | EV/EBITDA={ev_s}")
 
         candidatos_sector = []
+        scored_results    = []
         for ratios in ratios_list:
             score_r   = calcular_score(ratios, mem)
             resultado = aplicar_filtros(ratios, score_r.score_total, med_pe, med_ev)
+            scored_results.append(score_r)
 
             if resultado.paso_fallo is None:
                 candidatos_sector.append({
@@ -475,6 +493,24 @@ def run_cedear_screener(top_n: int = 10) -> dict:
                 })
             else:
                 todos_excluidos.append(resultado)
+
+        # Guardar mediana compuesta del sector (PE + score + bloques)
+        if med_pe is not None and scored_results:
+            import statistics as _stats
+            scrs = [r.score_total for r in scored_results]
+            bloques_med = {
+                "valuacion":   round(_stats.median(r.bloque_valuacion   for r in scored_results), 1),
+                "calidad":     round(_stats.median(r.bloque_calidad     for r in scored_results), 1),
+                "solvencia":   round(_stats.median(r.bloque_solvencia   for r in scored_results), 1),
+                "crecimiento": round(_stats.median(r.bloque_crecimiento for r in scored_results), 1),
+            }
+            guardar_mediana_sector(
+                sector_fw,
+                pe           = med_pe or 0.0,
+                ev_ebitda    = med_ev or 0.0,
+                score_mediano= round(_stats.median(scrs)),
+                bloques      = bloques_med,
+            )
 
         if not candidatos_sector:
             sectores_sin_cands.append(sector_fw)

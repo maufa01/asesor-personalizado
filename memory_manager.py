@@ -251,17 +251,32 @@ def _detectar_patrones(mem: dict, pos: dict) -> None:
 
 # ─── Medianas de sector ────────────────────────────────────────────────────────
 
-def guardar_mediana_sector(sector: str, pe: float, ev_ebitda: float) -> None:
-    """Agrega un snapshot de medianas (P/E y EV/EBITDA) para el sector con fecha de hoy."""
+def guardar_mediana_sector(
+    sector: str,
+    pe: float,
+    ev_ebitda: float,
+    score_mediano: int = None,
+    bloques: dict = None,
+) -> None:
+    """
+    Agrega un snapshot de métricas medianas del sector con fecha de hoy.
+    Guarda P/E, EV/EBITDA y opcionalmente score compuesto + bloques
+    (valuacion, calidad, solvencia, crecimiento) para señales más ricas.
+    """
     mem = load_memory()
     historial = mem["aprendizaje"]["historial_medianas_sector"]
     if sector not in historial:
         historial[sector] = []
-    historial[sector].append({
-        "fecha":    str(date.today()),
-        "pe":       pe,
+    entry: dict = {
+        "fecha":     str(date.today()),
+        "pe":        pe,
         "ev_ebitda": ev_ebitda,
-    })
+    }
+    if score_mediano is not None:
+        entry["score_mediano"] = score_mediano
+    if bloques:
+        entry["bloques"] = bloques
+    historial[sector].append(entry)
     save_memory(mem)
 
 
@@ -348,29 +363,101 @@ def get_parametros() -> dict:
 
 def get_sector_valuation_signals(min_snapshots: int = 4) -> dict:
     """
-    Compara la mediana más reciente de P/E de cada sector con su promedio histórico.
-    Requiere al menos min_snapshots entradas previas para calcular señal.
-    Retorna {sector: signal} donde signal ∈ [-0.30, +0.30]:
-      > 0 → sector barato vs historia → sobreponderar
-      < 0 → sector caro vs historia  → subponderar
-      = 0 → sin datos suficientes    → neutral
+    Señal compuesta por sector comparando situación actual vs promedio histórico.
+    Requiere al menos min_snapshots entradas previas (+ 1 actual) por sector.
+
+    Lógica:
+      score_signal = (actual_score - hist_avg_score) / hist_avg_score
+        Positivo → fundamentals mejoraron vs historia → sobreponderar
+      pe_signal = (hist_avg_pe - actual_pe) / hist_avg_pe
+        Positivo → sector más barato que historia → sobreponderar
+      señal_final = 0.60 × score_signal + 0.40 × pe_signal
+        Clampado a [-0.30, +0.30]
+
+    Si no hay score_mediano usa solo pe_signal.
+    Retorna {} si ningún sector tiene datos suficientes.
     """
-    mem      = load_memory()
+    mem       = load_memory()
     historial = mem["aprendizaje"].get("historial_medianas_sector", {})
     signals: dict = {}
 
     for sector, snapshots in historial.items():
-        pes = [s["pe"] for s in snapshots if s.get("pe") and s["pe"] > 0]
-        if len(pes) < min_snapshots + 1:   # necesita al menos N históricos + 1 actual
+        pes    = [s["pe"]          for s in snapshots if s.get("pe", 0) > 0]
+        scores = [s["score_mediano"] for s in snapshots if s.get("score_mediano")]
+
+        min_needed = min_snapshots + 1
+        if len(pes) < min_needed:
             continue
-        current_pe = pes[-1]
-        hist_avg   = sum(pes[:-1]) / len(pes[:-1])   # promedio de todos menos el más reciente
-        if hist_avg == 0:
-            continue
-        raw = (hist_avg - current_pe) / hist_avg      # positivo = más barato que historia
+
+        current_pe  = pes[-1]
+        hist_avg_pe = sum(pes[:-1]) / len(pes[:-1])
+        pe_signal   = (hist_avg_pe - current_pe) / hist_avg_pe if hist_avg_pe else 0.0
+
+        if len(scores) >= min_needed:
+            current_score  = scores[-1]
+            hist_avg_score = sum(scores[:-1]) / len(scores[:-1])
+            score_signal   = (current_score - hist_avg_score) / hist_avg_score if hist_avg_score else 0.0
+            raw = 0.60 * score_signal + 0.40 * pe_signal
+        else:
+            raw = pe_signal  # fallback cuando no hay scores históricos aún
+
         signals[sector] = round(max(-0.30, min(0.30, raw)), 4)
 
     return signals
+
+
+def get_sector_signals_detail(min_snapshots: int = 4) -> dict:
+    """
+    Igual que get_sector_valuation_signals pero con desglose por bloque.
+    Útil para mostrar al usuario por qué se ajustó cada sector.
+    Retorna {sector: {señal, score_actual, score_hist, pe_actual, pe_hist, bloques: {...}}}.
+    """
+    mem       = load_memory()
+    historial = mem["aprendizaje"].get("historial_medianas_sector", {})
+    detail: dict = {}
+
+    for sector, snapshots in historial.items():
+        pes    = [s["pe"]           for s in snapshots if s.get("pe", 0) > 0]
+        scores = [s["score_mediano"]for s in snapshots if s.get("score_mediano")]
+
+        min_needed = min_snapshots + 1
+        if len(pes) < min_needed:
+            continue
+
+        current_pe  = pes[-1]
+        hist_avg_pe = sum(pes[:-1]) / len(pes[:-1])
+        pe_signal   = (hist_avg_pe - current_pe) / hist_avg_pe if hist_avg_pe else 0.0
+
+        score_signal = 0.0
+        current_score = hist_avg_score = None
+        if len(scores) >= min_needed:
+            current_score  = scores[-1]
+            hist_avg_score = sum(scores[:-1]) / len(scores[:-1])
+            score_signal   = (current_score - hist_avg_score) / hist_avg_score if hist_avg_score else 0.0
+
+        raw = round(max(-0.30, min(0.30, 0.60 * score_signal + 0.40 * pe_signal)), 4)
+
+        # Señal por bloque (si hay datos)
+        bloque_signals = {}
+        for bloque in ("valuacion", "calidad", "solvencia", "crecimiento"):
+            vals = [s["bloques"][bloque] for s in snapshots
+                    if s.get("bloques", {}).get(bloque) is not None]
+            if len(vals) >= min_needed:
+                cur  = vals[-1]
+                hist = sum(vals[:-1]) / len(vals[:-1])
+                bloque_signals[bloque] = round((cur - hist) / hist, 4) if hist else 0.0
+
+        detail[sector] = {
+            "señal":          raw,
+            "score_actual":   current_score,
+            "score_hist_avg": round(hist_avg_score, 1) if hist_avg_score else None,
+            "pe_actual":      round(current_pe, 1),
+            "pe_hist_avg":    round(hist_avg_pe, 1),
+            "bloques":        bloque_signals,
+            "snapshots_n":    len(pes),
+        }
+
+    return detail
 
 
 def get_score_adjustment(ticker: str) -> int:
