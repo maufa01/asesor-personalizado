@@ -588,9 +588,9 @@ def render_allocation_table(portfolio: dict, capital: float, currency_label: str
         label = f"Ver {'los ' if n > 1 else 'el '}{n} activo{'s' if n > 1 else ''} que componen esta categoría"
         with st.expander(label, expanded=False):
             for p in items:
-                a_pct = p["weight"] * 100
-                a_amt = p["weight"] * capital
-                desc  = p.get("simple_desc") or p.get("description", "")
+                a_pct  = p["weight"] * 100
+                a_amt  = p["weight"] * capital
+                razon  = p.get("razon_en_cartera", "") or p.get("simple_desc") or p.get("description", "")
                 ticker = p.get("ticker", "")
                 plat, _ = _PLATFORMS.get(p["id"], ("IOL, PPI", ""))
                 short_name = p["name"].split("(")[0].split("—")[0].strip()
@@ -606,7 +606,7 @@ def render_allocation_table(portfolio: dict, capital: float, currency_label: str
                     f'      <div class="adc-amt">{amt_prefix}{a_amt:,.0f}</div>'
                     f'    </div>'
                     f'  </div>'
-                    f'  <div class="adc-desc">{desc}</div>'
+                    f'  <div class="adc-desc">{razon}</div>'
                     f'</div>',
                     unsafe_allow_html=True,
                 )

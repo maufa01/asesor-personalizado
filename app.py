@@ -573,24 +573,6 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
     st.markdown('<div class="section-title">📋 En qué está tu plata y por qué</div>', unsafe_allow_html=True)
     render_allocation_table(portfolio, _disp_capital, currency_label=_disp_curr)
 
-    # Razón por activo — en lenguaje simple
-    st.markdown("<br>", unsafe_allow_html=True)
-    for pos in portfolio["positions"]:
-        razon = pos.get("razon_en_cartera", "")
-        if not razon:
-            continue
-        peso_pct  = round(pos["weight"] * 100)
-        monto_disp = pos["weight"] * _disp_capital
-        st.markdown(
-            f"""<div style="border-left:3px solid {pos.get('color','#60a5fa')};
-            padding:10px 14px;margin-bottom:8px;border-radius:0 8px 8px 0;background:rgba(255,255,255,0.03);">
-            <span style="font-weight:700;font-size:1rem;">{pos['name']}</span>
-            <span style="opacity:0.5;font-size:0.8rem;margin-left:8px;">{peso_pct}% · {_disp_prefix}{monto_disp:,.0f}{_disp_suffix}</span><br>
-            <span style="opacity:0.8;font-size:0.88rem;">{razon}</span>
-            </div>""",
-            unsafe_allow_html=True,
-        )
-
     # ── Análisis fundamental por activo (solo modo avanzado) ─────────────────
     _scored = [p for p in portfolio["positions"] if p.get("score") and p.get("bloques")]
     if _scored and st.session_state.get("_modo_avanzado"):
