@@ -42,6 +42,28 @@ def _run_scores_background():
     _update_state()["last_result"] = "error" if errors else "ok"
 
 
+def _score_age(path: str):
+    p = Path(path)
+    if not p.exists():
+        return None, "⚫ No encontrado"
+    delta = datetime.now() - datetime.fromtimestamp(p.stat().st_mtime)
+    days  = delta.days
+    hours = delta.seconds // 3600
+    if days == 0:
+        label = f"hace {hours}h" if hours > 0 else "hace menos de 1h"
+        icon  = "🟢"
+    elif days <= 3:
+        label = f"hace {days}d"
+        icon  = "🟢"
+    elif days <= 7:
+        label = f"hace {days}d"
+        icon  = "🟡"
+    else:
+        label = f"hace {days}d — desactualizado"
+        icon  = "🔴"
+    return days, f"{icon} {label}"
+
+
 def _auto_update_if_stale() -> bool:
     """Dispara actualización en hilo de fondo si los scores tienen > 7 días. Retorna True si arrancó."""
     eq_days, _ = _score_age("finviz_scores.json")
@@ -147,26 +169,6 @@ apply_custom_css()
 render_header()
 
 # ── Sidebar: frescura de scores y botón de actualización ──────────────────────
-def _score_age(path: str) -> str:
-    p = Path(path)
-    if not p.exists():
-        return None, "⚫ No encontrado"
-    delta = datetime.now() - datetime.fromtimestamp(p.stat().st_mtime)
-    days  = delta.days
-    hours = delta.seconds // 3600
-    if days == 0:
-        label = f"hace {hours}h" if hours > 0 else "hace menos de 1h"
-        icon  = "🟢"
-    elif days <= 3:
-        label = f"hace {days}d"
-        icon  = "🟢"
-    elif days <= 7:
-        label = f"hace {days}d"
-        icon  = "🟡"
-    else:
-        label = f"hace {days}d — desactualizado"
-        icon  = "🔴"
-    return days, f"{icon} {label}"
 
 with st.sidebar:
     st.markdown("### ⚙️ Scores de mercado")
@@ -174,6 +176,14 @@ with st.sidebar:
     bond_days, bond_label = _score_age("bond_scores.json")
     st.markdown(f"**Equity / CEDEARs:** {eq_label}")
     st.markdown(f"**Bonos ARG:** {bond_label}")
+
+    # Tipo de cambio MEP en vivo
+    try:
+        from modules.market_data import get_mep_rate as _sidebar_mep
+        _live_mep = _sidebar_mep()
+        st.markdown(f"**MEP (bolsa):** ${_live_mep:,.0f} ARS/USD")
+    except Exception:
+        pass
 
     # Estado del hilo de fondo
     _bg = _update_state().get("thread")
@@ -287,7 +297,11 @@ elif step == "results":
     simulation = st.session_state.simulation
 
     # ── Resolución de moneda de display ──────────────────────────────────────
-    _MEP_RATE      = 1200                                  # ARS/USD de referencia
+    try:
+        from modules.market_data import get_mep_rate as _get_mep
+        _MEP_RATE = _get_mep()
+    except Exception:
+        _MEP_RATE = 1200                                   # fallback estático
     _currency_in   = profile.get("currency", "USD")       # moneda con que el usuario ingresó
     _capital_usd   = profile["capital"]                    # siempre en USD internamente
     _capital_orig  = profile.get("capital_original", _capital_usd)
@@ -475,7 +489,9 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
 
     if _currency_in == "ARS":
         st.markdown(
-            f'<p class="fx-rate-note">Tipo de cambio MEP de referencia: ${_fx_rate:,.0f} ARS/USD</p>',
+            f'<p class="fx-rate-note">Tipo de cambio MEP: ${_MEP_RATE:,.0f} ARS/USD · '
+            f'<span style="font-size:0.8em;opacity:0.7;">actualizado en tiempo real · '
+            f'tasa usada al ingresar: ${_fx_rate:,.0f}</span></p>',
             unsafe_allow_html=True,
         )
 
@@ -528,6 +544,89 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
 
     # ── Guía de compra ────────────────────────────────────────────────────────
     render_buy_guide(portfolio)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # ── Backtesting ───────────────────────────────────────────────────────────
+    st.markdown('<div class="section-title">📉 Rendimiento Histórico de la Cartera</div>', unsafe_allow_html=True)
+    st.caption("Simulación de cómo hubiera rendido su cartera en el pasado, comparada con el S&P 500 (SPY) como referencia.")
+
+    _bt_period = st.selectbox(
+        "Período de análisis",
+        options=[30, 60, 90, 180, 365],
+        format_func=lambda x: f"{x} días",
+        index=2,
+        key="bt_period",
+    )
+
+    if st.button("Calcular rendimiento histórico", key="bt_run", use_container_width=False):
+        with st.spinner("Descargando datos históricos..."):
+            try:
+                from modules.backtester import backtest_portfolio as _backtest
+                _bt = _backtest(portfolio["positions"], days=_bt_period)
+                st.session_state["_bt_result"] = _bt
+            except Exception as e:
+                st.session_state["_bt_result"] = {"error": str(e), "portfolio_return": None}
+
+    _bt_result = st.session_state.get("_bt_result")
+    if _bt_result:
+        if _bt_result.get("error"):
+            st.warning(f"No se pudo calcular el backtesting: {_bt_result['error']}")
+        else:
+            _bt_pr = _bt_result["portfolio_return"]
+            _bt_br = _bt_result["benchmark_return"]
+            _bt_al = _bt_result["alpha"]
+            _bt_sd = _bt_result["start_date"]
+            _bt_ed = _bt_result["end_date"]
+
+            _pr_color = "#22c55e" if (_bt_pr or 0) >= 0 else "#ef4444"
+            _br_color = "#22c55e" if (_bt_br or 0) >= 0 else "#ef4444"
+            _al_color = "#22c55e" if (_bt_al or 0) >= 0 else "#ef4444"
+            _sign = lambda v: ("+" if v >= 0 else "") if v is not None else ""
+
+            st.markdown(f"""<div class="metrics-grid">
+<div class="metric-card">
+  <div class="metric-label">Retorno cartera ({_bt_sd} → {_bt_ed})</div>
+  <div class="metric-value" style="color:{_pr_color};">{_sign(_bt_pr)}{_bt_pr:.1f}%</div>
+  <div class="metric-sub">Solo activos equity con precios históricos</div>
+</div>
+<div class="metric-card">
+  <div class="metric-label">Retorno SPY (benchmark)</div>
+  <div class="metric-value" style="color:{_br_color};">{_sign(_bt_br)}{_bt_br:.1f}%</div>
+  <div class="metric-sub">S&P 500 en el mismo período</div>
+</div>
+<div class="metric-card">
+  <div class="metric-label">Alfa vs S&P 500</div>
+  <div class="metric-value" style="color:{_al_color};">{_sign(_bt_al)}{_bt_al:.1f}%</div>
+  <div class="metric-sub">{"Supera" if (_bt_al or 0) >= 0 else "Queda por debajo de"} al benchmark</div>
+</div>
+</div>""", unsafe_allow_html=True)
+
+            # Gráfico de evolución
+            _cd = _bt_result.get("chart_data", [])
+            if _cd:
+                import pandas as pd
+                _df = pd.DataFrame(_cd).set_index("date")
+                _df.index = pd.to_datetime(_df.index)
+                _df.columns = [c.replace("portfolio", "Cartera").replace("benchmark", "SPY") for c in _df.columns]
+                st.line_chart(_df, use_container_width=True)
+
+            # Detalle por activo
+            _pu = _bt_result.get("positions_used", [])
+            if _pu:
+                with st.expander("Ver detalle por activo"):
+                    for pos in _pu:
+                        color = "#22c55e" if pos["return"] >= 0 else "#ef4444"
+                        sign  = "+" if pos["return"] >= 0 else ""
+                        st.markdown(
+                            f"**{pos['ticker']}** ({pos['label']}) — peso {pos['weight']*100:.1f}% "
+                            f"→ retorno: <span style='color:{color};'>{sign}{pos['return']:.1f}%</span>",
+                            unsafe_allow_html=True,
+                        )
+
+            _sk = _bt_result.get("skipped", [])
+            if _sk:
+                st.caption(f"Activos sin datos históricos omitidos: {', '.join(_sk)}")
 
     st.markdown("<br>", unsafe_allow_html=True)
 

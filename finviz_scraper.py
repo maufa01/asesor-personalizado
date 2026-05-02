@@ -166,6 +166,11 @@ def mapear_ratios(raw: dict, ticker: str) -> dict:
         "market_cap":        f("Market Cap"),
         "precio":            f("Price"),
         "beta":              f("Beta"),
+
+        # Cualitativo (Bloque 5) — datos de analistas en Finviz
+        "recomendacion":     f("Recom."),          # 1.0=Strong Buy … 5.0=Sell
+        "target_price":      f("Target Price"),     # precio objetivo consenso analistas
+        "short_float":       f("Short Float"),      # % del float vendido en corto
     }
 
 

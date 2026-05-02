@@ -391,6 +391,11 @@ def score_ticker(ticker: str, data: dict, sector: str) -> dict:
         "eps_qq":        p("EPS Q/Q"),
         "dividend_yield":p("Dividend %"),
         "beta":          p("Beta"),
+        # Cualitativo (Bloque 5)
+        "recomendacion":  p("Recom."),
+        "target_price":   p("Target Price"),
+        "precio":         p("Price"),
+        "short_float":    p("Short Float"),
     }
 
     # ── BLOQUE 1: Valuación — 25 pts ─────────────────────────────────────────
@@ -432,11 +437,35 @@ def score_ticker(ticker: str, data: dict, sector: str) -> dict:
     detail["B4_eps_qq"]  = b4_eps_qq
 
     # ── BLOQUE 5: Cualitativo — 10 pts ───────────────────────────────────────
-    # Finviz no provee datos cualitativos (gestión, moat, ESG).
-    # Se fija en 5/10 (neutral) como supuesto conservador explícito.
-    bloque5 = 5
+    recom    = ratios["recomendacion"]
+    tgt_px   = ratios["target_price"]
+    px       = ratios["precio"]
+    short_fl = ratios["short_float"]
+
+    # Recomendación analistas (4 pts): escala Finviz 1=Strong Buy … 5=Sell
+    if recom is not None:
+        b5_recom = 4 if recom <= 2.0 else (3 if recom <= 2.5 else (1 if recom < 3.0 else 0))
+    else:
+        b5_recom = 2
+
+    # Upside al precio objetivo (3 pts)
+    if tgt_px is not None and px is not None and px > 0:
+        upside   = (tgt_px - px) / px * 100
+        b5_tgt   = 3 if upside >= 15 else (1 if upside >= 0 else 0)
+    else:
+        b5_tgt = 1
+
+    # Short float bajo → bullish (3 pts)
+    if short_fl is not None:
+        b5_short = 3 if short_fl < 2 else (1 if short_fl < 5 else 0)
+    else:
+        b5_short = 2
+
+    bloque5 = min(b5_recom + b5_tgt + b5_short, 10)
+    detail["B5_recom"]       = b5_recom
+    detail["B5_target"]      = b5_tgt
+    detail["B5_short"]       = b5_short
     detail["B5_cualitativo"] = bloque5
-    detail["B5_nota"] = "neutral fijo — Finviz no provee datos cualitativos"
 
     # ── SCORE FINAL ───────────────────────────────────────────────────────────
     score = bloque1 + bloque2 + bloque3 + bloque4 + bloque5

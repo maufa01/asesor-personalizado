@@ -222,6 +222,7 @@ def calcular_score(ratios: dict, memory: dict) -> ScoreResult:
     sales_cagr= ratios.get("ventas_cagr_5y")
     eps_qoq   = ratios.get("eps_qoq")
 
+
     # Usar forward_pe si disponible, sino pe
     fwd_pe_use = fwd_pe if fwd_pe is not None else pe
 
@@ -276,10 +277,36 @@ def calcular_score(ratios: dict, memory: dict) -> ScoreResult:
     detalle["B4_eps_qoq"]    = qoq_pts
     detalle["B4_total"]      = b4
 
-    # ── Bloque 5: Cualitativo (max 10, siempre neutral) ───────────────────────
-    b5 = 5
+    # ── Bloque 5: Cualitativo (max 10) ───────────────────────────────────────
+    recom       = ratios.get("recomendacion")
+    target_px   = ratios.get("target_price")
+    precio_act  = ratios.get("precio")
+    short_float = ratios.get("short_float")
+
+    # Recomendación de analistas (4 pts): escala Finviz 1=Strong Buy … 5=Sell
+    if recom is not None:
+        b5_recom = 4 if recom <= 2.0 else (3 if recom <= 2.5 else (1 if recom < 3.0 else 0))
+    else:
+        b5_recom = 2   # neutral cuando no hay datos
+
+    # Upside al precio objetivo (3 pts)
+    if target_px is not None and precio_act is not None and precio_act > 0:
+        upside = (target_px - precio_act) / precio_act * 100
+        b5_target = 3 if upside >= 15 else (1 if upside >= 0 else 0)
+    else:
+        b5_target = 1   # neutral sin datos
+
+    # Short float bajo → señal positiva (3 pts)
+    if short_float is not None:
+        b5_short = 3 if short_float < 2 else (1 if short_float < 5 else 0)
+    else:
+        b5_short = 2   # neutral sin datos
+
+    b5 = min(b5_recom + b5_target + b5_short, 10)
+    detalle["B5_recom"]      = b5_recom
+    detalle["B5_target"]     = b5_target
+    detalle["B5_short"]      = b5_short
     detalle["B5_cualitativo"] = b5
-    detalle["B5_nota"]        = "neutral fijo — Finviz no provee datos cualitativos"
 
     # ── Total ─────────────────────────────────────────────────────────────────
     total = b1 + b2 + b3 + b4 + b5

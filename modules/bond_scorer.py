@@ -188,8 +188,10 @@ BOND_DEFS = {
 
 def _fetch_rava(ticker: str) -> dict | None:
     """
-    Intenta obtener precio y volumen desde rava.com.
-    Devuelve {paridad, vol_m} o None si falla.
+    Obtiene precio, volumen y TIR desde rava.com.
+    1. Intenta la API JSON (cotizaciones.php) para precio/volumen.
+    2. Si no obtiene TIR por JSON, intenta scrapear la página HTML del perfil.
+    Devuelve {paridad, vol_m, tir?} o None si falla completamente.
     """
     try:
         url = f"https://www.rava.com/api/cotizaciones.php?asset={ticker}&ReduccionDatos=0"
@@ -216,13 +218,54 @@ def _fetch_rava(ticker: str) -> dict | None:
         if precio is None:
             return None
 
-        precio = float(str(precio).replace(",", "."))
+        precio  = float(str(precio).replace(",", "."))
         volumen = float(str(volumen).replace(",", "").replace(".", "")) if volumen else 0
 
-        return {
+        result: dict = {
             "paridad": precio,
-            "vol_m": volumen / 1_000_000,
+            "vol_m":   volumen / 1_000_000,
         }
+
+        # Intentar TIR desde el mismo dict JSON
+        tir_raw = row.get("TIR") or row.get("tir") or row.get("Rendimiento") or row.get("rendimiento")
+        if tir_raw is not None:
+            try:
+                result["tir"] = float(str(tir_raw).replace(",", ".").replace("%", ""))
+            except ValueError:
+                pass
+
+        # Si no llegó TIR por JSON, intentar HTML (con delay ya incluido en el caller)
+        if "tir" not in result:
+            tir_html = _scrape_rava_tir(ticker)
+            if tir_html is not None:
+                result["tir"] = tir_html
+
+        return result
+    except Exception:
+        return None
+
+
+def _scrape_rava_tir(ticker: str) -> float | None:
+    """
+    Extrae TIR desde la página HTML del perfil del bono en Rava.
+    Busca patrones como 'TIR', 'Rendimiento', 'Tasa' seguidos de un número%.
+    """
+    try:
+        url = f"https://www.rava.com/perfil/{ticker}"
+        r   = requests.get(url, headers=HEADERS, timeout=15)
+        r.raise_for_status()
+        html = r.text
+
+        patterns = [
+            r"(?:TIR|Rendimiento\s*anual|Tasa\s*interna)[^0-9\-]{0,30}([\-]?[0-9]+[.,][0-9]+)\s*%",
+            r'"tir"\s*:\s*"?([\-]?[0-9]+[.,][0-9]+)',
+            r"(?:TIR|tir)\s*[:\-]\s*([\-]?[0-9]+[.,][0-9]+)",
+        ]
+        for pat in patterns:
+            m = re.search(pat, html, re.IGNORECASE)
+            if m:
+                return float(m.group(1).replace(",", "."))
+        return None
     except Exception:
         return None
 
@@ -329,7 +372,8 @@ def score_bond(asset_id: str, live_data: dict | None = None) -> dict:
     """
     defn = BOND_DEFS[asset_id]
 
-    tir      = defn["tir_est"]
+    # TIR: live > static fallback (live viene de Rava HTML scraping)
+    tir      = (live_data.get("tir") if live_data else None) or defn["tir_est"]
     duration = defn["duration_est"]
     paridad  = live_data["paridad"] if live_data and "paridad" in live_data else defn["paridad_est"]
     vol_m    = live_data["vol_m"]   if live_data and "vol_m"   in live_data else defn["vol_est_m"]
@@ -387,7 +431,9 @@ def run_and_save(path: Path = BOND_SCORES_PATH) -> dict:
         result = score_bond(asset_id, live)
         results[asset_id] = result
 
-        src = "LIVE paridad+vol" if result["live"] else "STATIC fallback"
+        tir_src = "LIVE" if (live and "tir" in live) else "STATIC"
+        px_src  = "LIVE" if result["live"] else "STATIC"
+        src     = f"TIR={tir_src} paridad+vol={px_src}"
         print(
             f"  {asset_id:<15} {result['score']:>3}  {result['rating']:<12}  "
             f"TIR={result['inputs']['tir']}%  par={result['inputs']['paridad']}%  "
