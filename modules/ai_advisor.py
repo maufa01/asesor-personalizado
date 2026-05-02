@@ -13,7 +13,7 @@ from google.genai import types
 from typing import Dict, Any
 import streamlit as st
 
-_MODELS = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-flash-8b"]
+_MODELS = ["gemini-1.5-flash", "gemini-1.5-flash-8b", "gemini-2.0-flash"]
 
 
 def _get_client() -> genai.Client:
@@ -299,9 +299,10 @@ Recordá:
         }
     except Exception as e:
         err_type = type(e).__name__
+        err_msg  = str(e)[:200]
         return {
-            "justification": f"<p>No se pudo conectar con la IA ({_e(err_type)}). Verifique su conexión e intente de nuevo.</p>",
-            "alerts": [{"title": "Error de conexión", "message": f"No se pudo conectar con la IA. Error: {err_type}.", "severity": "high"}],
+            "justification": f"<p>No se pudo conectar con la IA.<br><code>{_e(err_type)}: {_e(err_msg)}</code></p>",
+            "alerts": [{"title": "Error de conexión", "message": f"{err_type}: {err_msg}", "severity": "high"}],
             "rebalancing": "<p>No disponible por error de conexión.</p>",
             "tips": "<p>Verifique su conectividad e intente de nuevo.</p>",
         }
@@ -352,7 +353,7 @@ REGLAS:
     except QuotaExhaustedError:
         return "La IA está saturada en este momento (límite de solicitudes por minuto). Espere 1 minuto e intente de nuevo."
     except Exception as e:
-        return f"No se pudo conectar con la IA ({type(e).__name__}). Verifique su conexión e intente de nuevo."
+        return f"Error ({type(e).__name__}): {str(e)[:300]}"
 
 
 def get_rebalancing_advice(portfolio: dict, profile: dict) -> str:
