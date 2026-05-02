@@ -284,6 +284,12 @@ def calcular_score(ratios: dict, memory: dict) -> ScoreResult:
     # ── Total ─────────────────────────────────────────────────────────────────
     total = b1 + b2 + b3 + b4 + b5
 
+    # Ajuste individual por historial del ticker
+    ticker_adj = aprendizaje.get("score_ajustes", {}).get(ticker, 0)
+    if ticker_adj != 0:
+        total = max(0, min(100, total + ticker_adj))
+        aplicados.append(f"{ticker}: ajuste histórico {ticker_adj:+d} pts → total {total}")
+
     return ScoreResult(
         ticker             = ticker,
         sector             = sector,

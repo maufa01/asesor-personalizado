@@ -6,11 +6,15 @@ Descarga fundamentals de Finviz, aplica 3 capas de filtrado y rankea candidatos.
 import sys
 import json
 import time
+from pathlib import Path
 
 from memory_manager import (
     load_memory, get_contexto_aprendizaje,
     guardar_portfolio, guardar_mediana_sector, guardar_snapshot_mercado,
 )
+
+# Asset IDs que son ETFs — excluidos del screener de CEDEARs
+_ETF_IDS = {"spy", "qqq", "vti", "iau", "gld", "eem"}
 from finviz_scraper import get_ticker_data, get_tickers_sector, mapear_ratios
 from filtros_fundamentals import (
     aplicar_filtros, calcular_medianas, imprimir_reporte, FiltroResultado,
@@ -374,22 +378,240 @@ def guardar_resultado_json(resultado: dict, filename: str = "asset_picks.json") 
     print(f"✅ {len(candidatos)} candidatos guardados en {filename}")
 
 
+# ─── run_cedear_screener ─────────────────────────────────────────────────────
+
+def run_cedear_screener(top_n: int = 10) -> dict:
+    """
+    Pipeline completo solo sobre el universo de CEDEARs disponibles en BYMA.
+    Itera ASSET_TO_FINVIZ (excluye ETFs), agrupa por sector, calcula medianas,
+    aplica filtros peers → calidad → score y rankea por score.
+    """
+    from modules.finviz_scorer import ASSET_TO_FINVIZ
+
+    mem    = load_memory()
+    params = mem["aprendizaje"]
+    raw_evitar      = params.get("sectores_evitar", [])
+    sectores_evitar = [s["sector"] if isinstance(s, dict) else s for s in raw_evitar]
+
+    # Solo CEDEARs (excluir ETFs)
+    cedear_items = {
+        asset_id: ticker
+        for asset_id, ticker in ASSET_TO_FINVIZ.items()
+        if asset_id not in _ETF_IDS
+    }
+
+    print(f"\nDescargando fundamentals de {len(cedear_items)} CEDEARs/acciones ARG...")
+    ratios_por_sector: dict = {}
+
+    for asset_id, finviz_ticker in cedear_items.items():
+        print(f"  {finviz_ticker:<8}", end=" ", flush=True)
+        raw = get_ticker_data(finviz_ticker)
+        if raw is None:
+            print("sin datos")
+            continue
+        r = mapear_ratios(raw, finviz_ticker)
+        r["asset_id"] = asset_id
+        sector = r["sector_framework"]
+        ratios_por_sector.setdefault(sector, []).append(r)
+        pe_s = f"P/E:{r['pe']:.1f}"       if r.get("pe")        else "P/E:-"
+        ev_s = f"EV:{r['ev_ebitda']:.1f}" if r.get("ev_ebitda") else "EV:-"
+        print(f"{pe_s}  {ev_s}")
+
+    todos_candidatos:   list = []
+    todos_excluidos:    list = []
+    sectores_sin_cands: list = []
+    medianas_usadas:    dict = {}
+
+    for sector_fw, ratios_list in ratios_por_sector.items():
+        if sector_fw in sectores_evitar:
+            print(f"⛔ {sector_fw} marcado para evitar — saltando")
+            continue
+
+        print(f"\n{'─'*60}")
+        print(f"Sector: {sector_fw}  ({len(ratios_list)} CEDEARs)")
+        print(f"{'─'*60}")
+
+        if len(ratios_list) < 3:
+            print(f"  ⚠ Menos de 3 tickers — saltando")
+            sectores_sin_cands.append(sector_fw)
+            continue
+
+        med_pe, med_ev = calcular_medianas(ratios_list)
+        medianas_usadas[sector_fw] = {"pe": med_pe, "ev_ebitda": med_ev}
+
+        if med_pe is not None:
+            guardar_mediana_sector(sector_fw, med_pe or 0.0, med_ev or 0.0)
+            print(f"  Mediana sector: P/E={med_pe:.1f} | EV/EBITDA={med_ev:.1f}" if med_ev else
+                  f"  Mediana sector: P/E={med_pe:.1f} | EV/EBITDA=N/A")
+
+        candidatos_sector = []
+        for ratios in ratios_list:
+            score_r   = calcular_score(ratios, mem)
+            resultado = aplicar_filtros(ratios, score_r.score_total, med_pe, med_ev)
+
+            if resultado.paso_fallo is None:
+                candidatos_sector.append({
+                    "ticker":             ratios["ticker"],
+                    "asset_id":           ratios.get("asset_id", ""),
+                    "sector":             ratios["sector_framework"],
+                    "score":              score_r.score_total,
+                    "rating":             score_r.rating,
+                    "bloque_valuacion":   score_r.bloque_valuacion,
+                    "bloque_calidad":     score_r.bloque_calidad,
+                    "bloque_solvencia":   score_r.bloque_solvencia,
+                    "bloque_crecimiento": score_r.bloque_crecimiento,
+                    "bloque_cualitativo": score_r.bloque_cualitativo,
+                    "pe":                 ratios.get("pe"),
+                    "ev_ebitda":          ratios.get("ev_ebitda"),
+                    "mediana_pe_sector":  med_pe,
+                    "mediana_ev_sector":  med_ev,
+                    "descuento_pe_pct":   resultado.descuento_pe_pct,
+                    "descuento_ev_pct":   resultado.descuento_ev_pct,
+                    "roe":                ratios.get("roe"),
+                    "margen_neto":        ratios.get("margen_neto"),
+                    "deuda_equity":       ratios.get("deuda_equity"),
+                    "eps_cagr_5y":        ratios.get("eps_cagr_5y"),
+                    "dividend_yield":     ratios.get("dividend_yield"),
+                })
+            else:
+                todos_excluidos.append(resultado)
+
+        if not candidatos_sector:
+            sectores_sin_cands.append(sector_fw)
+        else:
+            candidatos_sector.sort(key=lambda x: x["score"], reverse=True)
+            todos_candidatos.extend(candidatos_sector[:top_n])
+            print(f"  ✅ {len(candidatos_sector)} candidatos (mostrando top {min(top_n, len(candidatos_sector))})")
+
+    todos_candidatos.sort(key=lambda x: x["score"], reverse=True)
+
+    guardar_snapshot_mercado({
+        "tipo":                   "cedear_screener",
+        "cedears_analizados":     len(cedear_items),
+        "candidatos_encontrados": len(todos_candidatos),
+        "excluidos":              len(todos_excluidos),
+        "parametros": {
+            "descuento_min": params.get("umbral_descuento_minimo_pct"),
+            "score_min":     params.get("score_minimo"),
+        },
+    })
+
+    return {
+        "candidatos":              todos_candidatos,
+        "excluidos":               todos_excluidos,
+        "sectores_sin_candidatos": sectores_sin_cands,
+        "medianas_usadas":         medianas_usadas,
+        "parametros_usados": {
+            "umbral_descuento_pct": params.get("umbral_descuento_minimo_pct"),
+            "score_minimo":         params.get("score_minimo"),
+        },
+    }
+
+
+# ─── update_cedear_scores ─────────────────────────────────────────────────────
+
+def update_cedear_scores(scores_path: str = "finviz_scores.json") -> None:
+    """
+    Re-scorea todos los CEDEARs usando scoring_engine y sobreescribe finviz_scores.json.
+    Preserva los scores de ETFs sin tocarlos.
+    """
+    from modules.finviz_scorer import ASSET_TO_FINVIZ
+
+    scores_file = Path(scores_path)
+    mem = load_memory()
+
+    existing: dict = {}
+    if scores_file.exists():
+        with open(scores_file, encoding="utf-8") as f:
+            existing = json.load(f)
+
+    etf_scores  = existing.get("etf_scores", {})
+    by_asset_id = {}
+    by_ticker   = {}
+
+    # Preservar scores de ETFs del JSON existente
+    for asset_id in _ETF_IDS:
+        prev = existing.get("by_asset_id", {}).get(asset_id)
+        if prev:
+            by_asset_id[asset_id] = prev
+            finviz_ticker = ASSET_TO_FINVIZ.get(asset_id, asset_id.upper())
+            by_ticker[finviz_ticker] = prev
+
+    cedear_items = {
+        asset_id: ticker
+        for asset_id, ticker in ASSET_TO_FINVIZ.items()
+        if asset_id not in _ETF_IDS
+    }
+
+    print(f"\nActualizando {len(cedear_items)} scores con scoring_engine...")
+    for asset_id, finviz_ticker in cedear_items.items():
+        print(f"  {finviz_ticker:<8}", end=" ", flush=True)
+        raw = get_ticker_data(finviz_ticker)
+        if raw is None:
+            print("sin datos")
+            continue
+
+        r       = mapear_ratios(raw, finviz_ticker)
+        score_r = calcular_score(r, mem)
+
+        entry = {
+            "score":  score_r.score_total,
+            "rating": score_r.rating,
+            "sector": score_r.sector,
+            "bloques": {
+                "valuacion":   score_r.bloque_valuacion,
+                "calidad":     score_r.bloque_calidad,
+                "solvencia":   score_r.bloque_solvencia,
+                "crecimiento": score_r.bloque_crecimiento,
+                "cualitativo": score_r.bloque_cualitativo,
+            },
+        }
+        by_asset_id[asset_id]    = entry
+        by_ticker[finviz_ticker] = entry
+        adj_list = score_r.ajustes_aplicados
+        adj_s    = f" {adj_list[0]}" if adj_list else ""
+        print(f"score={score_r.score_total} {score_r.rating}{adj_s}")
+
+    output = {
+        "by_asset_id": by_asset_id,
+        "by_ticker":   by_ticker,
+        "etf_scores":  etf_scores,
+    }
+    with open(scores_file, "w", encoding="utf-8") as f:
+        json.dump(output, f, indent=2, ensure_ascii=False)
+
+    print(f"\n✅ {len(by_asset_id)} scores escritos en {scores_path}")
+
+
 # ─── Entry point ─────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     args = sys.argv[1:]
 
     if not args:
-        print("Uso: python asset_picker.py SECTOR1 SECTOR2 ... [top_n]")
-        print("Ej:  python asset_picker.py Technology Healthcare 5")
+        print("Uso:")
+        print("  python asset_picker.py SECTOR1 SECTOR2 ... [top_n]  — screener US por sector")
+        print("  python asset_picker.py cedears [top_n]              — screener solo CEDEARs BYMA")
+        print("  python asset_picker.py update_scores                — actualiza finviz_scores.json")
         sys.exit(0)
 
-    # Último arg es top_n si es número
+    if args[0] == "update_scores":
+        update_cedear_scores()
+        sys.exit(0)
+
+    if args[0] == "cedears":
+        top_n = int(args[1]) if len(args) > 1 else 10
+        resultado = run_cedear_screener(top_n)
+        imprimir_resultado_completo(resultado)
+        guardar_resultado_json(resultado, "cedear_picks.json")
+        sys.exit(0)
+
+    # Screener US por sector (comportamiento original)
     try:
-        top_n   = int(args[-1])
+        top_n    = int(args[-1])
         sectores = args[:-1]
     except ValueError:
-        top_n   = 10
+        top_n    = 10
         sectores = args
 
     if not sectores:

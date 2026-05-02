@@ -23,6 +23,7 @@ _EMPTY_MEMORY: dict = {
         "patrones_detectados": [],
         "reglas_aprendidas": [],
         "historial_medianas_sector": {},
+        "score_ajustes": {},
     },
     "mercado_snapshot": [],
     "instrumentos_ar": {
@@ -183,11 +184,13 @@ def _detectar_patrones(mem: dict, pos: dict) -> None:
     desc        = pos.get("descuento_vs_sector_entrada", 0.0)
     sector      = pos.get("sector", "desconocido")
 
+    ticker = pos["ticker"]
+
     # Patrón 1: compra sin suficiente descuento → pérdida
     if retorno < -5 and desc < 10:
         patron = {
             "tipo":   "descuento_insuficiente",
-            "ticker": pos["ticker"],
+            "ticker": ticker,
             "fecha":  str(date.today()),
             "detalle": f"Retorno {retorno:.1f}% con descuento {desc:.1f}% vs sector",
         }
@@ -198,10 +201,28 @@ def _detectar_patrones(mem: dict, pos: dict) -> None:
         regla = (
             f"Subido umbral_descuento_minimo_pct a "
             f"{aprendizaje['umbral_descuento_minimo_pct']}% "
-            f"tras pérdida en {pos['ticker']} con descuento insuficiente."
+            f"tras pérdida en {ticker} con descuento insuficiente."
         )
         if regla not in aprendizaje["reglas_aprendidas"]:
             aprendizaje["reglas_aprendidas"].append(regla)
+
+    # Ajuste de score por ticker (aprendizaje individual)
+    score_ajustes = aprendizaje.setdefault("score_ajustes", {})
+    current_adj   = score_ajustes.get(ticker, 0)
+    if retorno < -5:
+        delta = -5
+    elif retorno > 10:
+        delta = +3
+    else:
+        delta = 0
+    if delta != 0:
+        new_adj = max(-20, min(10, current_adj + delta))
+        score_ajustes[ticker] = new_adj
+        if new_adj != current_adj:
+            aprendizaje["reglas_aprendidas"].append(
+                f"Score de {ticker} ajustado a {new_adj:+d} pts "
+                f"(retorno {retorno:+.1f}%, acumulado)."
+            )
 
     # Win rate por sector (calculado desde performance)
     ops_sector = [
@@ -323,6 +344,12 @@ def get_parametros() -> dict:
         "umbral_descuento_minimo_pct": ap["umbral_descuento_minimo_pct"],
         "score_minimo":                ap["score_minimo"],
     }
+
+
+def get_score_adjustment(ticker: str) -> int:
+    """Retorna el ajuste acumulado de score para el ticker (rango -20 a +10, default 0)."""
+    mem = load_memory()
+    return mem["aprendizaje"].get("score_ajustes", {}).get(ticker, 0)
 
 
 def get_contexto_aprendizaje() -> str:
