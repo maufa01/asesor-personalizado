@@ -763,6 +763,148 @@ ASSET_UNIVERSE: List[Dict[str, Any]] = [
         "currency": "USD", "market": "BYMA/NYSE",
         "simple_desc": "Chevron: petrolera global con dividendo sólido",
     },
+    {
+        "id": "nee",
+        "name": "NextEra Energy (NEE)",
+        "category": "CEDEARs", "sub": "Energía/Utilities",
+        "ticker": "NEE", "color": "#16a34a",
+        "expected_return": 0.10, "volatility": 0.18, "risk_level": "medio",
+        "description": "Mayor empresa de energía renovable de EE.UU. Líder en eólica y solar. Paga dividendos crecientes y es muy defensiva.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "NextEra: el mayor productor de energía renovable de EE.UU.",
+    },
+
+    # ══ CEDEARs — TECNOLOGÍA/SEMICONDUCTORES ══════════════════════════════════
+
+    {
+        "id": "intc",
+        "name": "Intel (INTC)",
+        "category": "CEDEARs", "sub": "Tecnología",
+        "ticker": "INTC", "color": "#0284c7",
+        "expected_return": 0.08, "volatility": 0.32, "risk_level": "medio-alto",
+        "description": "Fabricante histórico de microprocesadores. Atraviesa una reestructuración profunda para recuperar liderazgo en fabricación de chips.",
+        "currency": "USD", "market": "BYMA/NASDAQ",
+        "simple_desc": "Intel: fabricante de chips, en proceso de transformación",
+    },
+    {
+        "id": "tsm",
+        "name": "TSMC (TSM)",
+        "category": "CEDEARs", "sub": "Tecnología",
+        "ticker": "TSM", "color": "#0ea5e9",
+        "expected_return": 0.18, "volatility": 0.35, "risk_level": "medio-alto",
+        "description": "La fábrica de chips más avanzada del mundo. Produce los procesadores de Apple, NVIDIA, AMD y casi toda la industria tech.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "TSMC: fabrica los chips más avanzados del mundo para Apple y NVIDIA",
+    },
+    {
+        "id": "qcom",
+        "name": "Qualcomm (QCOM)",
+        "category": "CEDEARs", "sub": "Tecnología",
+        "ticker": "QCOM", "color": "#3b82f6",
+        "expected_return": 0.14, "volatility": 0.30, "risk_level": "medio-alto",
+        "description": "Líder en chips para smartphones y conectividad 5G. Tiene un negocio de licencias muy rentable además de los semiconductores.",
+        "currency": "USD", "market": "BYMA/NASDAQ",
+        "simple_desc": "Qualcomm: chips para celulares y la tecnología 5G",
+    },
+    {
+        "id": "shop",
+        "name": "Shopify (SHOP)",
+        "category": "CEDEARs", "sub": "Tecnología",
+        "ticker": "SHOP", "color": "#22c55e",
+        "expected_return": 0.22, "volatility": 0.50, "risk_level": "alto",
+        "description": "Plataforma líder de e-commerce para pequeñas y medianas empresas. Alto crecimiento en ingresos y expansión global.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Shopify: la plataforma de tiendas online más usada del mundo",
+    },
+    {
+        "id": "pypl",
+        "name": "PayPal (PYPL)",
+        "category": "CEDEARs", "sub": "Tecnología",
+        "ticker": "PYPL", "color": "#1d4ed8",
+        "expected_return": 0.12, "volatility": 0.35, "risk_level": "medio-alto",
+        "description": "Plataforma de pagos digitales global. Opera Venmo y Braintree. Bajo presión competitiva pero con enorme base de usuarios.",
+        "currency": "USD", "market": "BYMA/NASDAQ",
+        "simple_desc": "PayPal: pagos digitales y Venmo",
+    },
+
+    # ══ CEDEARs — CONSUMO DEFENSIVO ════════════════════════════════════════════
+
+    {
+        "id": "pg",
+        "name": "Procter & Gamble (PG)",
+        "category": "CEDEARs", "sub": "Consumo Masivo",
+        "ticker": "PG", "color": "#1e40af",
+        "expected_return": 0.08, "volatility": 0.13, "risk_level": "bajo-medio",
+        "description": "Dueña de marcas como Pampers, Gillette, Tide y Pantene. Muy defensiva, paga dividendos crecientes hace más de 60 años.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "P&G: Pampers, Gillette, Tide — consumo masivo muy estable",
+    },
+    {
+        "id": "pm",
+        "name": "Philip Morris (PM)",
+        "category": "CEDEARs", "sub": "Consumo Masivo",
+        "ticker": "PM", "color": "#dc2626",
+        "expected_return": 0.09, "volatility": 0.16, "risk_level": "medio",
+        "description": "Tabacalera global en transición hacia productos sin humo (IQOS). Alto dividendo y flujo de caja muy estable.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Philip Morris: tabaco y IQOS, dividendo altísimo y estable",
+    },
+    {
+        "id": "sbux",
+        "name": "Starbucks (SBUX)",
+        "category": "CEDEARs", "sub": "Consumo",
+        "ticker": "SBUX", "color": "#15803d",
+        "expected_return": 0.11, "volatility": 0.22, "risk_level": "medio",
+        "description": "Cadena de cafeterías más grande del mundo. Modelo de franquicias, fuerte en EE.UU. y en expansión en China.",
+        "currency": "USD", "market": "BYMA/NASDAQ",
+        "simple_desc": "Starbucks: la cadena de cafeterías más grande del mundo",
+    },
+    {
+        "id": "tgt",
+        "name": "Target (TGT)",
+        "category": "CEDEARs", "sub": "Consumo",
+        "ticker": "TGT", "color": "#dc2626",
+        "expected_return": 0.10, "volatility": 0.24, "risk_level": "medio",
+        "description": "Cadena de retail en EE.UU. Mezcla de supermercado y tienda de ropa/hogar. Dividendos crecientes hace más de 50 años.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Target: retail generalista en EE.UU. con dividendos históricos",
+    },
+
+    # ══ CEDEARs — INDUSTRIAL ═══════════════════════════════════════════════════
+
+    {
+        "id": "ba",
+        "name": "Boeing (BA)",
+        "category": "CEDEARs", "sub": "Industrial",
+        "ticker": "BA", "color": "#1e40af",
+        "expected_return": 0.12, "volatility": 0.40, "risk_level": "alto",
+        "description": "Fabricante de aviones comerciales y militares. Atraviesa una recuperación post-crisis de seguridad. Alta volatilidad.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Boeing: aviones comerciales y militares, en proceso de recuperación",
+    },
+    {
+        "id": "cat",
+        "name": "Caterpillar (CAT)",
+        "category": "CEDEARs", "sub": "Industrial",
+        "ticker": "CAT", "color": "#f59e0b",
+        "expected_return": 0.13, "volatility": 0.26, "risk_level": "medio",
+        "description": "Mayor fabricante de maquinaria de construcción y minería del mundo. Se beneficia de inversión en infraestructura global.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Caterpillar: maquinaria de construcción y minería a nivel mundial",
+    },
+
+    # ══ CEDEARs — GLOBAL/EMERGENTES ═══════════════════════════════════════════
+
+    {
+        "id": "baba",
+        "name": "Alibaba (BABA)",
+        "category": "CEDEARs", "sub": "Tecnología",
+        "ticker": "BABA", "color": "#f97316",
+        "expected_return": 0.14, "volatility": 0.42, "risk_level": "alto",
+        "description": "El gigante chino del e-commerce y cloud. Valuación muy baja respecto a fundamentals. Riesgo regulatorio chino es el principal factor.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Alibaba: el Amazon de China, muy barato pero con riesgo político",
+    },
 
     # ══ ETFs GLOBALES (via CEDEAR) ═════════════════════════════════════════════
 
@@ -1055,6 +1197,7 @@ _LIQUIDITY_LEVELS = {
         "al30","gd30","al35","gd35",
         # CEDEARs de alto volumen en BYMA
         "spy","qqq","aapl","meli","ypf","galicia","bma","msft","nvda","v","ma",
+        "intc","tsm","pg",
     },
     "media": {
         # Soberanos con algo menos de volumen
@@ -1067,6 +1210,7 @@ _LIQUIDITY_LEVELS = {
         "googl","amzn","meta","brk","jpm","bac","tsla","ko","wmt","jnj",
         "pfe","xom","dis","amd","nflx","orcl","crm","adbe","uber","glob",
         "gs","ms","unh","lly","mrk","hd","cost","mcd","nke","cvx",
+        "qcom","shop","pypl","pm","sbux","tgt","ba","cat","baba","nee",
         # Acciones ARG de liquidez media en BYMA
         "tgs","cepu","alua","bbar","loma","pampa","vist","teco2","supv",
     },
@@ -1204,7 +1348,8 @@ _BUCKET_DEFS: Dict[str, list] = {
          "candidates": ["spy", "qqq", "vti"]},
         {"id": "equity_global", "target": 0.18, "max_pos": 1, "score_src": "equity",
          "candidates": ["nvda", "amd", "msft", "meta", "googl", "amzn", "aapl",
-                         "v", "ma", "unh", "lly", "cost", "nflx", "orcl", "crm"]},
+                         "tsm", "v", "ma", "unh", "lly", "cost", "nflx", "orcl",
+                         "crm", "qcom", "pg", "pm", "cat"]},
         {"id": "equity_arg",    "target": 0.10, "max_pos": 1, "score_src": "equity",
          "candidates": ["ypf", "galicia", "bma", "tgs", "cepu", "pampa",
                          "vist", "meli", "alua", "irsa"]},
@@ -1221,7 +1366,8 @@ _BUCKET_DEFS: Dict[str, list] = {
         {"id": "equity_global", "target": 0.28, "max_pos": 3, "score_src": "equity",
          "candidates": ["nvda", "amd", "msft", "meta", "googl", "amzn", "meli",
                          "aapl", "tsla", "nflx", "v", "ma", "unh", "lly",
-                         "crm", "adbe", "uber", "glob", "gs", "cost"]},
+                         "crm", "adbe", "uber", "glob", "gs", "cost",
+                         "tsm", "qcom", "shop", "pypl", "baba", "cat", "intc"]},
         {"id": "equity_arg",    "target": 0.20, "max_pos": 2, "score_src": "equity",
          "candidates": ["ypf", "galicia", "bma", "supv", "tgs", "cepu",
                          "pampa", "vist", "bbar", "alua", "irsa", "cres",

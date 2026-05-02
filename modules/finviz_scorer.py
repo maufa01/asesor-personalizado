@@ -29,6 +29,16 @@ SCOREABLE_TICKERS = [
     "HD",   "COST", "MCD",  "NKE",
     # CEDEARs — energía adicional
     "CVX",
+    # CEDEARs — semiconductores/tech adicional
+    "INTC", "TSM", "QCOM", "SHOP", "PYPL",
+    # CEDEARs — consumo defensivo adicional
+    "PG", "PM", "SBUX", "TGT",
+    # CEDEARs — industrial adicional
+    "BA", "CAT",
+    # CEDEARs — global/emergentes
+    "BABA",
+    # CEDEARs — utilities/energía renovable
+    "NEE",
     # Acciones ARG (ADRs en NYSE/NASDAQ)
     "YPF",  "VIST", "GGAL", "LOMA", "TEO",  "PAM",  "BBAR",
     "BMA",  "SUPV", "TGS",  "CEPU", "IRS",  "CRESY",
@@ -79,6 +89,24 @@ ASSET_TO_FINVIZ = {
     "nke":     "NKE",
     # CEDEARs energía adicional
     "cvx":     "CVX",
+    # CEDEARs semiconductores/tech adicional
+    "intc":    "INTC",
+    "tsm":     "TSM",
+    "qcom":    "QCOM",
+    "shop":    "SHOP",
+    "pypl":    "PYPL",
+    # CEDEARs consumo defensivo adicional
+    "pg":      "PG",
+    "pm":      "PM",
+    "sbux":    "SBUX",
+    "tgt":     "TGT",
+    # CEDEARs industrial adicional
+    "ba":      "BA",
+    "cat":     "CAT",
+    # CEDEARs global/emergentes
+    "baba":    "BABA",
+    # CEDEARs utilities/energía renovable
+    "nee":     "NEE",
     # Acciones ARG
     "ypf":     "YPF",
     "vist":    "VIST",
