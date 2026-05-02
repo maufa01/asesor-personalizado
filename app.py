@@ -2,6 +2,8 @@
 FinanzasIA — Asesor Financiero Inteligente
 """
 
+import threading
+
 import streamlit as st
 import streamlit.components.v1 as components
 from pathlib import Path
@@ -14,6 +16,45 @@ from modules.simulator import simulate_portfolio
 from modules.ai_advisor import get_ai_analysis, get_rebalancing_advice, chat_with_advisor
 from modules.glossary import render_glossary
 from modules.costo_no_invertir import render_cost_of_not_investing, render_cost_results
+
+_SCORES_MAX_AGE_DAYS = 7   # umbral para auto-actualización
+
+
+# ── Estado de actualización en segundo plano (persiste entre reruns) ──────────
+@st.cache_resource
+def _update_state():
+    return {"thread": None, "last_result": None}
+
+
+def _run_scores_background():
+    """Descarga fundamentals y recalcula scores. Corre en hilo daemon."""
+    errors = []
+    try:
+        from modules.finviz_scorer import run_and_save as _eq
+        _eq()
+    except Exception as e:
+        errors.append(f"equity: {e}")
+    try:
+        from modules.bond_scorer import run_and_save as _bonds
+        _bonds()
+    except Exception as e:
+        errors.append(f"bonos: {e}")
+    _update_state()["last_result"] = "error" if errors else "ok"
+
+
+def _auto_update_if_stale() -> bool:
+    """Dispara actualización en hilo de fondo si los scores tienen > 7 días. Retorna True si arrancó."""
+    eq_days, _ = _score_age("finviz_scores.json")
+    if eq_days is None or eq_days > _SCORES_MAX_AGE_DAYS:
+        state = _update_state()
+        t = state.get("thread")
+        if t is None or not t.is_alive():
+            thread = threading.Thread(target=_run_scores_background, daemon=True)
+            thread.start()
+            state["thread"] = thread
+            state["last_result"] = None
+            return True
+    return False
 
 _CELEBRATION_HTML = """<!DOCTYPE html><html><head><meta charset="utf-8">
 <style>
@@ -70,14 +111,16 @@ st.set_page_config(
 
 def init_state():
     defaults = {
-        "step":        "intro",
-        "profile":     None,
-        "portfolio":   None,
-        "simulation":  None,
-        "ai_analysis": None,
-        "chat_history": [],
-        "answers":     {},
-        "theme":       "dark",
+        "step":                  "intro",
+        "profile":               None,
+        "portfolio":             None,
+        "simulation":            None,
+        "ai_analysis":           None,
+        "chat_history":          [],
+        "answers":               {},
+        "theme":                 "dark",
+        "auto_update_checked":   False,
+        "scores_refreshed":      False,   # True cuando la actualización en curso termina
     }
     for k, v in defaults.items():
         if k not in st.session_state:
@@ -85,6 +128,21 @@ def init_state():
 
 
 init_state()
+
+# ── Auto-actualización de scores (una sola vez por sesión) ───────────────────
+if not st.session_state.auto_update_checked:
+    st.session_state.auto_update_checked = True
+    _auto_update_if_stale()
+
+# Detectar si el hilo de fondo acaba de terminar
+_state = _update_state()
+_bg_thread = _state.get("thread")
+if (_bg_thread is not None
+        and not _bg_thread.is_alive()
+        and _state.get("last_result") == "ok"
+        and not st.session_state.scores_refreshed):
+    st.session_state.scores_refreshed = True
+
 apply_custom_css()
 render_header()
 
@@ -116,9 +174,17 @@ with st.sidebar:
     bond_days, bond_label = _score_age("bond_scores.json")
     st.markdown(f"**Equity / CEDEARs:** {eq_label}")
     st.markdown(f"**Bonos ARG:** {bond_label}")
+
+    # Estado del hilo de fondo
+    _bg = _update_state().get("thread")
+    if _bg is not None and _bg.is_alive():
+        st.info("⏳ Actualizando scores en segundo plano…")
+    elif st.session_state.scores_refreshed:
+        st.success("✅ Scores actualizados")
+
     st.markdown("---")
-    st.caption("Los scores determinan qué activos entran a tu cartera y con qué peso.")
-    if st.button("🔄 Actualizar scores ahora", use_container_width=True):
+    st.caption("Los scores determinan qué activos entran a tu cartera y con qué peso. Se actualizan automáticamente cuando tienen más de 7 días.")
+    if st.button("🔄 Actualizar ahora", use_container_width=True):
         with st.spinner("Actualizando scores de equity... (~2 min)"):
             try:
                 from modules.finviz_scorer import run_and_save as _run_eq
@@ -131,6 +197,7 @@ with st.sidebar:
                 _run_bonds()
             except Exception as e:
                 st.error(f"Error bond scorer: {e}")
+        st.session_state.scores_refreshed = True
         st.success("✅ Scores actualizados")
         st.rerun()
 
@@ -257,6 +324,20 @@ elif step == "results":
 onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smooth'});return false;">
 💬 Consultar al Asesor
 </a>""", unsafe_allow_html=True)
+
+    # ── Aviso de scores actualizados en esta sesión ───────────────────────────
+    if st.session_state.scores_refreshed and not st.session_state.get("refresh_banner_dismissed"):
+        col_b1, col_b2 = st.columns([5, 1])
+        with col_b1:
+            st.info("Los datos de mercado fueron actualizados. Podés generar una nueva evaluación para reflejar los últimos fundamentals.")
+        with col_b2:
+            if st.button("Recalcular", key="recalc_btn", use_container_width=True):
+                st.session_state.refresh_banner_dismissed = True
+                keys_to_clear = ["portfolio", "simulation", "ai_analysis", "chat_history", "show_celebration"]
+                for k in keys_to_clear:
+                    st.session_state[k] = None if k != "chat_history" else []
+                st.session_state.step = "profiling"
+                st.rerun()
 
     # ── Pantalla de celebración (primera vez) ─────────────────────────────────
     if st.session_state.get("show_celebration"):
