@@ -229,12 +229,12 @@ PROFILES = {
             "🚀 Alta exposición a acciones argentinas e internacionales",
             "⚡ Mayor volatilidad — caídas de 20-30% son parte del proceso, no una señal de venta",
             "💎 Potencial de rendimiento muy superior al largo plazo",
-            "🧩 Incluye tecnología global, mercados emergentes y algo de cripto",
+            "🧩 Incluye tecnología global, mercados emergentes y acciones argentinas de alto potencial",
         ],
         "first_steps": [
             "CEDEARs de tecnología: Nvidia, Meta, Amazon, MercadoLibre",
             "ETF QQQ o SPY para exposición diversificada al mercado americano",
-            "Renta variable argentina: YPF, Galicia, Vista Energy para posicionamiento local",
+            "Renta variable argentina: CEPU, TGS, Vista Energy para posicionamiento local",
         ],
     },
 }

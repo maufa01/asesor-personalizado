@@ -1523,6 +1523,79 @@ def _detect_overlaps(positions: list) -> list:
     return warnings
 
 
+_VOLATILE_ASSETS = {
+    "nvda", "tsla", "amd", "tsm", "shop", "baba", "pypl",
+    "meta", "qqq", "cepu", "tgs", "galicia", "bma", "ypf",
+}
+_LIQUID_SAFE = ["money_market", "mep", "lecap"]
+_ETF_IDS     = {"spy", "qqq", "vti", "iau", "gld", "eem"}
+
+
+def _adjust_for_experience(allocs: dict, experience: str) -> dict:
+    """
+    Principiantes sustituyen acciones individuales por ETFs o liquidez.
+    Solo actúa si el usuario declaró conocimiento cero o básico.
+    """
+    is_beginner = any(s in experience for s in [
+        "Prácticamente nada",
+        "Solo conozco el plazo fijo",
+    ])
+    if not is_beginner:
+        return allocs
+
+    individuals = {
+        k for k in allocs
+        if ASSET_INDEX.get(k, {}).get("category") in ("CEDEARs", "Acciones ARG")
+        and k not in _ETF_IDS
+    }
+    if not individuals:
+        return allocs
+
+    rescued = sum(allocs[k] for k in individuals)
+    adj = {k: v for k, v in allocs.items() if k not in individuals}
+
+    targets = [k for k in ("spy", "qqq", "vti") if k in adj] \
+           or [k for k in _LIQUID_SAFE if k in adj]
+
+    if targets:
+        share = rescued / len(targets)
+        for k in targets:
+            adj[k] = adj.get(k, 0) + share
+
+    total = sum(adj.values())
+    return {k: v / total for k, v in adj.items()} if total > 0 else allocs
+
+
+def _adjust_for_income_stability(allocs: dict, income: str) -> dict:
+    """
+    Ingresos inestables: sube liquidez recortando los activos más volátiles.
+    Irregulares → -25% de volátiles; Variables → -12%.
+    """
+    if "Irregulares o sin ingreso fijo" in income:
+        cut_pct = 0.25
+    elif "Varían bastante" in income:
+        cut_pct = 0.12
+    else:
+        return allocs
+
+    adj = dict(allocs)
+    rescued = 0.0
+    for k in _VOLATILE_ASSETS:
+        if k in adj and adj[k] > 0.05:
+            cut = adj[k] * cut_pct
+            adj[k] -= cut
+            rescued += cut
+
+    liquid_present = [k for k in _LIQUID_SAFE if k in adj]
+    if liquid_present and rescued > 0:
+        share = rescued / len(liquid_present)
+        for k in liquid_present:
+            adj[k] += share
+
+    total = sum(adj.values())
+    return {k: v / total for k, v in adj.items()} if total > 0 else allocs
+
+
 def _apply_overlap_exclusion(allocations: dict) -> dict:
     """Excluye activos que solapan con ETFs presentes en la cartera."""
     ids = set(allocations.keys())
@@ -1639,7 +1712,11 @@ def build_portfolio(profile: dict) -> dict:
                      or "6 meses" in profile.get("emergency_fund", "").lower())
     allocs = _adjust_for_emergency(allocs, has_emergency)
 
-    # ── 5. Filtros estructurales ──────────────────────────────────────────────
+    # ── 5. Ajustes por experiencia e ingresos ────────────────────────────────
+    allocs = _adjust_for_experience(allocs, profile.get("experience", ""))
+    allocs = _adjust_for_income_stability(allocs, profile.get("income_stability", ""))
+
+    # ── 6. Filtros estructurales ──────────────────────────────────────────────
     allocs = _filter_by_liquidity(allocs, risk, horizon)
     allocs = _apply_overlap_exclusion(allocs)
 

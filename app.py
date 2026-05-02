@@ -4,6 +4,8 @@ FinanzasIA — Asesor Financiero Inteligente
 
 import streamlit as st
 import streamlit.components.v1 as components
+from pathlib import Path
+from datetime import datetime
 from modules.ui_config import apply_custom_css, render_header, render_footer
 from modules.profiler import render_profiler
 from modules.portfolio import build_portfolio
@@ -85,6 +87,52 @@ def init_state():
 init_state()
 apply_custom_css()
 render_header()
+
+# ── Sidebar: frescura de scores y botón de actualización ──────────────────────
+def _score_age(path: str) -> str:
+    p = Path(path)
+    if not p.exists():
+        return None, "⚫ No encontrado"
+    delta = datetime.now() - datetime.fromtimestamp(p.stat().st_mtime)
+    days  = delta.days
+    hours = delta.seconds // 3600
+    if days == 0:
+        label = f"hace {hours}h" if hours > 0 else "hace menos de 1h"
+        icon  = "🟢"
+    elif days <= 3:
+        label = f"hace {days}d"
+        icon  = "🟢"
+    elif days <= 7:
+        label = f"hace {days}d"
+        icon  = "🟡"
+    else:
+        label = f"hace {days}d — desactualizado"
+        icon  = "🔴"
+    return days, f"{icon} {label}"
+
+with st.sidebar:
+    st.markdown("### ⚙️ Scores de mercado")
+    eq_days,   eq_label   = _score_age("finviz_scores.json")
+    bond_days, bond_label = _score_age("bond_scores.json")
+    st.markdown(f"**Equity / CEDEARs:** {eq_label}")
+    st.markdown(f"**Bonos ARG:** {bond_label}")
+    st.markdown("---")
+    st.caption("Los scores determinan qué activos entran a tu cartera y con qué peso.")
+    if st.button("🔄 Actualizar scores ahora", use_container_width=True):
+        with st.spinner("Actualizando scores de equity... (~2 min)"):
+            try:
+                from modules.finviz_scorer import run_and_save as _run_eq
+                _run_eq()
+            except Exception as e:
+                st.error(f"Error equity scorer: {e}")
+        with st.spinner("Actualizando scores de bonos..."):
+            try:
+                from modules.bond_scorer import run_and_save as _run_bonds
+                _run_bonds()
+            except Exception as e:
+                st.error(f"Error bond scorer: {e}")
+        st.success("✅ Scores actualizados")
+        st.rerun()
 
 step = st.session_state.step
 
