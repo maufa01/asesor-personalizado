@@ -1145,6 +1145,30 @@ def load_scores(path: str = "finviz_scores.json") -> dict:
         return {}
 
 
+def load_full_data(path: str = "finviz_scores.json") -> dict:
+    """
+    Devuelve {asset_id: {score, sector, bloques, ratios}} con toda la info de Finviz.
+    Vacío si no existe el archivo.
+    """
+    p = Path(path)
+    if not p.exists():
+        return {}
+    try:
+        data = json.loads(p.read_text())
+        return {
+            asset_id: {
+                "score":   entry.get("score", 0),
+                "sector":  entry.get("sector", "default"),
+                "bloques": entry.get("bloques", {}),
+                "ratios":  entry.get("ratios", {}),
+            }
+            for asset_id, entry in data.get("by_asset_id", {}).items()
+            if isinstance(entry, dict)
+        }
+    except Exception:
+        return {}
+
+
 def load_asset_sectors(path: str = "finviz_scores.json") -> dict:
     """
     Devuelve {asset_id: sector_framework} leyendo el campo 'sector' del JSON.

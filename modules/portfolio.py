@@ -8,6 +8,7 @@ from typing import List, Dict, Any
 from modules.finviz_scorer import (
     load_scores as load_equity_scores,
     load_asset_sectors,
+    load_full_data as load_equity_full,
     return_factor, vol_factor, MIN_SCORE_BY_RISK,
     apply_argentina_adjustment, SECTOR_MAP,
 )
@@ -1754,6 +1755,7 @@ def build_portfolio(profile: dict) -> dict:
     eq_scores      = load_equity_scores()    # Finviz → acciones y ETFs
     bond_scores    = load_bond_scores()      # bond_scorer → instrumentos de RF
     asset_sectors  = load_asset_sectors()    # asset_id → sector_framework
+    eq_full        = load_equity_full()      # bloques + ratios completos por activo
 
     # ── 2. Capa ARG: descuento regulatorio sobre scores de acciones locales ──
     if eq_scores:
@@ -1802,6 +1804,12 @@ def build_portfolio(profile: dict) -> dict:
         if asset_id in ASSET_INDEX and weight > 0.005:
             asset           = dict(ASSET_INDEX[asset_id])
             asset["weight"] = round(weight, 4)
+            # Adjuntar score y breakdown de bloques si existe en Finviz
+            if asset_id in eq_full:
+                fd = eq_full[asset_id]
+                asset["score"]   = fd["score"]
+                asset["bloques"] = fd["bloques"]
+                asset["ratios"]  = fd["ratios"]
             positions.append(asset)
 
     positions.sort(key=lambda x: x["weight"], reverse=True)
@@ -1809,7 +1817,7 @@ def build_portfolio(profile: dict) -> dict:
     # Detectar solapamientos para advertir al usuario
     overlaps = _detect_overlaps(positions)
 
-    # Métricas
+    # ── Métricas base ─────────────────────────────────────────────────────────
     expected_cagr = sum(p["weight"] * p["expected_return"] for p in positions)
     expected_vol  = sum(p["weight"] * p["volatility"]      for p in positions)
 
@@ -1822,18 +1830,50 @@ def build_portfolio(profile: dict) -> dict:
         sector_exposure[p["sub"]]        = sector_exposure.get(p["sub"], 0)        + p["weight"]
         currency_exposure[p["currency"]] = currency_exposure.get(p["currency"], 0) + p["weight"]
 
-    # % en pesos vs USD
     pesos_pct = sum(p["weight"] for p in positions if p["currency"] == "ARS") * 100
     usd_pct   = 100 - pesos_pct
 
-    # Nivel de diversificación
     n = len(positions)
-    if n >= 10:
-        diversification = "alta"
-    elif n >= 6:
-        diversification = "media"
+    diversification = "alta" if n >= 10 else ("media" if n >= 6 else "baja")
+
+    # ── Métricas cuantitativas avanzadas ──────────────────────────────────────
+    # Beta de portfolio: promedio ponderado de betas individuales.
+    # Activos sin beta (bonos, pesos) contribuyen con 0 (descorrelacionados del mercado).
+    beta_portfolio = 0.0
+    for p in positions:
+        beta_raw = p.get("ratios", {}).get("beta") if p.get("ratios") else None
+        if beta_raw is not None:
+            try:
+                beta_portfolio += p["weight"] * float(beta_raw)
+            except (TypeError, ValueError):
+                pass
+
+    # Sharpe ratio estimado: (retorno_esperado - tasa_libre_riesgo) / volatilidad
+    # Tasa libre de riesgo: rendimiento del T-Bill 3M EE.UU. (~4.5% anual, base USD)
+    _RISK_FREE = 0.045
+    sharpe_ratio = (
+        (expected_cagr - _RISK_FREE) / expected_vol
+        if expected_vol > 0 else 0.0
+    )
+
+    # Índice de Herfindahl-Hirschman (HHI): concentración de la cartera
+    # HHI = Σ w_i²  → 0 = diversificación perfecta, 1 = todo en un activo
+    # HHI < 0.15 = alta diversificación | 0.15–0.25 = moderada | > 0.25 = concentrada
+    hhi = sum(p["weight"] ** 2 for p in positions)
+    if hhi < 0.15:
+        hhi_label = "Alta diversificación"
+    elif hhi < 0.25:
+        hhi_label = "Diversificación moderada"
     else:
-        diversification = "baja"
+        hhi_label = "Cartera concentrada"
+
+    # Score promedio ponderado de los activos scorables
+    eq_score_total = sum(
+        p["weight"] * p.get("score", 0)
+        for p in positions if p.get("score", 0) > 0
+    )
+    eq_weight_total = sum(p["weight"] for p in positions if p.get("score", 0) > 0)
+    avg_score = round(eq_score_total / eq_weight_total) if eq_weight_total > 0 else None
 
     return {
         "risk_profile":        risk,
@@ -1850,4 +1890,10 @@ def build_portfolio(profile: dict) -> dict:
         "diversification":     diversification,
         "profile":             profile,
         "overlaps":            overlaps,
+        # Métricas cuantitativas
+        "beta_portfolio":      round(beta_portfolio, 2),
+        "sharpe_ratio":        round(sharpe_ratio, 2),
+        "hhi":                 round(hhi, 3),
+        "hhi_label":           hhi_label,
+        "avg_score":           avg_score,
     }

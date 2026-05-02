@@ -16,6 +16,7 @@ from modules.simulator import simulate_portfolio
 from modules.ai_advisor import get_ai_analysis, get_rebalancing_advice, chat_with_advisor
 from modules.glossary import render_glossary
 from modules.costo_no_invertir import render_cost_of_not_investing, render_cost_results
+from modules.methodology import render_methodology
 
 _SCORES_MAX_AGE_DAYS = 7   # umbral para auto-actualización
 
@@ -250,6 +251,12 @@ independientemente de su experiencia previa en el mercado de capitales.
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button("Iniciar Evaluación", key="start_btn", use_container_width=True):
         st.session_state.step = "profiling"
+        st.rerun()
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    if st.button("🎓 Ver Metodología del Sistema", key="method_btn", use_container_width=True):
+        st.session_state._prev_step = "intro"
+        st.session_state.step = "metodologia"
         st.rerun()
 
     st.markdown("""<p class="disclaimer">
@@ -495,6 +502,44 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
             unsafe_allow_html=True,
         )
 
+    # ── Métricas cuantitativas avanzadas ─────────────────────────────────────
+    _beta   = portfolio.get("beta_portfolio", 0)
+    _sharpe = portfolio.get("sharpe_ratio", 0)
+    _hhi    = portfolio.get("hhi", 0)
+    _hhi_lb = portfolio.get("hhi_label", "")
+    _avgsco = portfolio.get("avg_score")
+
+    _beta_color   = "#22c55e" if _beta < 1.0 else ("#f59e0b" if _beta < 1.3 else "#ef4444")
+    _sharpe_color = "#22c55e" if _sharpe >= 0.5 else ("#f59e0b" if _sharpe >= 0 else "#ef4444")
+    _hhi_color    = "#22c55e" if _hhi < 0.15 else ("#f59e0b" if _hhi < 0.25 else "#ef4444")
+
+    with st.expander("📐 Métricas cuantitativas del portafolio", expanded=False):
+        st.markdown(f"""<div class="metrics-grid">
+<div class="metric-card">
+  <div class="metric-label">Beta del portafolio</div>
+  <div class="metric-value" style="color:{_beta_color};">{_beta:.2f}</div>
+  <div class="metric-sub">Sensibilidad al mercado (1.0 = neutral)</div>
+</div>
+<div class="metric-card">
+  <div class="metric-label">Sharpe Ratio estimado</div>
+  <div class="metric-value" style="color:{_sharpe_color};">{_sharpe:.2f}</div>
+  <div class="metric-sub">Retorno ajustado por riesgo (rf = 4.5%)</div>
+</div>
+<div class="metric-card">
+  <div class="metric-label">Índice HHI (concentración)</div>
+  <div class="metric-value" style="color:{_hhi_color};">{_hhi:.3f}</div>
+  <div class="metric-sub">{_hhi_lb} — 0 = perfecto, 1 = todo en un activo</div>
+</div>
+{f'<div class="metric-card"><div class="metric-label">Score promedio ponderado</div><div class="metric-value" style="color:#a78bfa;">{_avgsco}/100</div><div class="metric-sub">Calidad fundamental de los activos scorables</div></div>' if _avgsco else ""}
+</div>""", unsafe_allow_html=True)
+
+        st.caption("Beta: promedio ponderado de betas individuales (Finviz). Sharpe: (CAGR − 4.5%) / volatilidad. HHI: Herfindahl-Hirschman Index.")
+
+        if st.button("🎓 Ver metodología completa", key="method_from_results"):
+            st.session_state._prev_step = "results"
+            st.session_state.step = "metodologia"
+            st.rerun()
+
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── Distribución + Evolución ──────────────────────────────────────────────
@@ -525,6 +570,46 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
     # ── Tabla de activos ──────────────────────────────────────────────────────
     st.markdown('<div class="section-title">📋 En qué está invertido su dinero</div>', unsafe_allow_html=True)
     render_allocation_table(portfolio, _disp_capital, currency_label=_disp_curr)
+
+    # ── Análisis fundamental por activo (para rector/presentación) ────────────
+    _scored = [p for p in portfolio["positions"] if p.get("score") and p.get("bloques")]
+    if _scored:
+        with st.expander(f"🔬 Análisis fundamental detallado ({len(_scored)} activos con score Finviz)", expanded=False):
+            st.caption("Score calculado sobre 5 bloques: Valuación (25) + Calidad (25) + Solvencia (20) + Crecimiento (20) + Cualitativo (10) = 100 pts")
+            for pos in sorted(_scored, key=lambda x: x.get("score", 0), reverse=True):
+                bloques = pos["bloques"]
+                ratios  = pos.get("ratios", {})
+                sc      = pos["score"]
+                rating_color = {"STRONG BUY": "#22c55e", "BUY": "#4fa3ff", "HOLD": "#f59e0b",
+                                "UNDERWEIGHT": "#f97316", "AVOID": "#ef4444"}.get(
+                    "STRONG BUY" if sc >= 85 else ("BUY" if sc >= 70 else ("HOLD" if sc >= 55 else ("UNDERWEIGHT" if sc >= 40 else "AVOID"))), "#94a3b8")
+                rating_label = "STRONG BUY" if sc >= 85 else ("BUY" if sc >= 70 else ("HOLD" if sc >= 55 else ("UNDERWEIGHT" if sc >= 40 else "AVOID")))
+
+                col_name, col_score, col_bars = st.columns([2, 1, 3])
+                with col_name:
+                    st.markdown(f"**{pos['name']}**  \n`{pos.get('ticker','')}`  \n_{pos.get('sector_framework', pos.get('sub',''))}_")
+                with col_score:
+                    st.markdown(f"<div style='font-size:1.8rem;font-weight:800;color:{rating_color};'>{sc}</div><div style='font-size:0.75rem;color:{rating_color};'>{rating_label}</div>", unsafe_allow_html=True)
+                with col_bars:
+                    b = bloques
+                    st.markdown(f"""
+<div style='font-size:0.8rem;line-height:1.8;'>
+<span style='opacity:0.6;'>Valuación</span> <b>{b.get('valuacion',0)}/25</b> &nbsp;
+<span style='opacity:0.6;'>Calidad</span> <b>{b.get('calidad',0)}/25</b> &nbsp;
+<span style='opacity:0.6;'>Solvencia</span> <b>{b.get('solvencia',0)}/20</b> &nbsp;
+<span style='opacity:0.6;'>Crecimiento</span> <b>{b.get('crecimiento',0)}/20</b> &nbsp;
+<span style='opacity:0.6;'>Cualitativo</span> <b>{b.get('cualitativo',0)}/10</b>
+</div>""", unsafe_allow_html=True)
+                    # Ratios clave en una línea
+                    r_items = []
+                    if ratios.get("forward_pe"):    r_items.append(f"P/E fwd: {ratios['forward_pe']:.1f}×")
+                    if ratios.get("roe"):           r_items.append(f"ROE: {ratios['roe']:.1f}%")
+                    if ratios.get("margen_neto"):   r_items.append(f"Margen: {ratios['margen_neto']:.1f}%")
+                    if ratios.get("eps_cagr_5y"):   r_items.append(f"EPS CAGR 5y: {ratios['eps_cagr_5y']:.1f}%")
+                    if ratios.get("deuda_equity"):  r_items.append(f"D/E: {ratios['deuda_equity']:.2f}×")
+                    if r_items:
+                        st.caption(" · ".join(r_items))
+                st.divider()
 
     # ── Advertencias de solapamiento ──────────────────────────────────────────
     overlaps = portfolio.get("overlaps", [])
@@ -801,5 +886,11 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
 # ══════════════════════════════════════════════════════════════════════════════
 elif step == "glosario":
     render_glossary()
+
+# ══════════════════════════════════════════════════════════════════════════════
+# METODOLOGÍA
+# ══════════════════════════════════════════════════════════════════════════════
+elif step == "metodologia":
+    render_methodology()
 
 render_footer()
