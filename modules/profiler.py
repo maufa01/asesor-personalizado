@@ -162,7 +162,7 @@ PROFILES = {
         "first_steps": [
             "Comience con un Fondo Money Market en IOL o Mercado Pago (rescate en el día)",
             "Adquiera Dólar MEP para dolarizar una parte de su capital",
-            "Considere bonos CER (TX26) para protegerse de la inflación en pesos",
+            "Incorpore ONs corporativas en USD (Pampa Energía, TGS) para renta dolarizada",
         ],
     },
     "moderado": {
@@ -184,9 +184,9 @@ PROFILES = {
             "📉 Puede haber meses negativos, pero el largo plazo es positivo",
         ],
         "first_steps": [
-            "Establezca una base en fondos conservadores (money market + bonos) para liquidez",
-            "Incorpore CEDEARs del S&P 500 (SPY) para exposición al mercado americano en pesos",
-            "Sume bonos en dólares (ONs corporativas) para renta en USD",
+            "Adquiera Dólar MEP y sume ONs corporativas en USD para la parte dolarizada",
+            "Incorpore el CEDEAR del S&P 500 (SPY) para crecimiento en pesos al tipo de cambio",
+            "Reserve un fondo de liquidez en Money Market para emergencias",
         ],
     },
     "estable": {
@@ -232,9 +232,9 @@ PROFILES = {
             "🧩 Incluye tecnología global, mercados emergentes y acciones argentinas de alto potencial",
         ],
         "first_steps": [
-            "CEDEARs de tecnología: Nvidia, Meta, Amazon, MercadoLibre",
-            "ETF QQQ o SPY para exposición diversificada al mercado americano",
-            "Renta variable argentina: CEPU, TGS, Vista Energy para posicionamiento local",
+            "Adquiera Dólar MEP como base dolarizada antes de comprar renta variable",
+            "Incorpore el ETF QQQ para acceso a tecnología global desde Argentina",
+            "Agregue acciones argentinas de alto potencial: YPF, Galicia, Vista Energy",
         ],
     },
 }
