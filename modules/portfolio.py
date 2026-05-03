@@ -1843,12 +1843,12 @@ PORTFOLIO_TEMPLATES = {
         "description": "Prioriza la seguridad y la liquidez. Ideal para quien no quiere arriesgar su capital.",
         "summary": "Su cartera está diseñada para preservar el valor del capital con el menor riesgo posible. Dólares legales, bonos de empresas sólidas y algo de acciones globales para crecimiento moderado.",
         "allocations": {
-            "money_market": 0.20,   # liquidez ARS, retiro el mismo día
-            "lecap":        0.15,   # pesos a tasa fija del Tesoro
-            "mep":          0.25,   # dólares legales por la bolsa
+            "money_market": 0.12,   # liquidez ARS
+            "lecap":        0.07,   # pesos a tasa fija del Tesoro
+            "mep":          0.18,   # dólares legales por la bolsa
             "on_corp":      0.18,   # bonos de empresas privadas en USD
-            "al30":         0.12,   # bono soberano argentino en USD
-            "spy":          0.10,   # algo de mercado global
+            "iau":          0.20,   # oro — cobertura global
+            "spy":          0.25,   # mercado global
         },
     },
     "estable": {
@@ -1857,12 +1857,12 @@ PORTFOLIO_TEMPLATES = {
         "description": "Mejor que un plazo fijo, sin sustos. Para quien quiere protegerse de la inflación con algo de crecimiento.",
         "summary": "Su cartera está diseñada para superar al plazo fijo sin exponerse a riesgos significativos. Combina dólares seguros, bonos de empresas sólidas y exposición moderada a acciones globales.",
         "allocations": {
-            "mep":          0.25,   # dólares legales, base sólida
-            "on_corp":      0.20,   # renta fija en USD de empresas privadas
-            "money_market": 0.15,   # liquidez en pesos, retiro el mismo día
-            "cer_bond":     0.15,   # cobertura contra la inflación
-            "al30":         0.10,   # bono soberano en USD
-            "spy":          0.15,   # exposición al mercado global
+            "mep":          0.18,   # dólares legales, base sólida
+            "on_corp":      0.18,   # renta fija en USD de empresas privadas
+            "money_market": 0.10,   # liquidez en pesos
+            "lecap":        0.10,   # pesos a tasa fija
+            "spy":          0.25,   # exposición al mercado global
+            "iau":          0.19,   # oro — cobertura global
         },
     },
     "moderado": {
@@ -1871,13 +1871,12 @@ PORTFOLIO_TEMPLATES = {
         "description": "Equilibrio entre crecimiento y protección. Mezcla inversiones seguras con algo de riesgo controlado.",
         "summary": "Su cartera equilibra estabilidad y crecimiento. Una base sólida en activos seguros complementada con exposición a acciones globales que potencian el rendimiento a mediano plazo.",
         "allocations": {
-            "spy":          0.22,   # columna vertebral: 500 mayores empresas de EE.UU.
-            "money_market": 0.15,   # liquidez en pesos
-            "mep":          0.15,   # dólares base
-            "on_corp":      0.13,   # renta fija en USD
-            "brk":          0.12,   # Berkshire: el holding más diversificado del mundo
-            "qqq":          0.10,   # las 100 mayores empresas tech de EE.UU.
-            "al30":         0.13,   # bono soberano argentino en USD
+            "spy":          0.28,   # columna vertebral: 500 mayores empresas de EE.UU.
+            "money_market": 0.10,   # liquidez en pesos
+            "mep":          0.12,   # dólares base
+            "on_corp":      0.12,   # renta fija en USD
+            "qqq":          0.22,   # las 100 mayores empresas tech de EE.UU.
+            "nvda":         0.16,   # posición equity global top-score
         },
     },
     "agresivo": {
@@ -1912,50 +1911,54 @@ PORTFOLIO_TEMPLATES = {
 
 _BUCKET_DEFS: Dict[str, list] = {
     "conservador": [
-        # 6 posiciones máximo
-        {"id": "liquidez",   "target": 0.20, "max_pos": 1, "score_src": None,
+        # 7 posiciones — 35-38% ARG (mm+rf_pesos+rf_usd), resto global
+        {"id": "liquidez",   "target": 0.12, "max_pos": 1, "score_src": None,
          "candidates": ["money_market"]},
-        {"id": "cobertura",  "target": 0.24, "max_pos": 1, "score_src": None,
+        {"id": "cobertura",  "target": 0.18, "max_pos": 1, "score_src": None,
          "candidates": ["mep"]},
-        {"id": "rf_pesos",   "target": 0.14, "max_pos": 1, "score_src": "bond",
+        {"id": "rf_pesos",   "target": 0.07, "max_pos": 1, "score_src": "bond",
          "candidates": ["lecap", "cer_bond"]},
-        {"id": "rf_usd",     "target": 0.31, "max_pos": 2, "score_src": "bond",
+        {"id": "rf_usd",     "target": 0.18, "max_pos": 2, "score_src": "bond",
          "candidates": ["on_corp", "on_ypf", "on_tecpetrol",
                          "on_tgs", "on_macro", "al30", "gd30", "al35", "gd35"]},
-        {"id": "globales",   "target": 0.11, "max_pos": 1, "score_src": "equity",
+        {"id": "globales",   "target": 0.25, "max_pos": 1, "score_src": "equity",
          "candidates": ["spy", "vti", "iau", "gld"]},
+        {"id": "defensivo",  "target": 0.20, "max_pos": 1, "score_src": "equity",
+         "candidates": ["iau", "gld"]},
     ],
     "estable": [
-        # 6 posiciones
-        {"id": "liquidez",  "target": 0.15, "max_pos": 1, "score_src": None,
+        # 7 posiciones — ~36% ARG, resto global+oro
+        {"id": "liquidez",  "target": 0.10, "max_pos": 1, "score_src": None,
          "candidates": ["money_market"]},
-        {"id": "cobertura", "target": 0.25, "max_pos": 1, "score_src": None,
+        {"id": "cobertura", "target": 0.18, "max_pos": 1, "score_src": None,
          "candidates": ["mep"]},
-        {"id": "rf",        "target": 0.45, "max_pos": 3, "score_src": "bond",
+        {"id": "rf",        "target": 0.28, "max_pos": 2, "score_src": "bond",
          "candidates": ["lecap", "cer_bond",
                          "on_corp", "on_ypf", "on_tecpetrol", "on_tgs", "on_macro",
                          "al30", "gd30", "al35", "gd35"]},
-        {"id": "globales",  "target": 0.15, "max_pos": 1, "score_src": "equity",
-         "candidates": ["spy", "vti", "qqq", "iau"]},
+        {"id": "globales",  "target": 0.25, "max_pos": 2, "score_src": "equity",
+         "candidates": ["spy", "vti", "qqq", "iau", "gld"]},
+        {"id": "defensivo", "target": 0.19, "max_pos": 1, "score_src": "equity",
+         "candidates": ["iau", "gld"]},
     ],
     "moderado": [
-        # 7 posiciones
-        {"id": "liquidez",      "target": 0.12, "max_pos": 1, "score_src": None,
+        # 7 posiciones — ~38% ARG
+        {"id": "liquidez",      "target": 0.10, "max_pos": 1, "score_src": None,
          "candidates": ["money_market"]},
-        {"id": "cobertura",     "target": 0.15, "max_pos": 1, "score_src": None,
+        {"id": "cobertura",     "target": 0.12, "max_pos": 1, "score_src": None,
          "candidates": ["mep"]},
-        {"id": "rf_usd",        "target": 0.23, "max_pos": 1, "score_src": "bond",
+        {"id": "rf_usd",        "target": 0.12, "max_pos": 1, "score_src": "bond",
          "candidates": ["on_corp", "on_ypf", "on_tgs", "on_macro",
                          "al30", "gd30", "al35", "gd35"]},
-        {"id": "etf_global",    "target": 0.22, "max_pos": 2, "score_src": "equity",
+        {"id": "etf_global",    "target": 0.28, "max_pos": 2, "score_src": "equity",
          "candidates": ["spy", "qqq", "vti"]},
-        {"id": "equity_global", "target": 0.18, "max_pos": 1, "score_src": "equity",
+        {"id": "equity_global", "target": 0.22, "max_pos": 1, "score_src": "equity",
          "candidates": ["nvda", "amd", "msft", "meta", "googl", "amzn", "aapl",
                          "tsm", "v", "ma", "unh", "lly", "cost", "nflx", "orcl",
                          "crm", "qcom", "pg", "pm", "cat",
                          "wfc", "c", "axp", "abbv", "amgn", "avgo", "asml", "ge", "rtx", "lmt", "de", "cop",
                          "now", "crwd", "panw", "vrtx", "regn", "low", "tjx", "bkng", "mar", "vz", "t", "hon", "ups", "blk"]},
-        {"id": "equity_arg",    "target": 0.10, "max_pos": 1, "score_src": "equity",
+        {"id": "equity_arg",    "target": 0.16, "max_pos": 1, "score_src": "equity",
          "candidates": ["ypf", "galicia", "bma", "tgs", "cepu", "pampa",
                          "vist", "meli", "alua", "irsa",
                          "edn", "come", "metr", "moli", "harg", "txar"]},

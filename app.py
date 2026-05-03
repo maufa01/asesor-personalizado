@@ -627,11 +627,16 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── Advertencia de concentración ARG ─────────────────────────────────────
+    # mep excluido: el resultado es USD — riesgo argentino mínimo
+    # on_corp incluidos: riesgo corporativo argentino aunque paguen en USD
     _ARG_ASSET_IDS = {
         "lecap", "cer_bond", "money_market", "plazo_fijo", "fci_t0", "cash_pesos",
-        "fci_renta_pesos", "mep",
+        "fci_renta_pesos",
         "al30", "gd30", "al35", "gd35", "gd38",
-        "galicia", "ypf", "bbar", "pamp", "tgsu", "alua", "txar", "teco2", "vist", "loma",
+        "on_corp", "on_ypf", "on_tecpetrol", "on_tgs", "on_macro",
+        "galicia", "ypf", "bbar", "pampa", "tgs", "cepu", "bma", "supv",
+        "alua", "txar", "teco2", "vist", "loma", "irsa", "cres",
+        "edn", "come", "valo", "harg", "txar", "mirg", "moli", "cvh", "metr",
     }
     _arg_exposure = sum(p["weight"] for p in portfolio["positions"] if p["id"] in _ARG_ASSET_IDS)
     if _arg_exposure > 0.40:
