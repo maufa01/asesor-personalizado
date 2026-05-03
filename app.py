@@ -10,11 +10,11 @@ from pathlib import Path
 from datetime import datetime
 from modules.ui_config import apply_custom_css, render_header, render_footer
 from modules.profiler import render_profiler
-from modules.portfolio import build_portfolio, generate_risk_scenarios
+from modules.portfolio import build_portfolio
 from modules.charts import render_pie_chart, render_evolution_chart, render_bar_simulation, render_allocation_table
 from modules.simulator import simulate_portfolio, comparar_vs_alternativas, proyectar_con_aportes
 from modules.backtest import run_backtest
-from modules.ai_advisor import get_ai_analysis, get_rebalancing_advice, chat_with_advisor
+from modules.ai_advisor import chat_with_advisor
 from modules.glossary import render_glossary, tip, wrap_terms as _wrap_terms
 
 import html as _html_lib
@@ -157,7 +157,6 @@ def init_state():
         "profile":               None,
         "portfolio":             None,
         "simulation":            None,
-        "ai_analysis":           None,
         "chat_history":          [],
         "answers":               {},
         "theme":                 "dark",
@@ -170,43 +169,6 @@ def init_state():
 
 
 init_state()
-
-
-def _render_risk_scenarios_tab(risk_scenarios: list) -> None:
-    if not risk_scenarios:
-        st.info("No se identificaron riesgos específicos para esta cartera en el contexto de mercado actual.")
-        return
-    st.markdown(
-        '<p style="font-size:0.88rem;color:#94a3b8;margin-bottom:1rem;">'
-        'Estos escenarios son relevantes para <strong>esta cartera en particular</strong> '
-        'según su composición actual y el contexto de mercado. '
-        'No son predicciones — son riesgos a tener presentes al tomar la decisión de invertir.'
-        '</p>',
-        unsafe_allow_html=True,
-    )
-    _sev_colors = {"bajo": "#60a5fa", "medio": "#f59e0b", "alto": "#ef4444"}
-    _sev_labels = {"bajo": "BAJO", "medio": "MEDIO", "alto": "ALTO"}
-    for _sc in risk_scenarios:
-        _sev = _sc.get("severity", "medio")
-        _col = _sev_colors.get(_sev, "#f59e0b")
-        _lbl = _sev_labels.get(_sev, "MEDIO")
-        _sc_title = _safe_with_tips(_sc.get("title", ""))
-        _sc_body  = _safe_with_tips(_sc.get("body", ""))
-        _sc_tip   = _safe_with_tips(_sc.get("tip", ""))
-        _sc_icon  = _html_lib.escape(_sc.get("icon", "🔵"))
-        # Usa clases CSS .risk-scenario-* (responsive). Solo el color de severidad
-        # va inline porque depende del valor (bajo/medio/alto).
-        st.markdown(f"""<div class="risk-scenario-card" style="border-left:3px solid {_col};">
-  <div class="risk-scenario-header">
-    <span class="risk-scenario-icon">{_sc_icon}</span>
-    <span class="risk-scenario-title">{_sc_title}</span>
-    <span class="risk-scenario-sev-badge"
-          style="background:{_col}22;color:{_col};border:1px solid {_col}44;">{_lbl}</span>
-  </div>
-  <p class="risk-scenario-body">{_sc_body}</p>
-  <p class="risk-scenario-tip"><strong>Mitigación:</strong> {_sc_tip}</p>
-</div>""", unsafe_allow_html=True)
-    st.caption("Análisis basado en la composición de la cartera y datos de mercado actuales. No constituye asesoramiento financiero regulado.")
 
 
 # ── Auto-actualización de scores (una sola vez por sesión) ───────────────────
@@ -427,7 +389,7 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
         with col_b2:
             if st.button("Recalcular", key="recalc_btn", use_container_width=True):
                 st.session_state.refresh_banner_dismissed = True
-                keys_to_clear = ["portfolio", "simulation", "ai_analysis", "chat_history", "show_celebration"]
+                keys_to_clear = ["portfolio", "simulation", "chat_history", "show_celebration"]
                 for k in keys_to_clear:
                     st.session_state[k] = None if k != "chat_history" else []
                 st.session_state.step = "profiling"
@@ -827,9 +789,6 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # ── Riesgos (se muestran en pestaña de Análisis IA) ──────────────────────
-    _risk_scenarios = generate_risk_scenarios(portfolio, portfolio.get("market_context"))
-
     # ── Simulaciones ─────────────────────────────────────────────────────────
     with st.expander("📊 Simulaciones: ¿qué pasa con su dinero?", expanded=False):
         _sim_tab1, _sim_tab2 = st.tabs(["📉 Sin invertir", "💰 Aporte mensual"])
@@ -988,68 +947,120 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # ── Análisis IA ───────────────────────────────────────────────────────────
-    st.markdown('<div class="section-title">💬 Análisis Profesional</div>', unsafe_allow_html=True)
+    # ══════════════════════════════════════════════════════════════════════════
+    # MÓDULO UNIFICADO: HABLÁ CON LUCAS
+    # Reemplaza al "Análisis Profesional" con tabs y al chat "Consultas al Asesor"
+    # ══════════════════════════════════════════════════════════════════════════
+    st.markdown('<div id="chat-section"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="lucas-card">', unsafe_allow_html=True)
 
-    if st.session_state.ai_analysis:
-        col_ai1, col_ai2 = st.columns([3, 1])
-        with col_ai2:
-            if st.button("🗑️ Limpiar análisis", key="clear_ai", use_container_width=True):
-                st.session_state.ai_analysis = None
-                st.rerun()
-
-        analysis = st.session_state.ai_analysis
-        tabs = st.tabs(["📝 Por qué esta cartera", "⚠️ Alertas de riesgo", "🔄 Cuándo rebalancear", "💡 Consejos", "🎯 Riesgos"])
-
-        with tabs[0]:
-            st.markdown(f'<div class="ai-response">{analysis["justification"]}</div>', unsafe_allow_html=True)
-        with tabs[1]:
-            alerts = analysis.get("alerts", [])
-            if alerts:
-                for alert in alerts:
-                    severity = alert.get("severity", "medium")
-                    icon = {"high": "🔴", "medium": "🟡", "low": "🟢"}.get(severity, "🔵")
-                    _alert_title = _safe_with_tips(alert.get("title", ""))
-                    _alert_msg   = _safe_with_tips(alert.get("message", ""))
-                    st.markdown(f"""<div class="alert-card alert-{severity}">
-<span class="alert-icon">{icon}</span>
-<div><strong>{_alert_title}</strong><br><span>{_alert_msg}</span></div>
-</div>""", unsafe_allow_html=True)
-            else:
-                st.success("✅ No se detectaron alertas de riesgo significativas.")
-        with tabs[2]:
-            st.markdown(f'<div class="ai-response">{analysis["rebalancing"]}</div>', unsafe_allow_html=True)
-        with tabs[3]:
-            st.markdown(f'<div class="ai-response">{analysis["tips"]}</div>', unsafe_allow_html=True)
-        with tabs[4]:
-            _render_risk_scenarios_tab(_risk_scenarios)
-    else:
-        _empty_tabs = st.tabs(["📝 Por qué esta cartera", "⚠️ Alertas de riesgo", "🔄 Cuándo rebalancear", "💡 Consejos", "🎯 Riesgos"])
-        with _empty_tabs[4]:
-            _render_risk_scenarios_tab(_risk_scenarios)
-        with _empty_tabs[0]:
-            st.markdown("""<div class="ai-empty-state">
-<div class="ai-empty-icon">✨</div>
-<p class="ai-empty-title">El análisis profesional de su cartera está disponible</p>
-<div class="ai-empty-bullets">
-<div class="ai-bullet">✓ Por qué esta cartera se adapta a su perfil</div>
-<div class="ai-bullet">✓ Qué hacer cuando esté listo para invertir</div>
-<div class="ai-bullet">✓ Alertas sobre riesgos que debe conocer</div>
-</div>
+    # Header con avatar + título
+    st.markdown("""<div class="lucas-header">
+  <div class="lucas-avatar">💬</div>
+  <div class="lucas-title-wrap">
+    <h3 class="lucas-title">Hablá con Lucas</h3>
+    <p class="lucas-subtitle">Tu asesor financiero IA</p>
+  </div>
 </div>""", unsafe_allow_html=True)
 
-        st.markdown('<div class="ai-cta-marker"></div>', unsafe_allow_html=True)
+    chat_history = st.session_state.chat_history
 
-        _, col_cta, _ = st.columns([1, 2, 1])
-        with col_cta:
-            run_ai = st.button("Generar Análisis",
-                               key="run_ai", use_container_width=True)
+    # Si el chat está vacío, mostrar bienvenida personalizada
+    if not chat_history:
+        _profile_label_display = {
+            "conservador": "conservadora",
+            "estable":     "balanceada",
+            "moderado":    "moderada",
+            "agresivo":    "agresiva",
+        }.get(profile.get("risk_profile", ""), profile.get("risk_profile", ""))
+        _horizonte = profile.get("horizon", 5)
+        _h_unit = "año" if _horizonte == 1 else "años"
+        _capital_str = f"{_disp_prefix}{_disp_capital:,.0f}{_disp_suffix}"
+        st.markdown(f"""<div class="lucas-welcome">
+  ¡Hola! Vi que armamos para vos una cartera <strong>{_profile_label_display}</strong>
+  de <strong>{_capital_str}</strong> con horizonte a <strong>{_horizonte} {_h_unit}</strong>.
+  Puedo ayudarte a entender por qué te sugerimos estos activos, qué tener en cuenta,
+  o cualquier duda sobre cómo empezar a invertir.
+</div>""", unsafe_allow_html=True)
 
-        if run_ai:
-            with st.spinner("Generando análisis profesional..."):
-                analysis = get_ai_analysis(profile, portfolio)
-                st.session_state.ai_analysis = analysis
-                st.rerun()
+    # Render del historial (si hay)
+    if chat_history:
+        import html as _html
+        for msg in chat_history:
+            is_user = msg["role"] == "user"
+            align   = "chat-user" if is_user else "chat-advisor"
+            label   = "Usted" if is_user else "Lucas · Asesor IA"
+            safe_content = _html.escape(msg["content"]).replace("\n", "<br>")
+            st.markdown(
+                f'<div class="chat-bubble {align}"><div class="chat-label">{label}</div>'
+                f'<div class="chat-text">{safe_content}</div></div>',
+                unsafe_allow_html=True,
+            )
+
+    # Chips de preguntas pre-armadas (8 preguntas, grid 2/3 cols responsive)
+    _suggested_input = None
+    _chips_label = "Estas son las preguntas más comunes:" if not chat_history else "¿Querés explorar otra cosa?"
+    st.markdown(f'<p class="lucas-chips-label">{_chips_label}</p>', unsafe_allow_html=True)
+    st.markdown('<div class="lucas-chips-block">', unsafe_allow_html=True)
+    _chips = [
+        "¿Por qué me sugeriste estos activos?",
+        "¿Qué cosas debo tener en cuenta?",
+        "¿Cuándo debería revisar mi cartera?",
+        "Dame consejos concretos para mi caso",
+        "¿Qué puede salir mal?",
+        "¿Qué hago si necesito el dinero antes?",
+        "¿Cómo abro cuenta en un broker?",
+        "¿Cuánto pago de impuestos?",
+    ]
+    # Layout responsive: 2 cols en mobile (default), 3 en desktop con weights iguales.
+    # Streamlit no soporta media queries en columns, así que usamos siempre 3 cols
+    # en desktop y CSS media query maneja la apariencia en mobile.
+    for _row_start in range(0, len(_chips), 3):
+        _row = _chips[_row_start:_row_start + 3]
+        _cols = st.columns(len(_row))
+        for i, q in enumerate(_row):
+            with _cols[i]:
+                if st.button(q, key=f"lucas_chip_{_row_start + i}", use_container_width=True):
+                    _suggested_input = q
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # Input libre
+    st.markdown('<p class="lucas-divider">o escribí tu propia pregunta</p>', unsafe_allow_html=True)
+    with st.form("lucas_form", clear_on_submit=True):
+        col_inp, col_btn = st.columns([5, 1])
+        with col_inp:
+            user_input = st.text_input(
+                "Pregunta",
+                placeholder="Escribí lo que quieras saber sobre tu cartera o cómo invertir",
+                label_visibility="collapsed",
+            )
+        with col_btn:
+            send = st.form_submit_button("Enviar", use_container_width=True)
+
+    # Procesar input desde chip o form
+    _final_input = _suggested_input or (user_input.strip() if send and user_input.strip() else None)
+    if _final_input:
+        with st.spinner("Lucas está pensando tu respuesta..."):
+            answer = chat_with_advisor(_final_input, chat_history, profile, portfolio)
+        st.session_state.chat_history.append({"role": "user",      "content": _final_input})
+        st.session_state.chat_history.append({"role": "assistant", "content": answer})
+        st.rerun()
+
+    # Disclaimer al pie del chat (una sola vez)
+    st.markdown("""<p class="lucas-footer-note">
+  Lucas es un asistente IA con fines educativos.
+  No reemplaza el asesoramiento de un profesional matriculado por la CNV.
+</p>""", unsafe_allow_html=True)
+
+    # Link discreto para empezar de nuevo (solo si hay historial)
+    if chat_history:
+        st.markdown('<div class="lucas-restart">', unsafe_allow_html=True)
+        if st.button("¿Empezar de nuevo?", key="lucas_restart"):
+            st.session_state.chat_history = []
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)  # cierra .lucas-card
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -1130,77 +1141,6 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
     cuenta de los usuarios · Fines exclusivamente educativos.</p>
   </div>
 </div>""", unsafe_allow_html=True)
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    # ── Chat con el asesor ────────────────────────────────────────────────────
-    st.markdown('<div id="chat-section"></div>', unsafe_allow_html=True)
-    st.markdown('<div class="section-title">💬 Consultas al Asesor</div>', unsafe_allow_html=True)
-
-    chat_history = st.session_state.chat_history
-
-    if chat_history:
-        import html as _html
-        for msg in chat_history:
-            is_user = msg["role"] == "user"
-            align   = "chat-user" if is_user else "chat-advisor"
-            label   = "Usted" if is_user else "Lucas · Asesor IA"
-            # Escapar HTML para evitar que asteriscos, < o > rompan el bubble.
-            # Convertir saltos de línea a <br> para preservar formato del LLM.
-            safe_content = _html.escape(msg["content"]).replace("\n", "<br>")
-            st.markdown(
-                f'<div class="chat-bubble {align}"><div class="chat-label">{label}</div>'
-                f'<div class="chat-text">{safe_content}</div></div>',
-                unsafe_allow_html=True,
-            )
-
-    # ── Sugerencias de preguntas frecuentes (solo si el chat está vacío) ──────
-    _suggested_input = None
-    if not chat_history:
-        st.markdown(
-            '<p style="font-size:0.82rem;color:#94a3b8;margin:0 0 8px;">'
-            '👋 Hola, soy Lucas. Si querés, te ayudo con alguna de estas dudas comunes:'
-            '</p>',
-            unsafe_allow_html=True,
-        )
-        _suggestions = [
-            "¿Por qué me sugeriste estos activos?",
-            "Explicame mi cartera en 30 segundos",
-            "¿Qué pasa si necesito el dinero antes de tiempo?",
-            "¿Es muy riesgoso para mí?",
-        ]
-        _cols = st.columns(len(_suggestions))
-        for i, q in enumerate(_suggestions):
-            with _cols[i]:
-                if st.button(q, key=f"sugg_q_{i}", use_container_width=True):
-                    _suggested_input = q
-
-    with st.form("chat_form", clear_on_submit=True):
-        col_inp, col_btn = st.columns([5, 1])
-        with col_inp:
-            user_input = st.text_input(
-                "Pregunta",
-                placeholder="Escribí cualquier duda sobre tu cartera o sobre cómo invertir",
-                label_visibility="collapsed",
-            )
-        with col_btn:
-            send = st.form_submit_button("Enviar", use_container_width=True)
-
-    # Procesar input desde sugerencia o desde el form
-    _final_input = _suggested_input or (user_input.strip() if send and user_input.strip() else None)
-    if _final_input:
-        with st.spinner("Lucas está pensando tu respuesta..."):
-            answer = chat_with_advisor(_final_input, chat_history, profile, portfolio)
-        st.session_state.chat_history.append({"role": "user",      "content": _final_input})
-        st.session_state.chat_history.append({"role": "assistant", "content": answer})
-        st.rerun()
-
-    if chat_history:
-        if st.button("🗑️ Limpiar chat", key="clear_chat"):
-            st.session_state.chat_history = []
-            st.rerun()
-
-    st.markdown("<br>", unsafe_allow_html=True)
 
     # ── Glosario CTA ──────────────────────────────────────────────────────────
     st.markdown("""<div class="glosario-cta">

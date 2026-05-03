@@ -2448,6 +2448,143 @@ details.cat-exp[open] > summary .cat-l1-card { background: #f1f5f9 !important; b
     .personal-msg p { font-size: 0.78rem; }
 }
 
+/* ── Hablá con Lucas: módulo unificado ──────────────────────── */
+.lucas-card {
+    background: linear-gradient(180deg, rgba(79,163,255,0.04), rgba(79,163,255,0.01));
+    border: 1px solid rgba(79,163,255,0.18);
+    border-radius: 14px;
+    padding: 20px 22px 16px;
+    margin: 0 0 1.2rem;
+}
+.lucas-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 4px;
+}
+.lucas-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4fa3ff, #38bdf8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 14px rgba(79,163,255,0.25);
+}
+.lucas-title-wrap { flex: 1; min-width: 0; }
+.lucas-title {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-1);
+    margin: 0;
+    letter-spacing: -0.01em;
+}
+.lucas-subtitle {
+    font-size: 0.78rem;
+    color: var(--text-3);
+    margin: 2px 0 0;
+}
+.lucas-welcome {
+    background: rgba(79,163,255,0.06);
+    border-left: 3px solid rgba(79,163,255,0.5);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin: 14px 0 6px;
+    font-size: 0.88rem;
+    color: var(--text-2);
+    line-height: 1.6;
+}
+.lucas-welcome strong { color: var(--text-1); font-weight: 600; }
+.lucas-chips-label {
+    font-size: 0.78rem;
+    color: var(--text-3);
+    margin: 14px 0 8px;
+    font-weight: 500;
+}
+/* Los chips usan .stButton dentro de .lucas-chips-block — los reestilamos */
+.lucas-chips-block .stButton > button {
+    background: rgba(79,163,255,0.08) !important;
+    border: 1px solid rgba(79,163,255,0.22) !important;
+    color: #93c5fd !important;
+    font-size: 0.82rem !important;
+    font-weight: 500 !important;
+    padding: 0.6rem 0.9rem !important;
+    text-align: left !important;
+    box-shadow: none !important;
+    height: auto !important;
+    min-height: 44px;
+    line-height: 1.35 !important;
+    white-space: normal !important;
+    letter-spacing: 0 !important;
+}
+.lucas-chips-block .stButton > button:hover {
+    background: rgba(79,163,255,0.15) !important;
+    border-color: rgba(79,163,255,0.4) !important;
+    transform: none !important;
+    box-shadow: 0 2px 8px rgba(79,163,255,0.15) !important;
+}
+.lucas-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 18px 0 10px;
+    color: var(--text-3);
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+.lucas-divider::before,
+.lucas-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: rgba(148,163,184,0.18);
+}
+.lucas-footer-note {
+    font-size: 0.72rem;
+    color: var(--text-3);
+    text-align: center;
+    margin: 14px 0 0;
+    font-style: italic;
+    line-height: 1.55;
+}
+.lucas-restart {
+    text-align: center;
+    margin: 8px 0 0;
+}
+.lucas-restart .stButton > button {
+    background: transparent !important;
+    border: none !important;
+    color: var(--text-3) !important;
+    font-size: 0.74rem !important;
+    text-decoration: underline !important;
+    padding: 4px 0 !important;
+    width: auto !important;
+    box-shadow: none !important;
+    min-height: 0 !important;
+}
+.lucas-restart .stButton > button:hover {
+    color: #ef4444 !important;
+    background: transparent !important;
+    transform: none !important;
+}
+@media (max-width: 640px) {
+    .lucas-card { padding: 14px 16px 12px; }
+    .lucas-avatar { width: 36px; height: 36px; font-size: 1.15rem; }
+    .lucas-title { font-size: 1rem; }
+    .lucas-subtitle { font-size: 0.72rem; }
+    .lucas-welcome { font-size: 0.8rem; padding: 10px 12px; }
+    .lucas-chips-block .stButton > button {
+        font-size: 0.74rem !important;
+        padding: 0.5rem 0.7rem !important;
+        min-height: 40px;
+    }
+}
+
 /* ── Chat form: ocultar helper "Press Enter" + borde verde ──── */
 /* Streamlit muestra "Press Enter to submit form" debajo del input.
    Cubrimos múltiples selectores porque cambia entre versiones. */
