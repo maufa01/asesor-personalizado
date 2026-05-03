@@ -659,15 +659,8 @@ border-radius:12px;padding:14px 18px;margin-bottom:1rem;display:flex;gap:12px;al
         render_pie_chart(portfolio)
 
     with col_evo:
-        _scenario_headlines = {
-            "conservador": "Preservación del capital con rendimiento consistente.",
-            "estable":     "Rendimiento superior al plazo fijo con volatilidad controlada.",
-            "moderado":    "Su capital tiene posibilidades reales de crecer a mediano plazo.",
-            "agresivo":    "El riesgo asumido tiene su recompensa en el largo plazo.",
-        }
-        _headline = _scenario_headlines.get(profile["risk_profile"], "")
         st.markdown('<div class="section-title">📈 Proyección de Crecimiento</div>', unsafe_allow_html=True)
-        st.markdown(f'<h3 class="chart-headline">{_headline}</h3>', unsafe_allow_html=True)
+        st.markdown('<h3 class="chart-headline">¿Cuánto podría valer su dinero con el tiempo?</h3>', unsafe_allow_html=True)
         # Pasar capital_original según la moneda seleccionada en el toggle
         _bar_cap_orig = _disp_capital if _disp_curr != _currency_in else profile.get("capital_original", _capital_usd)
         render_bar_simulation(portfolio, _capital_usd,

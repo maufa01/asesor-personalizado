@@ -405,9 +405,9 @@ def render_bar_simulation(portfolio: dict, initial_capital: float,
 
     fig = go.Figure()
 
-    # Pésimo
+    # Si el mercado va mal
     fig.add_trace(go.Bar(
-        name="😟 Pésimo",
+        name="Si el mercado va mal 📉",
         x=labels,
         y=disp_pess,
         marker_color="#ef4444",
@@ -416,12 +416,12 @@ def render_bar_simulation(portfolio: dict, initial_capital: float,
         text=[f"{fmt(d)}<br><span style='font-size:11px'>{fmt_pct(v)}</span>" for d, v in zip(disp_pess, vals_pess)],
         textposition="outside",
         textfont=dict(size=11, color="#ef4444"),
-        hovertemplate=f"<b>%{{x}} — Pésimo</b><br>Capital: $%{{y:,.0f}} {currency_label}<extra></extra>",
+        hovertemplate=f"<b>%{{x}} — Si el mercado va mal</b><br>Capital: $%{{y:,.0f}} {currency_label}<extra></extra>",
     ))
 
-    # Base
+    # Lo más probable
     fig.add_trace(go.Bar(
-        name="📊 Base",
+        name="Lo más probable 📊",
         x=labels,
         y=disp_base,
         marker_color="#f0b429",
@@ -430,12 +430,12 @@ def render_bar_simulation(portfolio: dict, initial_capital: float,
         text=[f"{fmt(d)}<br><span style='font-size:11px'>{fmt_pct(v)}</span>" for d, v in zip(disp_base, vals_base)],
         textposition="outside",
         textfont=dict(size=11, color="#f0b429"),
-        hovertemplate=f"<b>%{{x}} — Base</b><br>Capital: $%{{y:,.0f}} {currency_label}<extra></extra>",
+        hovertemplate=f"<b>%{{x}} — Lo más probable</b><br>Capital: $%{{y:,.0f}} {currency_label}<extra></extra>",
     ))
 
-    # Optimista
+    # Si el mercado va bien
     fig.add_trace(go.Bar(
-        name="🚀 Excelente",
+        name="Si el mercado va bien 📈",
         x=labels,
         y=disp_opt,
         marker_color="#10d98a",
@@ -444,7 +444,7 @@ def render_bar_simulation(portfolio: dict, initial_capital: float,
         text=[f"{fmt(d)}<br><span style='font-size:11px'>{fmt_pct(v)}</span>" for d, v in zip(disp_opt, vals_opt)],
         textposition="outside",
         textfont=dict(size=11, color="#10d98a"),
-        hovertemplate=f"<b>%{{x}} — Excelente</b><br>Capital: $%{{y:,.0f}} {currency_label}<extra></extra>",
+        hovertemplate=f"<b>%{{x}} — Si el mercado va bien</b><br>Capital: $%{{y:,.0f}} {currency_label}<extra></extra>",
     ))
 
     # Línea de capital inicial
@@ -501,17 +501,18 @@ def render_bar_simulation(portfolio: dict, initial_capital: float,
     gain_10_d = disp_base[2] - capital_original
 
     with col1:
+        sign_1 = "+" if gain_1_d >= 0 else ""
         st.markdown(f"""<div class="metric-card" style="text-align:center;">
-<div class="metric-label">Ganancia en 1 año (base)</div>
-<div class="metric-value" style="color:#f0b429;">+${gain_1_d:,.0f}</div>
-<div class="metric-sub">Escenario más probable</div>
+<div class="metric-label">EN 1 AÑO (caso probable)</div>
+<div class="metric-value" style="color:#f0b429;">{sign_1}${gain_1_d:,.0f}</div>
+<div class="metric-sub">Lo que podría ganar el primer año</div>
 </div>""", unsafe_allow_html=True)
     with col2:
         gain_10_pct = pct(vals_base[2])
         st.markdown(f"""<div class="metric-card" style="text-align:center;">
-<div class="metric-label">Ganancia en 10 años (base)</div>
+<div class="metric-label">EN 10 AÑOS (caso probable)</div>
 <div class="metric-value" style="color:#10d98a;">+{gain_10_pct:.0f}%</div>
-<div class="metric-sub">${gain_10_d:,.0f} sobre lo invertido</div>
+<div class="metric-sub">${gain_10_d:,.0f} más sobre lo que puso hoy</div>
 </div>""", unsafe_allow_html=True)
     with col3:
         worst     = vals_pess[2]
@@ -520,12 +521,12 @@ def render_bar_simulation(portfolio: dict, initial_capital: float,
         color = "#22c55e" if worst_pct >= 0 else "#f59e0b"
         sign  = "+" if worst_pct >= 0 else ""
         st.markdown(f"""<div class="metric-card" style="text-align:center;">
-<div class="metric-label">Peor escenario a 10 años</div>
+<div class="metric-label">SI TODO SALE MAL (10 años)</div>
 <div class="metric-value" style="color:{color};">{sign}{worst_pct:.0f}%</div>
-<div class="metric-sub">${worst_d:,.0f} en el peor caso</div>
+<div class="metric-sub">${worst_d:,.0f} en el peor escenario</div>
 </div>
 <div class="worst-case-context">
-  En horizontes de 10 años los mercados se recuperaron históricamente en todos los ciclos desde 1950.
+  Históricamente, en 10 años los mercados siempre se recuperaron de las crisis.
 </div>""", unsafe_allow_html=True)
 
 
