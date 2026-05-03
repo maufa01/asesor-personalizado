@@ -259,12 +259,22 @@ step = st.session_state.step
 # Detecta cambios de step automáticamente. Si el usuario cambió de pantalla
 # (intro → profiling → results, o vuelve al home, o entra al glosario),
 # forzamos scroll instantáneo al top. Sin esto, Streamlit a veces preserva
-# scroll de la pantalla anterior, o st.chat_input fuerza scroll al fondo.
+# scroll de la pantalla anterior, o algún widget fuerza scroll al fondo.
+# Múltiples intentos con delays escalonados para ganar contra cualquier
+# scroll automático que Streamlit dispare después.
 _last_step = st.session_state.get("_last_rendered_step")
 if _last_step is not None and _last_step != step:
     components.html("""
 <script>
-try { window.parent.scrollTo({ top: 0, behavior: 'instant' }); } catch(e) {}
+(function() {
+    function toTop() {
+        try { window.parent.scrollTo({ top: 0, behavior: 'instant' }); } catch(e) {}
+    }
+    // Inmediato + 4 reintentos con delays crecientes para sobrescribir cualquier
+    // scroll automático que Streamlit dispare al renderizar widgets posteriores.
+    toTop();
+    [50, 200, 500, 1000].forEach(function(d) { setTimeout(toTop, d); });
+})();
 </script>
 """, height=0)
 st.session_state["_last_rendered_step"] = step
@@ -1013,8 +1023,7 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
                 unsafe_allow_html=True,
             )
 
-    # Chips de preguntas pre-armadas — DESPUÉS de los mensajes, antes del input
-    # (siguiendo patrón estándar de chat: nuevos mensajes cerca del input)
+    # Chips de preguntas pre-armadas — antes del input
     _suggested_input = None
     _chips_label = "Estas son las preguntas más comunes:" if not chat_history else "¿Querés explorar otra cosa?"
     st.markdown(f'<p class="lucas-chips-label">{_chips_label}</p>', unsafe_allow_html=True)
@@ -1038,8 +1047,33 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
                     _suggested_input = q
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # Footer mini: disclaimer + link 'empezar de nuevo' (al fondo de la card,
-    # por ENCIMA del st.chat_input que flota fijo abajo del viewport)
+    # ── Input INLINE al final de la card ────────────────────────────────────
+    # Form custom (no st.chat_input) — visible inmediatamente después de los chips,
+    # se integra con el flujo de la card. El usuario puede preguntar cualquier
+    # duda financiera escribiéndola acá.
+    st.markdown('<p class="lucas-input-label">o escribí tu propia pregunta:</p>', unsafe_allow_html=True)
+    with st.form("lucas_form_inline", clear_on_submit=True):
+        col_inp, col_btn = st.columns([5, 1])
+        with col_inp:
+            user_input = st.text_input(
+                "Tu pregunta a Lucas",
+                placeholder="Ej: ¿Conviene comprar dólares ahora? ¿Qué es la TIR?",
+                label_visibility="collapsed",
+            )
+        with col_btn:
+            send = st.form_submit_button("Enviar", use_container_width=True, type="primary")
+
+    # Procesar desde chip o form
+    _final_input = _suggested_input or (user_input.strip() if send and user_input.strip() else None)
+    if _final_input:
+        with st.spinner("Lucas está pensando tu respuesta..."):
+            answer = chat_with_advisor(_final_input, chat_history, profile, portfolio)
+        st.session_state.chat_history.append({"role": "user",      "content": _final_input})
+        st.session_state.chat_history.append({"role": "assistant", "content": answer})
+        st.session_state["_lucas_scroll_pending"] = True
+        st.rerun()
+
+    # Footer mini: disclaimer + link 'empezar de nuevo'
     st.markdown("""<p class="lucas-footer-note">
   Lucas es un asistente IA con fines educativos.
   No reemplaza el asesoramiento de un profesional matriculado por la CNV.
@@ -1053,22 +1087,6 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
         st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown('</div>', unsafe_allow_html=True)  # cierra .lucas-card
-
-    # ── Input nativo de Streamlit — sticky al fondo del viewport ─────────────
-    # st.chat_input se renderiza FUERA del flujo normal de la página, fijo al
-    # bottom. Esto resuelve el bug de scroll: el input siempre está visible,
-    # los mensajes nuevos aparecen JUSTO ARRIBA y el usuario los ve sin scroll.
-    _typed_input = st.chat_input("Escribí lo que quieras saber sobre tu cartera o cómo invertir")
-
-    # Procesar input desde chip o desde st.chat_input
-    _final_input = _suggested_input or _typed_input
-    if _final_input:
-        with st.spinner("Lucas está pensando tu respuesta..."):
-            answer = chat_with_advisor(_final_input, chat_history, profile, portfolio)
-        st.session_state.chat_history.append({"role": "user",      "content": _final_input})
-        st.session_state.chat_history.append({"role": "assistant", "content": answer})
-        st.session_state["_lucas_scroll_pending"] = True
-        st.rerun()
 
     # ── Auto-scroll a la última respuesta tras un nuevo mensaje ──────────────
     if st.session_state.pop("_lucas_scroll_pending", False):

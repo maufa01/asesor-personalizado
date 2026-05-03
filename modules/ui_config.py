@@ -2659,6 +2659,12 @@ section.main > div[data-testid="block-container"] > div[data-testid="stVerticalB
     margin: 14px 0 8px;
     font-weight: 500;
 }
+.lucas-input-label {
+    font-size: 0.78rem;
+    color: var(--text-3);
+    margin: 16px 0 6px;
+    font-weight: 500;
+}
 /* Los chips usan .stButton dentro de .lucas-chips-block — los reestilamos */
 .lucas-chips-block .stButton > button {
     background: rgba(79,163,255,0.08) !important;
