@@ -428,13 +428,17 @@ elif step == "results":
     # Tasa efectiva usada al ingresar: capital_orig / capital_usd
     _fx_rate       = _capital_orig / _capital_usd if _currency_in == "ARS" else 1.0
 
-    # Toggle (solo si el usuario ingresó en ARS)
+    # Toggle (solo si el usuario ingresó en ARS) — centrado horizontalmente
     if _currency_in == "ARS":
         if "_display_currency" not in st.session_state:
             st.session_state._display_currency = "ARS"
-        _tog_col, _ = st.columns([3, 5])
+        _l, _tog_col, _r = st.columns([3, 4, 3])
         with _tog_col:
-            st.markdown('<div class="currency-toggle-wrap"><span class="currency-toggle-label">Ver cifras en:</span></div>', unsafe_allow_html=True)
+            st.markdown(
+                '<div class="currency-toggle-wrap" style="text-align:center;">'
+                '<span class="currency-toggle-label">Ver cifras en:</span></div>',
+                unsafe_allow_html=True,
+            )
             _disp_sel = st.radio(
                 "Ver cifras en:", ["ARS (Pesos)", "USD (Dólares)"],
                 horizontal=True, key="currency_toggle", label_visibility="collapsed",
