@@ -1349,18 +1349,35 @@ def apply_custom_css():
     }
 
     @media (max-width: 768px) {
-        .summary-main-grid,
+        /* Mantener Capital/Horizonte/Retorno en una sola fila horizontal compacta */
+        .summary-main-grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.4rem;
+        }
+        .summary-main-grid .summary-item {
+            padding: 0.5rem 0.4rem;
+        }
+        .summary-main-grid .si-label {
+            font-size: 0.55rem;
+            text-transform: none;
+            letter-spacing: 0;
+            margin-bottom: 0.2rem;
+        }
+        .summary-main-grid .si-value {
+            font-size: 0.95rem;
+        }
+        .summary-main-grid .si-sub { display: none; }
+
         .summary-detail-grid {
             grid-template-columns: repeat(2, 1fr);
-            gap: 0.6rem;
+            gap: 0.5rem;
         }
     }
 
     @media (max-width: 480px) {
-        .summary-main-grid,
         .summary-detail-grid {
             grid-template-columns: 1fr;
-            gap: 0.5rem;
+            gap: 0.4rem;
         }
     }
 
@@ -1623,11 +1640,10 @@ def apply_custom_css():
     @media (max-width: 1024px) {
         .metrics-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
     }
-    @media (max-width: 480px) {
+    @media (max-width: 768px) {
+        /* En mobile mantener 2x2 (no colapsar a 1 columna) */
         .metrics-grid { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
-    }
-    @media (max-width: 360px) {
-        .metrics-grid { grid-template-columns: 1fr; }
+        .metrics-grid .metric-card { padding: 0.7rem 0.6rem; }
     }
 
     /* ── Make Streamlit containers responsive ───────────────────── */
@@ -2389,6 +2405,116 @@ details.cat-exp[open] > summary .cat-l1-card { background: #f1f5f9 !important; b
     color: #1d4ed8 !important;
     background: rgba(37,99,235,0.08) !important;
     border-color: rgba(37,99,235,0.2) !important;
+}
+
+/* ── ARG warning collapsible banner ───────────────────────────── */
+.arg-warn {
+    background: rgba(245,158,11,0.07);
+    border: 1.5px solid #f59e0b;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+}
+.arg-warn-summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    color: #f59e0b;
+    font-size: 0.93rem;
+    font-weight: 700;
+}
+.arg-warn-summary::-webkit-details-marker,
+.arg-warn-summary::marker { display: none; content: ''; }
+.arg-warn-icon { font-size: 1.1rem; flex-shrink: 0; }
+.arg-warn-title { flex: 1; min-width: 0; }
+.arg-warn-toggle {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #fbbf24;
+    background: rgba(245,158,11,0.15);
+    padding: 3px 9px;
+    border-radius: 999px;
+    flex-shrink: 0;
+}
+.arg-warn[open] .arg-warn-toggle::after { content: " ↑"; }
+.arg-warn:not([open]) .arg-warn-toggle::after { content: " ↓"; }
+.arg-warn-body {
+    font-size: 0.83rem;
+    color: #94a3b8;
+    margin: 0;
+    padding: 0 16px 14px 42px;
+    line-height: 1.65;
+}
+@media (max-width: 640px) {
+    .arg-warn-summary {
+        padding: 10px 12px;
+        font-size: 0.82rem;
+        gap: 8px;
+    }
+    .arg-warn-title {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .arg-warn-toggle { font-size: 0.65rem; padding: 2px 7px; }
+    .arg-warn-body { padding: 0 12px 12px 32px; font-size: 0.78rem; }
+}
+
+/* ── Mobile spacing & section-title reduction (#6) ────────────── */
+@media (max-width: 768px) {
+    .section-title {
+        font-size: 0.9rem;
+        margin-bottom: 0.6rem;
+        padding-bottom: 0.35rem;
+    }
+    .stMarkdown { margin-bottom: 0.6rem; }
+    /* Reducir gap entre secciones */
+    .block-container {
+        padding-top: 0.6rem !important;
+    }
+    [data-testid="stVerticalBlock"] { gap: 0.6rem !important; }
+}
+
+/* ── Mobile FAB: fixed bottom semitransparente (#7) ──────────── */
+@media (max-width: 640px) {
+    .fab-btn {
+        bottom: 0 !important;
+        right: 0 !important;
+        left: 0 !important;
+        border-radius: 0 !important;
+        padding: 0.85rem 1rem !important;
+        padding-bottom: calc(0.85rem + env(safe-area-inset-bottom)) !important;
+        justify-content: center;
+        background: linear-gradient(135deg,
+            rgba(79,163,255,0.92) 0%,
+            rgba(56,189,248,0.92) 100%) !important;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.4) !important;
+        font-size: 0.85rem !important;
+        animation: none !important;
+    }
+    /* Padding al body para que el botón fijo no tape contenido */
+    .block-container { padding-bottom: 5rem !important; }
+}
+
+/* ── Cat-l1-card: ocultar descripción en mobile (#5) ──────────── */
+@media (max-width: 640px) {
+    .cat-l1-desc { display: none; }
+    .cat-l1-name { margin-bottom: 0; }
+    .cat-l1-pct-sub { display: none; }
+    .cat-l1-card {
+        padding: 0.7rem 0.85rem;
+    }
+    .cat-l1-pct { font-size: 1.35rem; }
+}
+
+/* ── Donut legend below chart in mobile (#3) ──────────────────── */
+@media (max-width: 768px) {
+    .stPlotlyChart .legendtext { font-size: 11px !important; }
 }
 </style>"""
 

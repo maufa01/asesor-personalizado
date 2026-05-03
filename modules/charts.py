@@ -333,16 +333,19 @@ def render_pie_chart(portfolio: dict):
         showlegend=True,
     )])
 
+    # Leyenda horizontal debajo del gráfico — funciona bien en mobile y desktop.
+    # Plotly auto-distribuye en columnas según ancho disponible.
     fig.update_layout(
         **PLOTLY_LAYOUT,
         legend=dict(
-            orientation="v",
-            yanchor="middle",
-            y=0.5,
-            xanchor="left",
-            x=1.02,
-            font=dict(size=10, color=_t2()),
+            orientation="h",
+            yanchor="top",
+            y=-0.05,
+            xanchor="center",
+            x=0.5,
+            font=dict(size=11, color=_t2()),
             bgcolor="rgba(0,0,0,0)",
+            itemwidth=60,
         ),
         annotations=[dict(
             text=f"<b>{portfolio['risk_profile'].upper()}</b>",
@@ -350,7 +353,8 @@ def render_pie_chart(portfolio: dict):
             font=dict(size=13, color=_t1(), family="Syne, sans-serif"),
             showarrow=False,
         )],
-        height=380,
+        height=420,
+        margin=dict(l=10, r=10, t=20, b=80),
     )
 
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
@@ -514,7 +518,6 @@ def render_bar_simulation(portfolio: dict, initial_capital: float,
         else "Los montos están expresados en dólares (USD)"
     )
 
-    def fmt(v):     return f"${v:,.0f}"
     def fmt_pct(v):
         p    = pct(v)
         sign = "+" if p >= 0 else ""
@@ -522,6 +525,8 @@ def render_bar_simulation(portfolio: dict, initial_capital: float,
 
     fig = go.Figure()
 
+    # Mostrar solo % encima de las barras (evita superposición en mobile).
+    # El monto $ aparece en el hover/tap.
     # Pésimo
     fig.add_trace(go.Bar(
         name="😟 Pésimo",
@@ -530,9 +535,9 @@ def render_bar_simulation(portfolio: dict, initial_capital: float,
         marker_color="#ef4444",
         marker_line_width=0,
         opacity=0.85,
-        text=[f"{fmt(d)}<br><span style='font-size:11px'>{fmt_pct(v)}</span>" for d, v in zip(disp_pess, vals_pess)],
+        text=[fmt_pct(v) for v in vals_pess],
         textposition="outside",
-        textfont=dict(size=11, color="#ef4444"),
+        textfont=dict(size=12, color="#ef4444", family="Space Grotesk, sans-serif"),
         hovertemplate=f"<b>%{{x}} — Pésimo</b><br>Capital: $%{{y:,.0f}} {currency_label}<extra></extra>",
     ))
 
@@ -544,9 +549,9 @@ def render_bar_simulation(portfolio: dict, initial_capital: float,
         marker_color="#f0b429",
         marker_line_width=0,
         opacity=0.9,
-        text=[f"{fmt(d)}<br><span style='font-size:11px'>{fmt_pct(v)}</span>" for d, v in zip(disp_base, vals_base)],
+        text=[fmt_pct(v) for v in vals_base],
         textposition="outside",
-        textfont=dict(size=11, color="#f0b429"),
+        textfont=dict(size=12, color="#f0b429", family="Space Grotesk, sans-serif"),
         hovertemplate=f"<b>%{{x}} — Base</b><br>Capital: $%{{y:,.0f}} {currency_label}<extra></extra>",
     ))
 
@@ -558,9 +563,9 @@ def render_bar_simulation(portfolio: dict, initial_capital: float,
         marker_color="#10d98a",
         marker_line_width=0,
         opacity=0.9,
-        text=[f"{fmt(d)}<br><span style='font-size:11px'>{fmt_pct(v)}</span>" for d, v in zip(disp_opt, vals_opt)],
+        text=[fmt_pct(v) for v in vals_opt],
         textposition="outside",
-        textfont=dict(size=11, color="#10d98a"),
+        textfont=dict(size=12, color="#10d98a", family="Space Grotesk, sans-serif"),
         hovertemplate=f"<b>%{{x}} — Excelente</b><br>Capital: $%{{y:,.0f}} {currency_label}<extra></extra>",
     ))
 

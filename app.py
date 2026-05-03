@@ -629,21 +629,19 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
     }
     _arg_exposure = sum(p["weight"] for p in portfolio["positions"] if p["id"] in _ARG_ASSET_IDS)
     if _arg_exposure > 0.40:
-        st.markdown(f"""<div style="background:rgba(245,158,11,0.07);border:1.5px solid #f59e0b;
-border-radius:12px;padding:14px 18px;margin-bottom:1rem;display:flex;gap:12px;align-items:flex-start;">
-  <span style="font-size:1.2rem;flex-shrink:0;">🇦🇷⚠️</span>
-  <div>
-    <strong style="color:#f59e0b;font-size:0.93rem;">
-      Alta concentración en activos argentinos ({_arg_exposure*100:.0f}% de la cartera)
-    </strong>
-    <p style="font-size:0.83rem;color:#94a3b8;margin:6px 0 0;line-height:1.65;">
-      Su cartera tiene una exposición significativa a Argentina.
-      Si además percibe su salario, tiene inmuebles o ahorros en pesos,
-      su riesgo país real puede ser mayor al calculado.
-      Considere consultarlo con un asesor financiero profesional.
-    </p>
-  </div>
-</div>""", unsafe_allow_html=True)
+        st.markdown(f"""<details class="arg-warn">
+<summary class="arg-warn-summary">
+  <span class="arg-warn-icon">🇦🇷⚠️</span>
+  <span class="arg-warn-title">Alta concentración en Argentina ({_arg_exposure*100:.0f}%)</span>
+  <span class="arg-warn-toggle">Ver detalle</span>
+</summary>
+<p class="arg-warn-body">
+  Su cartera tiene una exposición significativa a Argentina.
+  Si además percibe su salario, tiene inmuebles o ahorros en pesos,
+  su riesgo país real puede ser mayor al calculado.
+  Considere consultarlo con un asesor financiero profesional.
+</p>
+</details>""", unsafe_allow_html=True)
 
     # ── Distribución + Evolución ──────────────────────────────────────────────
     col_pie, col_evo = st.columns([1, 1.6])
