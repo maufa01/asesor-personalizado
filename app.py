@@ -986,13 +986,7 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
     # Render del historial (si hay)
     if chat_history:
         import html as _html
-        # Anchor justo ANTES de la última pregunta del usuario (penúltimo mensaje
-        # cuando Lucas ya respondió). scrollIntoView con block='start' deja la
-        # pregunta en el tope del viewport y la respuesta abajo, visible y legible.
-        _anchor_idx = max(0, len(chat_history) - 2)
-        for i, msg in enumerate(chat_history):
-            if i == _anchor_idx:
-                st.markdown('<div id="chat-jump-anchor"></div>', unsafe_allow_html=True)
+        for msg in chat_history:
             is_user = msg["role"] == "user"
             align   = "chat-user" if is_user else "chat-advisor"
             label   = "Usted" if is_user else "Lucas · Asesor IA"
@@ -1068,13 +1062,15 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
+    # Anchor invisible al FINAL de toda la card — comportamiento chat real
+    # (input al fondo, último mensaje justo arriba)
+    st.markdown('<div id="chat-bottom-anchor"></div>', unsafe_allow_html=True)
+
     st.markdown('</div>', unsafe_allow_html=True)  # cierra .lucas-card
 
-    # ── Auto-scroll al chat tras un nuevo mensaje ────────────────────────────
-    # Tras st.rerun() Streamlit suele resetear scroll al top. Posicionamos
-    # la última pregunta del usuario al tope del viewport, dejando la respuesta
-    # de Lucas visible inmediatamente debajo. Reintenta varias veces porque
-    # el DOM tarda en estar listo después de un rerun.
+    # ── Auto-scroll al fondo del chat tras un nuevo mensaje ──────────────────
+    # Comportamiento tipo WhatsApp/ChatGPT: scrollea al fondo de la card,
+    # con el input visible y la última respuesta inmediatamente arriba.
     if st.session_state.pop("_lucas_scroll_pending", False):
         components.html("""
 <script>
@@ -1083,16 +1079,14 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
         if (attempts <= 0) return;
         try {
             const doc = window.parent.document;
-            const anchor = doc.getElementById('chat-jump-anchor');
+            const anchor = doc.getElementById('chat-bottom-anchor');
             if (anchor) {
-                anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                return;  // éxito
+                anchor.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                return;
             }
         } catch(e) { /* noop */ }
-        // Reintentar — el DOM puede no estar listo aún tras el rerun
         setTimeout(function() { tryScroll(attempts - 1); }, 150);
     }
-    // Esperar 300ms inicial para que Streamlit termine el primer paint
     setTimeout(function() { tryScroll(8); }, 300);
 })();
 </script>

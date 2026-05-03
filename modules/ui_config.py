@@ -2573,37 +2573,6 @@ section.main > div[data-testid="block-container"] > div[data-testid="stVerticalB
     padding-right: 1rem !important;
 }
 
-/* Logo button: parece un logo, no un botón */
-.stButton > button[kind="secondary"][data-testid*="logo_home"],
-button[data-testid="stBaseButton-secondary"][aria-label*="logo_home"],
-.app-logo-btn .stButton > button {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0.4rem 0.6rem 0.4rem 0 !important;
-    text-align: left !important;
-    font-family: var(--font-display) !important;
-    font-size: 1.4rem !important;
-    font-weight: 800 !important;
-    letter-spacing: -0.03em !important;
-    color: var(--text-1) !important;
-    width: auto !important;
-    min-height: 0 !important;
-    cursor: pointer !important;
-}
-.app-logo-btn .stButton > button:hover {
-    background: transparent !important;
-    transform: none !important;
-    box-shadow: none !important;
-    opacity: 0.75 !important;
-}
-@media (max-width: 640px) {
-    .app-logo-btn .stButton > button {
-        font-size: 1.05rem !important;
-        padding: 0.3rem 0 !important;
-    }
-}
-
 /* Botón "🔄 Nuevo test" en header — distintivo (color naranja/dorado) */
 .nuevo-test-btn .stButton > button {
     background: rgba(240, 180, 41, 0.1) !important;
@@ -3214,31 +3183,22 @@ def render_header():
     if st.session_state.get("_reset_confirm_target"):
         _render_reset_confirm_modal()
 
-    # Layout: si hay portfolio, agregamos col para "Nuevo test"
-    # [Logo+badge | Nuevo test? | Glosario | Cómo funciona | Toggle]
+    # Layout: [Logo + badge | Nuevo test (si hay portfolio) | Glosario | Cómo funciona | Toggle]
+    # Glosario queda centrado entre Nuevo test (izquierda) y Cómo funciona (derecha)
     if has_portfolio:
         col_logo, col_nuevo, col_glos, col_meto, col_theme = st.columns(
-            [3.2, 1, 1.5, 1.5, 0.7]
+            [3, 1.4, 1.4, 1.4, 0.7]
         )
     else:
         col_logo, col_glos, col_meto, col_theme = st.columns([4, 1.5, 1.5, 0.7])
 
     with col_logo:
-        # Logo clickeable: sin border, sin background — parece un texto/logo
-        st.markdown('<div class="app-logo-btn">', unsafe_allow_html=True)
-        if st.button("FinanzasIA", key="logo_home", help="Volver al inicio"):
-            if has_portfolio and st.session_state.get("step") not in ("intro",):
-                _trigger_reset_confirm("intro")
-                st.rerun()
-            else:
-                st.session_state.step = "intro"
-                st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-        st.markdown(
-            '<div class="app-badge" style="margin-top:-0.4rem;">'
-            'Asesoramiento Financiero Digital</div>',
-            unsafe_allow_html=True,
-        )
+        # Logo HTML clásico — "Finanzas" + "IA" en gold
+        st.markdown("""
+        <div class="app-header">
+            <div class="app-logo">Finanzas<span>IA</span></div>
+        </div>
+        """, unsafe_allow_html=True)
 
     if has_portfolio:
         with col_nuevo:
