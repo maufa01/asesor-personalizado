@@ -741,7 +741,7 @@ border-radius:12px;padding:14px 18px;margin-bottom:1rem;display:flex;gap:12px;al
 
     # ── Simulaciones ─────────────────────────────────────────────────────────
     with st.expander("📊 Simulaciones: ¿qué pasa con su dinero?", expanded=False):
-        _sim_tab1, _sim_tab2 = st.tabs(["📉 Si no invierto", "💰 Si aporto mensualmente"])
+        _sim_tab1, _sim_tab2 = st.tabs(["📉 Si no invierto", "💰 ¿Qué pasa si ahorro un poco cada mes?"])
 
         with _sim_tab1:
             _cagr      = portfolio["expected_cagr"]
@@ -816,21 +816,21 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
             st.caption("Proyección estimada basada en datos históricos. No garantiza rendimientos futuros.")
 
         with _sim_tab2:
-            st.caption("El patrimonio no se construye de una vez — se consolida mes a mes. Incluso montos pequeños generan una diferencia significativa a largo plazo.")
+            st.caption("No hace falta tener mucho para empezar. Si además de su inversión inicial aparta una pequeña cantidad cada mes, el resultado a largo plazo cambia enormemente. Pruebe con distintos montos y vea la diferencia.")
 
             _aporte_key = "aporte_mensual_usd"
             _col_aporte, _col_slider = st.columns([1, 2])
             with _col_aporte:
                 if _currency_in == "ARS":
                     _aporte_ars = st.number_input(
-                        "Aporte mensual en ARS (≈ USD al MEP)", min_value=0, max_value=50_000_000,
+                        "¿Cuánto podría apartar por mes? (en pesos)", min_value=0, max_value=50_000_000,
                         value=st.session_state.get(_aporte_key + "_ars", 50_000),
                         step=50_000, key=_aporte_key + "_ars",
                     )
                     _aporte_usd_val = _aporte_ars / _MEP_RATE
                 else:
                     _aporte_usd_val = st.number_input(
-                        "Aporte mensual en USD", min_value=0, max_value=500_000,
+                        "¿Cuánto podría apartar por mes? (en USD)", min_value=0, max_value=500_000,
                         value=st.session_state.get(_aporte_key, 100),
                         step=100, key=_aporte_key,
                     )
@@ -839,13 +839,15 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
             _proy_sin = _proy["final_sin"]      * _disp_factor
             _proy_con = _proy["final_con"]      * _disp_factor
             _proy_ext = _proy["ganancia_extra"] * _disp_factor
+            _aporte_disp = _aporte_usd_val * _disp_factor
 
             with _col_slider:
                 if _aporte_usd_val > 0:
-                    st.markdown(f"""<div style="padding:16px;background:rgba(34,197,94,0.08);border-radius:12px;border:1px solid rgba(34,197,94,0.2);">
-<div style="font-size:0.85rem;opacity:0.7;">Aportando {_disp_prefix}{_aporte_usd_val*_disp_factor:,.0f}{_disp_suffix}/mes durante {profile['horizon']} años:</div>
-<div style="font-size:1.6rem;font-weight:800;color:#22c55e;">{_disp_prefix}{_proy_con:,.0f}{_disp_suffix}</div>
-<div style="font-size:0.8rem;opacity:0.6;">vs {_disp_prefix}{_proy_sin:,.0f}{_disp_suffix} sin aportar · ganancia extra: {_disp_prefix}{_proy_ext:,.0f}{_disp_suffix}</div>
+                    st.markdown(f"""<div style="padding:18px 20px;background:rgba(34,197,94,0.08);border-radius:12px;border:1px solid rgba(34,197,94,0.2);">
+<div style="font-size:0.85rem;color:#94a3b8;margin-bottom:6px;">Ahorrando {_disp_prefix}{_aporte_disp:,.0f}{_disp_suffix} por mes durante {profile['horizon']} años:</div>
+<div style="font-size:1.8rem;font-weight:800;color:#22c55e;margin-bottom:10px;">{_disp_prefix}{_proy_con:,.0f}{_disp_suffix}</div>
+<div style="font-size:0.84rem;color:#94a3b8;margin-bottom:4px;">En cambio, sin aportes mensuales tendría: <strong style="color:#e2e8f0;">{_disp_prefix}{_proy_sin:,.0f}{_disp_suffix}</strong></div>
+<div style="font-size:0.84rem;color:#22c55e;font-weight:600;">La diferencia: +{_disp_prefix}{_proy_ext:,.0f}{_disp_suffix} solo por apartar {_disp_prefix}{_aporte_disp:,.0f}{_disp_suffix} por mes</div>
 </div>""", unsafe_allow_html=True)
                 else:
                     st.info("Ingrese un monto mensual para ver el impacto")
@@ -857,11 +859,17 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
                     _ap_con  = [v * _disp_factor for v in _proy["con_aporte"]]
                     _ap_sin  = [v * _disp_factor for v in _proy["sin_aporte"]]
                     _fig_ap  = _go2.Figure()
-                    _fig_ap.add_trace(_go2.Scatter(x=_ap_años, y=_ap_con, name="Con aportes mensuales",
+                    _fig_ap.add_trace(_go2.Scatter(x=_ap_años, y=_ap_con,
+                        name="Invirtiendo + ahorrando cada mes",
                         line=dict(color="#22c55e", width=3), mode="lines",
-                        fill="tonexty", fillcolor="rgba(34,197,94,0.08)"))
-                    _fig_ap.add_trace(_go2.Scatter(x=_ap_años, y=_ap_sin, name="Sin aportes",
-                        line=dict(color="#60a5fa", width=2, dash="dot"), mode="lines"))
+                        fill="tonexty", fillcolor="rgba(34,197,94,0.08)",
+                        hovertemplate=f"{_disp_prefix}%{{y:,.0f}}{_disp_suffix}<extra>Con aportes</extra>",
+                    ))
+                    _fig_ap.add_trace(_go2.Scatter(x=_ap_años, y=_ap_sin,
+                        name="Solo con lo que invirtió hoy",
+                        line=dict(color="#60a5fa", width=2, dash="dot"), mode="lines",
+                        hovertemplate=f"{_disp_prefix}%{{y:,.0f}}{_disp_suffix}<extra>Sin aportes</extra>",
+                    ))
                     _fig_ap.update_layout(
                         paper_bgcolor="#0f172a", plot_bgcolor="#0f172a",
                         font=dict(color="#94a3b8", size=12),
@@ -876,6 +884,8 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
                     st.plotly_chart(_fig_ap, use_container_width=True)
                 except Exception:
                     pass
+
+            st.caption("Este cálculo asume que los aportes mensuales se invierten al mismo retorno estimado que su cartera. Es una proyección, no una garantía.")
 
     st.markdown("<br>", unsafe_allow_html=True)
 
