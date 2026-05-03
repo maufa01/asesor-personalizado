@@ -194,19 +194,17 @@ def _render_risk_scenarios_tab(risk_scenarios: list) -> None:
         _sc_body  = _safe_with_tips(_sc.get("body", ""))
         _sc_tip   = _safe_with_tips(_sc.get("tip", ""))
         _sc_icon  = _html_lib.escape(_sc.get("icon", "🔵"))
-        st.markdown(f"""<div style="background:rgba(255,255,255,0.03);border-left:3px solid {_col};
-border-radius:10px;padding:14px 18px;margin-bottom:12px;">
-  <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-    <span style="font-size:1.1rem;">{_sc_icon}</span>
-    <span style="font-weight:700;color:#e2e8f0;font-size:0.95rem;">{_sc_title}</span>
-    <span style="font-size:0.67rem;font-weight:700;letter-spacing:0.06em;
-          background:{_col}22;color:{_col};border:1px solid {_col}44;
-          padding:2px 8px;border-radius:999px;">{_lbl}</span>
+        # Usa clases CSS .risk-scenario-* (responsive). Solo el color de severidad
+        # va inline porque depende del valor (bajo/medio/alto).
+        st.markdown(f"""<div class="risk-scenario-card" style="border-left:3px solid {_col};">
+  <div class="risk-scenario-header">
+    <span class="risk-scenario-icon">{_sc_icon}</span>
+    <span class="risk-scenario-title">{_sc_title}</span>
+    <span class="risk-scenario-sev-badge"
+          style="background:{_col}22;color:{_col};border:1px solid {_col}44;">{_lbl}</span>
   </div>
-  <p style="font-size:0.84rem;color:#94a3b8;line-height:1.65;margin:0 0 8px 0;">{_sc_body}</p>
-  <p style="font-size:0.8rem;color:#64748b;margin:0;">
-    <strong style="color:#94a3b8;">Mitigación:</strong> {_sc_tip}
-  </p>
+  <p class="risk-scenario-body">{_sc_body}</p>
+  <p class="risk-scenario-tip"><strong>Mitigación:</strong> {_sc_tip}</p>
 </div>""", unsafe_allow_html=True)
     st.caption("Análisis basado en la composición de la cartera y datos de mercado actuales. No constituye asesoramiento financiero regulado.")
 

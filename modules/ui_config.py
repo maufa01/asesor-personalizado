@@ -2498,6 +2498,77 @@ form[data-testid="stForm"] [data-baseweb="input"]:focus-within,
     margin: 0 !important;
 }
 
+/* ── Mobile: header compacto (Glosario + Cómo funciona + Toggle) ── */
+@media (max-width: 640px) {
+    /* Hace los botones del header MUY compactos para que entren los 3 + toggle */
+    button[kind="secondary"][data-testid="stBaseButton-secondary"][aria-label*="Glosario"],
+    button[kind="secondary"][data-testid="stBaseButton-secondary"][aria-label*="Cómo"],
+    .stButton button[data-testid="stBaseButton-secondary"]:has-text("Glosario"),
+    .stButton button[data-testid="stBaseButton-secondary"]:has-text("Cómo funciona") {
+        font-size: 0 !important;
+    }
+    /* Fallback genérico: todos los botones del header son chicos en mobile */
+    [data-testid="stHorizontalBlock"]:first-of-type .stButton > button {
+        font-size: 0.65rem !important;
+        padding: 0.35rem 0.4rem !important;
+        letter-spacing: 0 !important;
+    }
+    .header-theme-wrap { min-height: 32px; padding-top: 0; }
+    .app-logo { font-size: 1.1rem !important; }
+    .app-badge { font-size: 0.6rem !important; }
+}
+
+/* ── Risk scenarios cards (clase para poder media-query en mobile) ─ */
+.risk-scenario-card {
+    background: rgba(255,255,255,0.03);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 12px;
+}
+.risk-scenario-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+.risk-scenario-icon { font-size: 1.1rem; }
+.risk-scenario-title {
+    font-weight: 700;
+    color: #e2e8f0;
+    font-size: 0.95rem;
+}
+.risk-scenario-sev-badge {
+    font-size: 0.67rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    padding: 2px 8px;
+    border-radius: 999px;
+}
+.risk-scenario-body {
+    font-size: 0.84rem;
+    color: #94a3b8;
+    line-height: 1.65;
+    margin: 0 0 8px 0;
+}
+.risk-scenario-tip {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin: 0;
+}
+.risk-scenario-tip strong { color: #94a3b8; }
+@media (max-width: 640px) {
+    .risk-scenario-card {
+        padding: 10px 12px;
+        margin-bottom: 8px;
+    }
+    .risk-scenario-icon { font-size: 0.95rem; }
+    .risk-scenario-title { font-size: 0.82rem; }
+    .risk-scenario-sev-badge { font-size: 0.58rem; padding: 1px 6px; }
+    .risk-scenario-body { font-size: 0.74rem; line-height: 1.55; }
+    .risk-scenario-tip { font-size: 0.7rem; }
+}
+
 /* ── Tooltips inline del glosario ─────────────────────────────── */
 .term-tip {
     border-bottom: 1px dotted rgba(79,163,255,0.55);
