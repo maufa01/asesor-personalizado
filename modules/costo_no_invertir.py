@@ -4,6 +4,7 @@ El Costo de No Invertir — pantalla de impacto emocional pre-cuestionario.
 
 import streamlit as st
 import urllib.request
+import urllib.parse
 import json as _json
 
 # ── Datos históricos hardcodeados ─────────────────────────────────────────────
@@ -134,13 +135,13 @@ de guardar su dinero en opciones que no generan rendimiento.
             )
 
         years = st.selectbox(
-            "¿Hace cuánto tiempo lo tiene ahí?",
+            "¿Hace cuánto tiempo lo tiene guardado?",
             options=[1, 2, 5],
             format_func=lambda y: PERIOD_LABELS[y],
         )
 
         st.caption(f"💱 Tipo de cambio MEP de referencia: {mep_tag}")
-        submitted = st.form_submit_button("Calcular lo que perdí →", use_container_width=True)
+        submitted = st.form_submit_button("Calcular lo que perdió →", use_container_width=True)
 
     if submitted:
         st.session_state.cost_result = _calc(amount, storage, years, mep_now)
@@ -178,8 +179,8 @@ def render_cost_results():
     plabel    = PERIOD_LABELS[years]
 
     # ── Header ────────────────────────────────────────────────────────────────
-    st.markdown(f"""<div class="reveal-card" style="border-color:rgba(255,77,106,0.25);">
-<div class="reveal-badge" style="border-color:#ff4d6a;color:#ff4d6a;">
+    st.markdown(f"""<div class="reveal-card" style="border-color:rgba(240,180,41,0.25);">
+<div class="reveal-badge" style="border-color:#f0b429;color:#f0b429;font-style:normal;">
   📉 Su análisis de costo de oportunidad
 </div>
 <p class="reveal-tagline">
@@ -193,7 +194,6 @@ def render_cost_results():
     c1, c2, c3 = st.columns(3)
 
     with c1:
-        canastas = amount / 150_000
         dolares  = amount / mep_now
         nafta    = amount / 1_200
         st.markdown(f"""<div class="metric-card">
@@ -201,8 +201,7 @@ def render_cost_results():
   <div class="metric-value" style="color:var(--text-1);">${amount:,.0f}</div>
   <div class="metric-sub" style="text-align:left;line-height:1.9;margin-top:0.9rem;">
     Equivalía a:<br>
-    · <strong>{canastas:.0f}</strong> canastas básicas<br>
-    · <strong>USD {dolares:,.0f}</strong> al tipo de cambio<br>
+    · <strong>USD {dolares:,.0f}</strong> al tipo de cambio MEP<br>
     · <strong>{nafta:,.0f}</strong> litros de nafta
   </div>
 </div>""", unsafe_allow_html=True)
@@ -291,6 +290,35 @@ def render_cost_results():
     bar_sin = amount if storage == "dolares_billete" else real_hoy
     _render_chart(bar_sin, on_ars, spy_ars, amount)
 
+    # ── Botón WhatsApp ────────────────────────────────────────────────────────
+    try:
+        _app_url = st.secrets.get("APP_URL", "")
+    except Exception:
+        _app_url = ""
+    _url_ref = _app_url if _app_url else "Buscá FinanzasIA en Google"
+    _suffix   = f" 👉 {_app_url}" if _app_url else f". {_url_ref}"
+    if storage == "dolares_billete":
+        _perdida_str = f"USD {on_ars/mep_now - amount/mep_now:,.0f} sin rendimiento"
+    else:
+        _perdida_str = f"${perdida:,.0f} ARS de poder adquisitivo"
+    _wa_text = (
+        f"Calculé cuánto perdí por no invertir mis ahorros en {plabel}: "
+        f"{_perdida_str}. "
+        f"Si los hubiera puesto en ONs corporativas hoy tendría "
+        f"${on_ars:,.0f} en lugar de ${real_hoy:,.0f}. "
+        f"Lo calculé gratis en FinanzasIA{_suffix}"
+    )
+    _wa_url = f"https://wa.me/?text={urllib.parse.quote(_wa_text)}"
+    st.markdown(
+        f'<a href="{_wa_url}" target="_blank" rel="noopener" '
+        f'style="display:inline-flex;align-items:center;gap:8px;'
+        f'background:#25D366;color:#fff;font-weight:700;font-size:0.9rem;'
+        f'padding:10px 22px;border-radius:10px;text-decoration:none;'
+        f'margin:12px 0 4px 0;box-shadow:0 2px 8px rgba(37,211,102,0.25);">'
+        f'📲 Compartir por WhatsApp</a>',
+        unsafe_allow_html=True,
+    )
+
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── CTA principal ─────────────────────────────────────────────────────────
@@ -377,13 +405,24 @@ def _render_chart(sin_invertir: float, on_ars: float, spy_ars: float, original: 
             annotation_position="bottom right",
         )
 
+        fig.add_annotation(
+            x="S&P 500 via CEDEAR<br>(11% anual USD)",
+            y=min(values) * 0.02,
+            text="Referencia histórica: rendimiento promedio<br>del índice global más conocido (2019–2024)",
+            showarrow=False,
+            font=dict(size=8, color="#64748b"),
+            align="center",
+            xanchor="center",
+            yanchor="bottom",
+            yref="y",
+        )
         fig.update_layout(
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
             font=dict(color="#94a3b8", family="DM Sans"),
             showlegend=False,
-            margin=dict(t=50, b=10, l=10, r=10),
-            height=340,
+            margin=dict(t=50, b=60, l=10, r=10),
+            height=360,
             yaxis=dict(
                 showgrid=True,
                 gridcolor="rgba(99,120,180,0.12)",

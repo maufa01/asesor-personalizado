@@ -280,3 +280,115 @@ El sistema mantiene un archivo `memory.json` con tres niveles de aprendizaje:
         if st.button("← Volver a la cartera", key="back_from_methodology"):
             st.session_state.step = st.session_state.get("_prev_step", "results")
             st.rerun()
+
+
+def render_how_it_works():
+    """Explicación en lenguaje simple para el usuario no experto."""
+    st.markdown("""<div style="text-align:center;padding:2rem 0 0.5rem;">
+<div style="font-size:2rem;margin-bottom:0.5rem;">🧩</div>
+<h2 style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;margin-bottom:0.3rem;">
+  Cómo construimos su cartera sugerida
+</h2>
+<p style="color:#94a3b8;font-size:0.93rem;max-width:520px;margin:0 auto;">
+  La transparencia es parte del asesoramiento responsable.
+</p>
+</div>""", unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    _cards = [
+        {
+            "icon": "🎯",
+            "title": "Qué hace esta herramienta",
+            "body": (
+                "FinanzasIA analiza sus respuestas y las compara con un modelo de asignación de activos "
+                "construido sobre datos históricos del mercado argentino e internacional. "
+                "El resultado es una <strong>cartera teórica de referencia</strong>, no una orden de compra. "
+                "Es un punto de partida para conversar con un asesor real — no un reemplazo."
+            ),
+        },
+        {
+            "icon": "📋",
+            "title": "Cómo se eligen los activos",
+            "body": (
+                "El universo de activos fue seleccionado considerando:<br>"
+                "<strong>1.</strong> Liquidez real en BYMA superior a USD 100.000 diarios<br>"
+                "<strong>2.</strong> Historial de pagos y solvencia del emisor (acciones, bonos y ONs)<br>"
+                "<strong>3.</strong> Accesibilidad para inversores individuales desde plataformas como IOL o Balanz<br>"
+                "Los retornos esperados son promedios históricos de los últimos 5 años, no proyecciones."
+            ),
+        },
+        {
+            "icon": "📐",
+            "title": "Cómo se calculan retornos y riesgo",
+            "body": (
+                "<strong>Retorno esperado:</strong> promedio histórico anualizado por activo.<br>"
+                "<strong>Volatilidad:</strong> desviación estándar anualizada del precio.<br>"
+                "<strong>TIR de bonos y ONs:</strong> calculada por fórmula "
+                "(Tasa libre de riesgo USA + Riesgo país Argentina + Spread del emisor).<br>"
+                "No utilizamos precios de mercado en tiempo real para renta fija — "
+                "los TIR son estimaciones actualizadas semanalmente."
+            ),
+        },
+        {
+            "icon": "❌",
+            "title": "Qué NO hace esta herramienta",
+            "items": [
+                ("No tiene memoria entre sesiones", "Cada vez que abre la app, empieza de cero."),
+                ("No detecta cambios corporativos en tiempo real", "Si una empresa cambia de CEO o reporta resultados, no lo sabremos hasta la próxima actualización."),
+                ("No conoce su situación patrimonial completa", "Solo ve lo que usted declara en el cuestionario."),
+                ("No tiene precios de bonos y ONs en tiempo real", "Los rendimientos se estiman con fórmulas, no con datos de mercado en vivo."),
+                ("No reemplaza a un asesor regulado por la CNV", "Somos una herramienta educativa. Para decisiones reales, consulte un profesional."),
+                ("El universo de activos no se actualiza automáticamente", "La selección de activos se revisa manualmente cada cierto tiempo."),
+            ],
+        },
+        {
+            "icon": "📅",
+            "title": "Cuándo fue la última revisión",
+            "body": (
+                "<strong>Universo de activos:</strong> Abril 2025<br>"
+                "<strong>Retornos y volatilidades:</strong> Mayo 2025<br>"
+                "<strong>Modelo de scoring (Finviz):</strong> se actualiza automáticamente cada 7 días<br>"
+                "<strong>Scores de bonos:</strong> se actualizan con el riesgo país en cada sesión"
+            ),
+        },
+    ]
+
+    for card in _cards:
+        with st.expander(f"{card['icon']}  {card['title']}", expanded=False):
+            if "items" in card:
+                for item_title, item_desc in card["items"]:
+                    st.markdown(
+                        f'<div style="display:flex;gap:10px;margin-bottom:10px;">'
+                        f'<span style="color:#ef4444;font-size:1rem;flex-shrink:0;">❌</span>'
+                        f'<div><strong style="color:#e2e8f0;">{item_title}</strong>'
+                        f'<br><span style="font-size:0.82rem;color:#94a3b8;">{item_desc}</span></div>'
+                        f'</div>',
+                        unsafe_allow_html=True,
+                    )
+            else:
+                st.markdown(
+                    f'<p style="font-size:0.9rem;color:#cbd5e1;line-height:1.75;">{card["body"]}</p>',
+                    unsafe_allow_html=True,
+                )
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("""<div class="alert-card alert-medium">
+<span class="alert-icon">⚠️</span>
+<div style="font-size:0.88rem;color:#94a3b8;line-height:1.7;">
+  Esta herramienta tiene <strong style="color:#e2e8f0;">fines educativos</strong> y no constituye
+  asesoramiento financiero regulado por la CNV.
+  Antes de invertir su dinero, consulte siempre con un asesor habilitado.
+</div>
+</div>""", unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    _, col_cta, _ = st.columns([1, 2, 1])
+    with col_cta:
+        if st.button("Entendido → Iniciar mi evaluación", key="how_cta", use_container_width=True):
+            st.session_state.step = "profiling"
+            st.rerun()
+
+    if st.button("← Volver", key="back_from_how", use_container_width=False):
+        st.session_state.step = st.session_state.get("_prev_step", "intro")
+        st.rerun()

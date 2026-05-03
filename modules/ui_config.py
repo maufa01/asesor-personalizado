@@ -1682,7 +1682,20 @@ def apply_custom_css():
     }
 
     /* ── Theme Toggle ────────────────────────────────────────────── */
-    .theme-toggle-row { margin-top: 0.4rem; }
+    .theme-toggle-row {
+        margin-top: 0.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        justify-content: flex-end;
+    }
+    .theme-toggle-label {
+        font-size: 0.72rem;
+        color: var(--text-3);
+        font-family: var(--font-body);
+        letter-spacing: 0.02em;
+        user-select: none;
+    }
     [data-testid="stToggle"] {
         display: flex !important;
         flex-direction: row !important;
@@ -2280,7 +2293,7 @@ div[data-testid="stRadio"] div[role="radiogroup"] label p { color: #334155 !impo
 
 def render_header():
     theme = st.session_state.get("theme", "dark")
-    col_logo, col_nav = st.columns([5, 1])
+    col_logo, col_nav = st.columns([4, 2])
     with col_logo:
         st.markdown("""
         <div class="app-header">
@@ -2290,9 +2303,33 @@ def render_header():
         """, unsafe_allow_html=True)
     with col_nav:
         st.markdown('<div class="header-nav-spacer"></div>', unsafe_allow_html=True)
-        if st.button("📚 Glosario", key="header_glosario", use_container_width=True):
-            st.session_state._prev_step = st.session_state.get("step", "intro")
-            st.session_state.step = "glosario"
+        _btn_c1, _btn_c2 = st.columns(2)
+        with _btn_c1:
+            if st.button("📚 Glosario", key="header_glosario", use_container_width=True):
+                st.session_state._prev_step = st.session_state.get("step", "intro")
+                st.session_state.step = "glosario"
+                st.rerun()
+        with _btn_c2:
+            if st.button("ℹ️ Cómo funciona", key="header_metodologia", use_container_width=True):
+                st.session_state._prev_step = st.session_state.get("step", "intro")
+                st.session_state.step = "como_funciona"
+                st.rerun()
+        # Toggle de tema con etiqueta
+        _theme_label = "☀️ Claro" if theme == "light" else "🌙 Oscuro"
+        st.markdown(
+            f'<div class="theme-toggle-row">'
+            f'<span class="theme-toggle-label">{_theme_label}</span>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+        _is_light = st.toggle(
+            "Modo claro",
+            value=(theme == "light"),
+            key="theme_toggle_widget",
+            label_visibility="collapsed",
+        )
+        if _is_light != (theme == "light"):
+            st.session_state.theme = "light" if _is_light else "dark"
             st.rerun()
 
 

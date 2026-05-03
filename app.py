@@ -17,7 +17,7 @@ from modules.backtest import run_backtest
 from modules.ai_advisor import get_ai_analysis, get_rebalancing_advice, chat_with_advisor
 from modules.glossary import render_glossary
 from modules.costo_no_invertir import render_cost_of_not_investing, render_cost_results
-from modules.methodology import render_methodology
+from modules.methodology import render_methodology, render_how_it_works
 
 _SCORES_MAX_AGE_DAYS = 7   # umbral para auto-actualización
 
@@ -590,6 +590,31 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
 
     st.markdown("<br>", unsafe_allow_html=True)
 
+    # ── Advertencia de concentración ARG ─────────────────────────────────────
+    _ARG_ASSET_IDS = {
+        "lecap", "cer_bond", "money_market", "plazo_fijo", "fci_t0", "cash_pesos",
+        "fci_renta_pesos", "mep",
+        "al30", "gd30", "al35", "gd35", "gd38",
+        "galicia", "ypf", "bbar", "pamp", "tgsu", "alua", "txar", "teco2", "vist", "loma",
+    }
+    _arg_exposure = sum(p["weight"] for p in portfolio["positions"] if p["id"] in _ARG_ASSET_IDS)
+    if _arg_exposure > 0.40:
+        st.markdown(f"""<div style="background:rgba(245,158,11,0.07);border:1.5px solid #f59e0b;
+border-radius:12px;padding:14px 18px;margin-bottom:1rem;display:flex;gap:12px;align-items:flex-start;">
+  <span style="font-size:1.2rem;flex-shrink:0;">🇦🇷⚠️</span>
+  <div>
+    <strong style="color:#f59e0b;font-size:0.93rem;">
+      Alta concentración en activos argentinos ({_arg_exposure*100:.0f}% de la cartera)
+    </strong>
+    <p style="font-size:0.83rem;color:#94a3b8;margin:6px 0 0;line-height:1.65;">
+      Su cartera tiene una exposición significativa a Argentina.
+      Si además percibe su salario, tiene inmuebles o ahorros en pesos,
+      su riesgo país real puede ser mayor al calculado.
+      Considere consultarlo con un asesor financiero profesional.
+    </p>
+  </div>
+</div>""", unsafe_allow_html=True)
+
     # ── Distribución + Evolución ──────────────────────────────────────────────
     col_pie, col_evo = st.columns([1, 1.6])
 
@@ -1133,6 +1158,32 @@ border-radius:10px;padding:14px 18px;margin-bottom:12px;">
 
     st.markdown("<br>", unsafe_allow_html=True)
 
+    # ── Compartir por WhatsApp ────────────────────────────────────────────────
+    try:
+        import urllib.parse as _up
+        _app_url_r = st.secrets.get("APP_URL", "")
+    except Exception:
+        _app_url_r = ""
+    _suffix_r = f" 👉 {_app_url_r}" if _app_url_r else ". Buscá FinanzasIA en Google"
+    _rl = risk_labels.get(profile["risk_profile"], profile["risk_profile"].upper())
+    _wa_portfolio_text = (
+        f"Hice el test de perfil inversor en FinanzasIA "
+        f"y me sugirió una cartera {_rl.upper()} "
+        f"con retorno estimado del {portfolio['expected_cagr']*100:.1f}% anual en USD. "
+        f"Es gratis y tarda 5 minutos{_suffix_r}"
+    )
+    _wa_portfolio_url = f"https://wa.me/?text={_up.quote(_wa_portfolio_text)}"
+    st.markdown(
+        f'<div style="text-align:center;margin:0.5rem 0 1.2rem;">'
+        f'<a href="{_wa_portfolio_url}" target="_blank" rel="noopener" '
+        f'style="display:inline-flex;align-items:center;gap:8px;'
+        f'background:#25D366;color:#fff;font-weight:700;font-size:0.88rem;'
+        f'padding:10px 24px;border-radius:10px;text-decoration:none;'
+        f'box-shadow:0 2px 10px rgba(37,211,102,0.28);">'
+        f'📲 Compartir por WhatsApp</a></div>',
+        unsafe_allow_html=True,
+    )
+
     col_glos, col_r2, _ = st.columns([1, 1, 1])
     with col_glos:
         if st.button("📚 Ver Glosario", key="glosario_from_results", use_container_width=True):
@@ -1152,9 +1203,15 @@ elif step == "glosario":
     render_glossary()
 
 # ══════════════════════════════════════════════════════════════════════════════
-# METODOLOGÍA
+# METODOLOGÍA ACADÉMICA (modo avanzado)
 # ══════════════════════════════════════════════════════════════════════════════
 elif step == "metodologia":
     render_methodology()
+
+# ══════════════════════════════════════════════════════════════════════════════
+# CÓMO FUNCIONA (para el usuario general)
+# ══════════════════════════════════════════════════════════════════════════════
+elif step == "como_funciona":
+    render_how_it_works()
 
 render_footer()
