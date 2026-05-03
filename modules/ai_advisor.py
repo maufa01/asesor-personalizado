@@ -366,7 +366,11 @@ REGLAS:
             config=types.GenerateContentConfig(
                 system_instruction=system,
                 temperature=0.9,
-                max_output_tokens=1024,
+                # gemini-2.5-flash usa "thinking" por default, que consume tokens
+                # internos antes de generar la respuesta. En chat directo no lo
+                # necesitamos — lo desactivamos para evitar truncar respuestas.
+                thinking_config=types.ThinkingConfig(thinking_budget=0),
+                max_output_tokens=2048,
             ),
         )
     except ApiKeyError:
