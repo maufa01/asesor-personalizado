@@ -330,7 +330,7 @@ def render_how_it_works():
             "icon": "🎯",
             "title": "Qué hace esta herramienta",
             "body": (
-                "FinanzasIA analiza sus respuestas y las compara con un modelo de asignación de activos "
+                "TuPortafolioIA analiza sus respuestas y las compara con un modelo de asignación de activos "
                 "construido sobre datos históricos del mercado argentino e internacional. "
                 "El resultado es una <strong>cartera teórica de referencia</strong>, no una orden de compra. "
                 "Es un punto de partida para conversar con un asesor real — no un reemplazo."

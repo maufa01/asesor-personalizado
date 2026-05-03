@@ -3193,10 +3193,10 @@ def render_header():
         col_logo, col_glos, col_meto, col_theme = st.columns([4, 1.5, 1.5, 0.7])
 
     with col_logo:
-        # Logo HTML clásico — "Finanzas" + "IA" en gold
+        # Logo HTML clásico — "TuPortafolio" + "IA" en gold
         st.markdown("""
         <div class="app-header">
-            <div class="app-logo">Finanzas<span>IA</span></div>
+            <div class="app-logo">TuPortafolio<span>IA</span></div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -3241,6 +3241,6 @@ def render_header():
 def render_footer():
     st.markdown("""
     <div class="app-footer">
-        FinanzasIA · Herramienta educativa de planificación financiera · No constituye asesoramiento regulado por la CNV · Argentina
+        TuPortafolioIA · Herramienta educativa de planificación financiera · No constituye asesoramiento regulado por la CNV · Argentina
     </div>
     """, unsafe_allow_html=True)

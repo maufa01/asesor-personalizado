@@ -145,7 +145,7 @@ _CELEBRATION_HTML = """<!DOCTYPE html><html><head><meta charset="utf-8">
 </script></body></html>"""
 
 st.set_page_config(
-    page_title="FinanzasIA · Tu asesor financiero",
+    page_title="TuPortafolioIA · Tu asesor financiero",
     page_icon="📈",
     layout="wide",
     initial_sidebar_state="collapsed",
@@ -1167,7 +1167,7 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
     patrimonio total ni objetivos personales puntuales. Antes de operar, consulte con un
     asesor financiero matriculado por la <strong>{tip("CNV")} (Comisión Nacional de Valores)</strong>
     para validar que esta estrategia se ajuste a su realidad.</p>
-    <p class="pd-fine">FinanzasIA no recibe comisiones por las recomendaciones · No opera por
+    <p class="pd-fine">TuPortafolioIA no recibe comisiones por las recomendaciones · No opera por
     cuenta de los usuarios · Fines exclusivamente educativos.</p>
   </div>
 </div>""", unsafe_allow_html=True)
