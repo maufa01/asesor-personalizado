@@ -820,6 +820,9 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
                         value=st.session_state.get(_aporte_key + "_ars", 50_000),
                         step=50_000, key=_aporte_key + "_ars",
                     )
+                    if _aporte_ars > 0:
+                        _fmt_ars = f"${_aporte_ars:,.0f}".replace(",", ".")
+                        st.caption(f"→ {_fmt_ars} ARS")
                     _aporte_usd_val = _aporte_ars / _MEP_RATE
                 else:
                     _aporte_usd_val = st.number_input(
@@ -868,11 +871,16 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
                         font=dict(color="#94a3b8", size=12),
                         xaxis=dict(title="Años", tickmode="linear", dtick=1,
                                    gridcolor="#1e293b", zerolinecolor="#1e293b"),
-                        yaxis=dict(title=_disp_curr, range=[min(_ap_sin)*0.97, max(_ap_con)*1.03],
+                        yaxis=dict(title="", range=[min(_ap_sin)*0.97, max(_ap_con)*1.03],
                                    gridcolor="#1e293b", zerolinecolor="#1e293b", tickformat=",.0f"),
                         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0,
                                     bgcolor="rgba(0,0,0,0)"),
                         margin=dict(l=0, r=0, t=40, b=0), hovermode="x unified",
+                    )
+                    st.markdown(
+                        f'<p style="font-size:0.73rem;color:#64748b;margin:0 0 4px 0;">'
+                        f'Valores en {_disp_curr}</p>',
+                        unsafe_allow_html=True,
                     )
                     st.plotly_chart(_fig_ap, use_container_width=True)
                 except Exception:
