@@ -558,15 +558,88 @@ def _group_positions_by_user_category(positions: list) -> dict:
     return groups
 
 
+def _liquidity_label(asset_id: str) -> str:
+    if asset_id in {"cash_pesos", "money_market", "fci_t0", "mep"}:
+        return "Inmediata"
+    if asset_id == "plazo_fijo":
+        return "Al vencimiento (30d)"
+    if asset_id in {"lecap", "cer_bond", "fci_renta_pesos",
+                    "al30", "gd30", "al35", "gd35", "gd38",
+                    "on_ypf", "on_corp", "on_pampa", "on_tecpetrol"}:
+        return "1–5 días hábiles"
+    return "1–3 días hábiles"
+
+
+def _asset_warning(asset_id: str, volatility: float) -> str:
+    if asset_id in {"al30", "gd30", "al35", "gd35", "gd38"}:
+        return "⚠️ Bono soberano argentino — riesgo de reestructuración"
+    if asset_id in {"lecap", "cer_bond"}:
+        return "⚠️ Riesgo de contraparte: Tesoro Nacional argentino"
+    if volatility > 0.40:
+        return f"⚠️ Alta volatilidad — puede caer más del {volatility*100:.0f}% en un año"
+    return ""
+
+
+def _asset_card_html(p: dict, capital: float, amt_prefix: str) -> str:
+    a_pct  = p["weight"] * 100
+    a_amt  = p["weight"] * capital
+    razon  = (p.get("razon_en_cartera") or p.get("simple_desc") or p.get("description", ""))
+    ticker = p.get("ticker", "")
+    plat, how = _PLATFORMS.get(p["id"], ("IOL, PPI", f"Buscar → {ticker}"))
+    short_name = p["name"].split("(")[0].split("—")[0].strip()
+
+    # ── Chips ────────────────────────────────────────────────────────────────
+    ret = p.get("expected_return", 0) * 100
+    vol = p.get("volatility", 0) * 100
+    chips = (
+        f'<span class="adc-chip adc-chip-ret">~{ret:.0f}% anual est.</span>'
+        f'<span class="adc-chip adc-chip-vol">±{vol:.0f}% variación</span>'
+        f'<span class="adc-chip adc-chip-liq">💧 {_liquidity_label(p["id"])}</span>'
+    )
+    if p.get("bond_tir") is not None:
+        tir_label = "TNA" if p.get("bond_type") in ("lecap", "cer") else "TIR est."
+        chips += f'<span class="adc-chip adc-chip-tir">{tir_label} {p["bond_tir"]:.1f}%</span>'
+    if p.get("bond_duration") is not None:
+        chips += f'<span class="adc-chip adc-chip-dur">Dur. {p["bond_duration"]:.1f}a</span>'
+    if p.get("bond_score") is not None:
+        chips += f'<span class="adc-chip adc-chip-score">Score {p["bond_score"]}/100</span>'
+    elif p.get("score") is not None:
+        chips += f'<span class="adc-chip adc-chip-score">Score {p["score"]}/100</span>'
+
+    # ── Warning ──────────────────────────────────────────────────────────────
+    warn_txt = _asset_warning(p["id"], p.get("volatility", 0))
+    warn_html = (
+        f'<div class="adc-warning">{warn_txt}</div>' if warn_txt else ""
+    )
+
+    return (
+        f'<div class="asset-detail-card" style="border-left-color:{p["color"]};">'
+        f'  <div class="adc-top">'
+        f'    <div class="adc-title-wrap">'
+        f'      <div class="adc-title">{short_name}'
+        f'        <span class="adc-ticker-badge">{ticker}</span>'
+        f'      </div>'
+        f'      <div class="adc-meta adc-plat">🛒 {plat} · {how}</div>'
+        f'    </div>'
+        f'    <div class="adc-right">'
+        f'      <div class="adc-pct">{a_pct:.0f}%</div>'
+        f'      <div class="adc-amt">{amt_prefix}{a_amt:,.0f}</div>'
+        f'    </div>'
+        f'  </div>'
+        f'  <div class="adc-desc">{razon}</div>'
+        f'  <div class="adc-chips">{chips}</div>'
+        f'  {warn_html}'
+        f'</div>'
+    )
+
+
 def render_allocation_table(portfolio: dict, capital: float, currency_label: str = "USD"):
-    """
-    Nivel 1: cards de categorías siempre visibles (sin siglas).
-    Nivel 2: expander por categoría con los activos específicos.
-    """
+    """Cards de categoría expandibles — al clic muestran activos con detalle completo."""
     positions  = portfolio["positions"]
     groups     = _group_positions_by_user_category(positions)
     amt_prefix = "$" if currency_label == "ARS" else "USD "
 
+    html_parts = []
     for category in _CATEGORY_ORDER:
         items = groups.get(category, [])
         if not items:
@@ -577,114 +650,35 @@ def render_allocation_table(portfolio: dict, capital: float, currency_label: str
         icon  = meta["icon"]
         color = meta["color"]
 
-        # ── Nivel 1: card de categoría (siempre visible) ──────────────────
-        st.markdown(
-            f'<div class="cat-l1-card" style="border-left-color:{color};">'
-            f'  <div class="cat-l1-body">'
-            f'    <div class="cat-l1-name">{icon}&nbsp; {category}</div>'
-            f'    <div class="cat-l1-desc">{meta["description"]}</div>'
+        assets_html = "".join(_asset_card_html(p, capital, amt_prefix) for p in items)
+
+        html_parts.append(
+            f'<details class="cat-exp">'
+            f'<summary class="cat-exp-summary">'
+            f'  <div class="cat-l1-card" style="border-left-color:{color};">'
+            f'    <div class="cat-l1-body">'
+            f'      <div class="cat-l1-name">{icon}&nbsp; {category}</div>'
+            f'      <div class="cat-l1-desc">{meta["description"]}</div>'
+            f'    </div>'
+            f'    <div class="cat-l1-right">'
+            f'      <div class="cat-l1-pct" style="color:{color};">{pct:.0f}%</div>'
+            f'      <div class="cat-l1-pct-sub">de su dinero</div>'
+            f'    </div>'
+            f'    <span class="cat-exp-chevron">›</span>'
             f'  </div>'
-            f'  <div class="cat-l1-right">'
-            f'    <div class="cat-l1-pct" style="color:{color};">{pct:.0f}%</div>'
-            f'    <div class="cat-l1-pct-sub">de su dinero</div>'
-            f'  </div>'
-            f'</div>',
-            unsafe_allow_html=True,
+            f'</summary>'
+            f'<div class="cat-exp-body" style="border-left-color:{color};">'
+            f'  {assets_html}'
+            f'</div>'
+            f'</details>'
         )
 
-        # ── Nivel 2: activos específicos (expandible) ─────────────────────
-        n     = len(items)
-        label = f"Ver {'los ' if n > 1 else 'el '}{n} activo{'s' if n > 1 else ''} que componen esta categoría"
-        with st.expander(label, expanded=False):
-            for p in items:
-                a_pct  = p["weight"] * 100
-                a_amt  = p["weight"] * capital
-                razon  = p.get("razon_en_cartera", "") or p.get("simple_desc") or p.get("description", "")
-                ticker = p.get("ticker", "")
-                plat, _ = _PLATFORMS.get(p["id"], ("IOL, PPI", ""))
-                short_name = p["name"].split("(")[0].split("—")[0].strip()
-                # Build bond data chips if available
-                _bond_chips = ""
-                if p.get("bond_tir") is not None:
-                    _tir_label = "TNA" if p.get("bond_type") in ("lecap", "cer") else "TIR est."
-                    _bond_chips += f'<span class="adc-chip adc-chip-tir">{_tir_label} {p["bond_tir"]:.1f}%</span>'
-                if p.get("bond_duration") is not None:
-                    _bond_chips += f'<span class="adc-chip adc-chip-dur">Duración {p["bond_duration"]:.1f}a</span>'
-                if p.get("bond_score") is not None:
-                    _bond_chips += f'<span class="adc-chip adc-chip-score">Score {p["bond_score"]}/100</span>'
-                if p.get("score") is not None and not _bond_chips:
-                    _bond_chips = f'<span class="adc-chip adc-chip-score">Score Finviz {p["score"]}/100</span>'
-                _chips_row = f'<div class="adc-chips">{_bond_chips}</div>' if _bond_chips else ""
-
-                st.markdown(
-                    f'<div class="asset-detail-card" style="border-left-color:{p["color"]};">'
-                    f'  <div class="adc-top">'
-                    f'    <div class="adc-title-wrap">'
-                    f'      <div class="adc-title">{short_name}</div>'
-                    f'      <div class="adc-meta">{ticker} · {plat}</div>'
-                    f'    </div>'
-                    f'    <div class="adc-right">'
-                    f'      <div class="adc-pct">{a_pct:.0f}%</div>'
-                    f'      <div class="adc-amt">{amt_prefix}{a_amt:,.0f}</div>'
-                    f'    </div>'
-                    f'  </div>'
-                    f'  <div class="adc-desc">{razon}</div>'
-                    f'  {_chips_row}'
-                    f'</div>',
-                    unsafe_allow_html=True,
-                )
-
-        st.markdown('<div style="height:0.4rem;"></div>', unsafe_allow_html=True)
-
-    # Guía de compra al final de la tabla, sin separación visual
-    render_buy_guide(portfolio)
-
-
-def render_buy_guide(portfolio: dict):
-    """Tabla compacta: ticker + plataforma para cada activo de la cartera."""
-    positions = portfolio["positions"]
-
-    with st.expander("🛒 ¿Dónde y cómo comprar cada activo?"):
-        # Header
-        h = st.columns([2.6, 1.1, 2.8, 2.5])
-        for col, label in zip(h, ["Instrumento", "Ticker", "Plataformas", "Cómo buscarlo"]):
-            col.markdown(f'<div class="tbl-header">{label}</div>', unsafe_allow_html=True)
-        st.markdown('<div class="tbl-divider"></div>', unsafe_allow_html=True)
-
-        for p in positions:
-            plat, how = _PLATFORMS.get(p["id"], ("IOL, PPI", f"Buscar → {p['ticker']}"))
-            short_name = p["name"].split("(")[0].split("—")[0].strip()
-            if len(short_name) > 36:
-                short_name = short_name[:35] + "…"
-
-            cols = st.columns([2.6, 1.1, 2.8, 2.5])
-            cols[0].markdown(
-                f'<div class="tbl-cell">'
-                f'<span class="asset-dot" style="background:{p["color"]};"></span>'
-                f'<span class="asset-name" style="font-size:0.84rem;">{short_name}</span>'
-                f'</div>',
-                unsafe_allow_html=True,
-            )
-            cols[1].markdown(
-                f'<div class="tbl-cell">'
-                f'<span class="buy-ticker">{p["ticker"]}</span>'
-                f'</div>',
-                unsafe_allow_html=True,
-            )
-            cols[2].markdown(
-                f'<div class="tbl-cell" style="font-size:0.82rem;color:#94a3b8;">{plat}</div>',
-                unsafe_allow_html=True,
-            )
-            cols[3].markdown(
-                f'<div class="tbl-cell" style="font-size:0.8rem;color:#64748b;">{how}</div>',
-                unsafe_allow_html=True,
-            )
-
-        st.markdown(
-            '<p style="font-size:0.72rem;color:#64748b;margin-top:0.75rem;">'
-            'IOL = InvertirOnline · Cocos = Cocos Capital · PPI = Portfolio Personal Inversiones · '
-            'Balanz = Balanz Capital · Bullmarket = Bullmarket Brokers. '
-            'Verificá disponibilidad y costos en cada plataforma antes de operar.'
-            '</p>',
-            unsafe_allow_html=True,
-        )
+    st.markdown("\n".join(html_parts), unsafe_allow_html=True)
+    st.markdown(
+        '<p style="font-size:0.72rem;color:#64748b;margin-top:0.6rem;text-align:center;">'
+        'IOL = InvertirOnline · Cocos = Cocos Capital · PPI = Portfolio Personal · '
+        'Balanz = Balanz Capital · Bullmarket Brokers. '
+        'Verificá disponibilidad en cada plataforma antes de operar.'
+        '</p>',
+        unsafe_allow_html=True,
+    )

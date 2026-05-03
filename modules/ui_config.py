@@ -1875,6 +1875,41 @@ def apply_custom_css():
     }
 
     /* ── Category L1 cards (Nivel 1 de instrumentos) ─────────────── */
+    /* ── Expandable category cards (details/summary) ──────────────── */
+    .cat-exp {
+        margin-bottom: 0.45rem;
+    }
+    .cat-exp > summary {
+        list-style: none;
+        cursor: pointer;
+        display: block;
+        outline: none;
+    }
+    .cat-exp > summary::-webkit-details-marker,
+    .cat-exp > summary::marker { display: none; content: ''; }
+    /* Card inside summary */
+    .cat-exp > summary .cat-l1-card {
+        margin-bottom: 0;
+        transition: border-bottom-left-radius 0.15s, border-bottom-right-radius 0.15s, background 0.15s;
+    }
+    .cat-exp[open] > summary .cat-l1-card {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        border-bottom: 1px solid rgba(99,120,180,0.12);
+        background: rgba(255,255,255,0.04);
+    }
+    .cat-exp[open] > summary .cat-exp-chevron { transform: rotate(90deg); }
+    /* Expanded body */
+    .cat-exp-body {
+        background: rgba(255,255,255,0.018);
+        border: 1px solid var(--border);
+        border-top: none;
+        border-left: 4px solid;
+        border-bottom-left-radius: var(--radius-md);
+        border-bottom-right-radius: var(--radius-md);
+        padding: 0.8rem 0.85rem 0.55rem;
+    }
+
     .cat-l1-card {
         display: flex;
         align-items: center;
@@ -1884,7 +1919,7 @@ def apply_custom_css():
         border-left: 4px solid var(--blue);
         border-radius: var(--radius-md);
         padding: 1.1rem 1.4rem;
-        margin-bottom: 0.3rem;
+        margin-bottom: 0;
         transition: border-color 0.2s, background 0.2s;
     }
     .cat-l1-card:hover { background: rgba(255,255,255,0.03); }
@@ -1921,12 +1956,58 @@ def apply_custom_css():
         text-transform: uppercase;
         letter-spacing: 0.04em;
     }
+    /* Chevron indicator */
+    .cat-exp-chevron {
+        font-size: 1.3rem;
+        font-weight: 300;
+        color: var(--text-3);
+        margin-left: 0.85rem;
+        transition: transform 0.2s ease;
+        flex-shrink: 0;
+        line-height: 1;
+        user-select: none;
+    }
     @media (max-width: 640px) {
         .cat-l1-card  { padding: 0.85rem 1rem; }
         .cat-l1-pct   { font-size: 1.5rem; }
         .cat-l1-name  { font-size: 0.88rem; }
         .cat-l1-desc  { font-size: 0.76rem; }
+        .cat-exp-chevron { margin-left: 0.5rem; font-size: 1.1rem; }
     }
+    /* Ticker badge inline */
+    .adc-ticker-badge {
+        display: inline-block;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        color: var(--blue);
+        background: rgba(79,163,255,0.1);
+        border: 1px solid rgba(79,163,255,0.22);
+        padding: 1px 7px;
+        border-radius: 4px;
+        margin-left: 7px;
+        vertical-align: middle;
+        flex-shrink: 0;
+    }
+    /* Platform row */
+    .adc-plat {
+        font-size: 0.77rem !important;
+        color: var(--text-3) !important;
+        margin-top: 0.2rem;
+    }
+    /* Warning */
+    .adc-warning {
+        font-size: 0.77rem;
+        color: #f59e0b;
+        background: rgba(245,158,11,0.07);
+        border-radius: 6px;
+        padding: 4px 10px;
+        margin-top: 0.5rem;
+    }
+    /* New chip types */
+    .adc-chip-ret { background: rgba(16,217,138,0.10); color: #34d399; border: 1px solid rgba(16,217,138,0.22); }
+    .adc-chip-vol { background: rgba(245,158,11,0.10); color: #fbbf24; border: 1px solid rgba(245,158,11,0.22); }
+    .adc-chip-liq { background: rgba(96,165,250,0.10); color: #93c5fd; border: 1px solid rgba(96,165,250,0.22); }
 
     /* ── Asset detail cards (Nivel 2) ────────────────────────────── */
     .asset-detail-card {
@@ -2252,6 +2333,10 @@ div[data-testid="stRadio"] div[role="radiogroup"] label p { color: #334155 !impo
 .cat-l1-pct-sub { color: #64748b !important; }
 .cat-l1-card:hover { background: #f8fafc !important; }
 
+/* Category expandable en modo claro */
+.cat-exp-body { background: #f1f5f9 !important; border-color: rgba(100,116,139,0.2) !important; }
+details.cat-exp[open] > summary .cat-l1-card { background: #f1f5f9 !important; border-bottom-color: rgba(100,116,139,0.15) !important; }
+
 /* Asset detail cards en modo claro */
 .asset-detail-card { background: #f8fafc !important; }
 .adc-title { color: #0f172a !important; }
@@ -2259,6 +2344,12 @@ div[data-testid="stRadio"] div[role="radiogroup"] label p { color: #334155 !impo
 .adc-pct   { color: #0f172a !important; }
 .adc-amt   { color: #64748b !important; }
 .adc-desc  { color: #334155 !important; }
+.adc-ticker-badge { background: rgba(37,99,235,0.07) !important; color: #2563eb !important; border-color: rgba(37,99,235,0.18) !important; }
+.adc-plat  { color: #94a3b8 !important; }
+.adc-warning { color: #b45309 !important; background: rgba(217,119,6,0.06) !important; }
+.adc-chip-ret   { background: rgba(5,150,105,0.08)  !important; color: #047857 !important; border-color: rgba(5,150,105,0.18) !important; }
+.adc-chip-vol   { background: rgba(217,119,6,0.08)  !important; color: #b45309 !important; border-color: rgba(217,119,6,0.18) !important; }
+.adc-chip-liq   { background: rgba(37,99,235,0.07)  !important; color: #1d4ed8 !important; border-color: rgba(37,99,235,0.16) !important; }
 .adc-chip-tir   { background: rgba(22,163,74,0.08)  !important; color: #15803d !important; border-color: rgba(22,163,74,0.2) !important; }
 .adc-chip-dur   { background: rgba(59,130,246,0.08) !important; color: #1d4ed8 !important; border-color: rgba(59,130,246,0.2) !important; }
 .adc-chip-score { background: rgba(124,58,237,0.08) !important; color: #6d28d9 !important; border-color: rgba(124,58,237,0.2) !important; }
