@@ -829,16 +829,8 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
             f'</div>'
             for s in _scenarios
         )
-        st.markdown(f"""<details class="hist-block">
-<summary class="hist-summary">
-  <span class="hist-icon">📉</span>
-  <div class="hist-summary-text">
-    <strong>¿Qué pasó con esta cartera en crisis reales?</strong>
-    <span class="hist-summary-sub">Ver cómo habría reaccionado en 2008, 2018, 2020 y 2022</span>
-  </div>
-  <span class="hist-toggle">Ver</span>
-</summary>
-<div class="hist-body">
+        with st.expander("📉 ¿Qué pasó con esta cartera en crisis reales?", expanded=False):
+            st.markdown(f"""<div class="hist-body">
   <p class="hist-intro">
     Estas son simulaciones basadas en datos históricos reales de cada activo.
     <strong>Lo importante: en todas las crisis, los mercados se recuperaron.</strong>
@@ -849,8 +841,7 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
     💡 Quien aportó capital adicional durante las caídas obtuvo retornos
     significativamente superiores en la recuperación. La paciencia paga.
   </p>
-</div>
-</details>""", unsafe_allow_html=True)
+</div>""", unsafe_allow_html=True)
 
         st.markdown("<br>", unsafe_allow_html=True)
 
