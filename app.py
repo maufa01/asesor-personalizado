@@ -267,28 +267,36 @@ if _last_step is not None and _last_step != step:
     components.html("""
 <script>
 (function() {
+    let userScrolled = false;
+    let initialTop = true;
+
     function toTop() {
+        if (userScrolled) return;  // respetar al usuario si ya scrolleó
         try {
             const doc = window.parent.document;
-            // Anchor primero (más confiable que scrollTo(0) puro)
             const anchor = doc.getElementById('results-top-anchor');
-            if (anchor) {
-                anchor.scrollIntoView({ block: 'start', behavior: 'instant' });
-            }
-            // Triple fallback
+            if (anchor) anchor.scrollIntoView({ block: 'start', behavior: 'instant' });
             window.parent.scrollTo({ top: 0, behavior: 'instant' });
             doc.documentElement.scrollTop = 0;
             doc.body.scrollTop = 0;
         } catch(e) {}
     }
-    // Streamlit puede tardar varios segundos en renderizar widgets pesados
-    // (charts, formularios, etc.). Re-scrolleamos hasta los 4s para ganarle a
-    // cualquier scroll automático tardío disparado por algún widget que se
-    // monta después.
+
+    // Detectar scroll manual: cualquier wheel, touchmove o keydown del usuario
+    // aborta el loop de auto-scroll para no pelearlo.
+    try {
+        const winp = window.parent;
+        const onUserScroll = () => { userScrolled = true; };
+        winp.addEventListener('wheel',     onUserScroll, { passive: true, once: true });
+        winp.addEventListener('touchmove', onUserScroll, { passive: true, once: true });
+        winp.addEventListener('keydown',   onUserScroll, { once: true });
+    } catch(e) {}
+
+    // Reintentos hasta 1s solamente (antes 4s era demasiado y peleaba con
+    // el usuario). Si Streamlit dispara scroll automático tardío, igual lo
+    // ganamos en el primer segundo. Después soltamos el control.
     toTop();
-    [50, 150, 300, 600, 1000, 1500, 2200, 3000, 4000].forEach(function(d) {
-        setTimeout(toTop, d);
-    });
+    [50, 150, 350, 700, 1000].forEach(function(d) { setTimeout(toTop, d); });
 })();
 </script>
 """, height=0)

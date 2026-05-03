@@ -134,17 +134,17 @@ html, body, #root, .stApp {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 1.6rem 0 1.2rem;
+        padding: 0.8rem 0 0.6rem;
         border-bottom: 1px solid var(--border);
-        margin-bottom: 2.5rem;
+        margin-bottom: 0.8rem;
         flex-wrap: wrap;
         gap: 1rem;
     }
-    
+
     @media (max-width: 640px) {
         .app-header {
-            padding: 1rem 0 0.8rem;
-            margin-bottom: 1.5rem;
+            padding: 0.5rem 0 0.4rem;
+            margin-bottom: 0.5rem;
             justify-content: center;
             text-align: center;
         }
