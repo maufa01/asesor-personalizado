@@ -1129,13 +1129,17 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
     chat_history = st.session_state.chat_history
 
     if chat_history:
+        import html as _html
         for msg in chat_history:
             is_user = msg["role"] == "user"
             align   = "chat-user" if is_user else "chat-advisor"
             label   = "Usted" if is_user else "Lucas · Asesor IA"
+            # Escapar HTML para evitar que asteriscos, < o > rompan el bubble.
+            # Convertir saltos de línea a <br> para preservar formato del LLM.
+            safe_content = _html.escape(msg["content"]).replace("\n", "<br>")
             st.markdown(
                 f'<div class="chat-bubble {align}"><div class="chat-label">{label}</div>'
-                f'<div class="chat-text">{msg["content"]}</div></div>',
+                f'<div class="chat-text">{safe_content}</div></div>',
                 unsafe_allow_html=True,
             )
 
