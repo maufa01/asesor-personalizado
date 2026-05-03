@@ -116,16 +116,38 @@ BOND_DEFS = {
         "quality_pts":  18,
         "vol_est_m":    10.0,
     },
-    "cer_bond": {
+    "cer_tx26": {
+        "label":        "Bono CER TX26 – Ajuste por Inflación (corto)",
+        "type":         "cer",
+        "ticker_rava":  "TX26",
+        "ticker_ambito": "TX26",
+        "tir_est":      2.0,        # TIR real baja por corto plazo
+        "duration_est": 0.5,        # vence 2026, ~6 meses desde mayo 2026
+        "paridad_est":  99.5,
+        "quality_pts":  17,
+        "vol_est_m":    1.5,
+    },
+    "cer_tx28": {
         "label":        "Bono CER TX28 – Ajuste por Inflación",
         "type":         "cer",
         "ticker_rava":  "TX28",
         "ticker_ambito": "TX28",
         "tir_est":      5.0,
-        "duration_est": 2.2,   # vence julio 2028 (~2.2 años desde mayo 2026)
+        "duration_est": 2.2,        # vence julio 2028 (~2.2 años desde mayo 2026)
         "paridad_est":  96.0,
         "quality_pts":  17,
         "vol_est_m":    2.5,
+    },
+    "cer_dicp": {
+        "label":        "Bono DICP – CER Largo Plazo",
+        "type":         "cer",
+        "ticker_rava":  "DICP",
+        "ticker_ambito": "DICP",
+        "tir_est":      8.0,
+        "duration_est": 7.0,
+        "paridad_est":  80.0,
+        "quality_pts":  15,
+        "vol_est_m":    8.0,
     },
     "on_ypf": {
         "label":        "ON YPF USD",

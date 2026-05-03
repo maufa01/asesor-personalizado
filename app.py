@@ -611,7 +611,8 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
     # mep excluido: el resultado es USD — riesgo argentino mínimo
     # on_corp incluidos: riesgo corporativo argentino aunque paguen en USD
     _ARG_ASSET_IDS = {
-        "lecap", "cer_bond", "money_market", "plazo_fijo", "fci_t0", "cash_pesos",
+        "lecap", "cer_tx26", "cer_tx28", "cer_dicp",
+        "money_market", "plazo_fijo", "fci_t0", "cash_pesos",
         "fci_renta_pesos",
         "al30", "gd30", "al35", "gd35", "gd38",
         "on_corp", "on_ypf", "on_tecpetrol", "on_tgs", "on_macro",

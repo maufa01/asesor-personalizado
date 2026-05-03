@@ -48,7 +48,7 @@ _MEP_IDS: set[str] = {"mep", "dolar_mep"}
 _SKIP_IDS: set[str] = {
     "al30", "gd30", "al35", "gd35", "gd38",
     "on_ypf", "on_pampa", "on_tgs", "on_macro", "on_corp",
-    "cer_bond", "lecap",
+    "cer_tx26", "cer_tx28", "cer_dicp", "lecap",
 }
 
 # ── TNA histórica documentada (BCRA / fuentes públicas argentinas) ─────────────

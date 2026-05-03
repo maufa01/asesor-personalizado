@@ -54,7 +54,8 @@ _CATEGORY_META = {
 _CATEGORY_ASSET_IDS = {
     "Liquidez": {"cash_pesos", "money_market", "plazo_fijo", "fci_t0"},
     "Cobertura cambiaria": {"mep"},
-    "Renta fija": {"lecap", "cer_bond", "fci_renta_pesos", "al30", "gd30", "on_ypf", "on_corp", "on_pampa", "on_tecpetrol",
+    "Renta fija": {"lecap", "cer_tx26", "cer_tx28", "cer_dicp", "fci_renta_pesos",
+                   "al30", "gd30", "on_ypf", "on_corp", "on_pampa", "on_tecpetrol",
                    "al35", "gd35", "gd38", "on_tgs", "on_macro",
                    "fci_usd_rf", "fci_usd_ahorro", "fci_latam",
                    "on_meli", "on_telecom", "on_genneia", "on_vista", "on_pampa",
@@ -88,7 +89,9 @@ _PLATFORMS = {
     "plazo_fijo":      ("Tu banco (Galicia, Santander…)", "App del banco → Inversiones"),
     "fci_t0":          (_BROKERS_FONDOS,                  "Fondos → Renta Fija T+0"),
     "lecap":           (_BROKERS_BONOS,                   "Renta Fija → S31M26 / S30J26"),
-    "cer_bond":        (_BROKERS_BONOS,                   "Renta Fija → TX28"),
+    "cer_tx26":        (_BROKERS_BONOS,                   "Renta Fija → TX26"),
+    "cer_tx28":        (_BROKERS_BONOS,                   "Renta Fija → TX28"),
+    "cer_dicp":        (_BROKERS_BONOS,                   "Renta Fija → DICP"),
     "fci_renta_pesos": (_BROKERS_FONDOS,                  "Fondos → Renta Fija"),
     "mep":             (_BROKERS_MEP,                     "Dólar MEP → operación AL30 48hs"),
     "al30":            (_BROKERS_BONOS,                   "Renta Fija → AL30"),
@@ -678,7 +681,7 @@ def _liquidity_label(asset_id: str) -> str:
         return "Inmediata"
     if asset_id == "plazo_fijo":
         return "Al vencimiento (30d)"
-    if asset_id in {"lecap", "cer_bond", "fci_renta_pesos",
+    if asset_id in {"lecap", "cer_tx26", "cer_tx28", "cer_dicp", "fci_renta_pesos",
                     "al30", "gd30", "al35", "gd35", "gd38",
                     "on_ypf", "on_corp", "on_pampa", "on_tecpetrol"}:
         return "1–5 días hábiles"
@@ -688,7 +691,7 @@ def _liquidity_label(asset_id: str) -> str:
 def _asset_warning(asset_id: str, volatility: float) -> str:
     if asset_id in {"al30", "gd30", "al35", "gd35", "gd38"}:
         return "⚠️ Bono soberano argentino — riesgo de reestructuración"
-    if asset_id in {"lecap", "cer_bond"}:
+    if asset_id in {"lecap", "cer_tx26", "cer_tx28", "cer_dicp"}:
         return "⚠️ Riesgo de contraparte: Tesoro Nacional argentino"
     if volatility > 0.40:
         return f"⚠️ Alta volatilidad — puede caer más del {volatility*100:.0f}% en un año"
