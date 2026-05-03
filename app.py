@@ -255,6 +255,20 @@ with st.sidebar:
 
 step = st.session_state.step
 
+# ── Auto scroll-to-top on navigation ─────────────────────────────────────────
+# Detecta cambios de step automáticamente. Si el usuario cambió de pantalla
+# (intro → profiling → results, o vuelve al home, o entra al glosario),
+# forzamos scroll instantáneo al top. Sin esto, Streamlit a veces preserva
+# scroll de la pantalla anterior, o st.chat_input fuerza scroll al fondo.
+_last_step = st.session_state.get("_last_rendered_step")
+if _last_step is not None and _last_step != step:
+    components.html("""
+<script>
+try { window.parent.scrollTo({ top: 0, behavior: 'instant' }); } catch(e) {}
+</script>
+""", height=0)
+st.session_state["_last_rendered_step"] = step
+
 # ══════════════════════════════════════════════════════════════════════════════
 # INTRO
 # ══════════════════════════════════════════════════════════════════════════════
@@ -950,7 +964,6 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
     # MÓDULO UNIFICADO: HABLÁ CON LUCAS
     # Reemplaza al "Análisis Profesional" con tabs y al chat "Consultas al Asesor"
     # ══════════════════════════════════════════════════════════════════════════
-    st.markdown('<div id="chat-section"></div>', unsafe_allow_html=True)
     st.markdown('<div class="lucas-card">', unsafe_allow_html=True)
 
     # Header con avatar + título
