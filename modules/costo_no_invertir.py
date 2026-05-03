@@ -4,7 +4,6 @@ El Costo de No Invertir — pantalla de impacto emocional pre-cuestionario.
 
 import streamlit as st
 import urllib.request
-import urllib.parse
 import json as _json
 
 # ── Datos históricos hardcodeados ─────────────────────────────────────────────
@@ -289,35 +288,6 @@ def render_cost_results():
     )
     bar_sin = amount if storage == "dolares_billete" else real_hoy
     _render_chart(bar_sin, on_ars, spy_ars, amount)
-
-    # ── Botón WhatsApp ────────────────────────────────────────────────────────
-    try:
-        _app_url = st.secrets.get("APP_URL", "")
-    except Exception:
-        _app_url = ""
-    _url_ref = _app_url if _app_url else "Buscá FinanzasIA en Google"
-    _suffix   = f" 👉 {_app_url}" if _app_url else f". {_url_ref}"
-    if storage == "dolares_billete":
-        _perdida_str = f"USD {on_ars/mep_now - amount/mep_now:,.0f} sin rendimiento"
-    else:
-        _perdida_str = f"${perdida:,.0f} ARS de poder adquisitivo"
-    _wa_text = (
-        f"Calculé cuánto perdí por no invertir mis ahorros en {plabel}: "
-        f"{_perdida_str}. "
-        f"Si los hubiera puesto en ONs corporativas hoy tendría "
-        f"${on_ars:,.0f} en lugar de ${real_hoy:,.0f}. "
-        f"Lo calculé gratis en FinanzasIA{_suffix}"
-    )
-    _wa_url = f"https://wa.me/?text={urllib.parse.quote(_wa_text)}"
-    st.markdown(
-        f'<a href="{_wa_url}" target="_blank" rel="noopener" '
-        f'style="display:inline-flex;align-items:center;gap:8px;'
-        f'background:#25D366;color:#fff;font-weight:700;font-size:0.9rem;'
-        f'padding:10px 22px;border-radius:10px;text-decoration:none;'
-        f'margin:12px 0 4px 0;box-shadow:0 2px 8px rgba(37,211,102,0.25);">'
-        f'📲 Compartir por WhatsApp</a>',
-        unsafe_allow_html=True,
-    )
 
     st.markdown("<br>", unsafe_allow_html=True)
 
