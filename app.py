@@ -744,164 +744,76 @@ border-radius:12px;padding:14px 18px;margin-bottom:1rem;display:flex;gap:12px;al
         _sim_tab1, _sim_tab2 = st.tabs(["📉 Si no invierto", "💰 Si aporto mensualmente"])
 
         with _sim_tab1:
-            st.markdown(f"""
-<div style="background:rgba(255,255,255,0.04);border-radius:12px;padding:18px 22px;margin-bottom:20px;border-left:3px solid #f59e0b;">
-  <div style="font-size:1rem;font-weight:700;color:#e2e8f0;margin-bottom:8px;">¿Qué es el costo de oportunidad?</div>
-  <div style="font-size:0.9rem;color:#94a3b8;line-height:1.6;">
-    Cada peso que no se invierte no está guardado — está <strong style="color:#f59e0b;">perdiendo valor</strong>.
-    Los dólares bajo el colchón pierden poder de compra con la inflación global.
-    El plazo fijo en pesos, históricamente, apenas empata con el dólar.
-    <br><br>
-    El <strong style="color:#a78bfa;">costo de oportunidad</strong> es lo que se deja de ganar por no invertir el capital.
-    No es una pérdida visible en el extracto bancario — pero sí es real: es la diferencia entre
-    lo que se obtendría con esta cartera y lo que ocurre si no se hace nada.
-  </div>
-</div>
-""", unsafe_allow_html=True)
+            _cagr      = portfolio["expected_cagr"]
+            _infl_anual = 0.025  # 2.5% inflación global anual en USD
 
-            # ── Backtest histórico (5 años reales en USD) ─────────────────────
-            @st.cache_data(ttl=86_400, show_spinner=False)
-            def _cached_backtest(positions_frozen: tuple, cap: float) -> dict | None:
-                positions_list = [{"id": pid, "weight": pw} for pid, pw in positions_frozen]
-                return run_backtest(positions_list, cap)
+            # Proyección a 5 años
+            _con_5y  = _capital_usd * (1 + _cagr) ** 5 * _disp_factor
+            _sin_5y  = _capital_usd * (1 - _infl_anual) ** 5 * _disp_factor
+            _dif_5y  = _con_5y - _sin_5y
+            _dif_sign = "+" if _dif_5y >= 0 else ""
 
-            _pos_frozen = tuple(sorted((p["id"], p["weight"]) for p in portfolio["positions"]))
-            _bt = _cached_backtest(_pos_frozen, _capital_usd)
-
-            if _bt:
-                _bt_port = _bt["port_final"] * _disp_factor
-                _bt_pf   = _bt["pf_final"]   * _disp_factor
-                _bt_usd  = _bt["capital"]    * _disp_factor
-                _bt_diff = _bt["diff"]       * _disp_factor
-                _bt_gp   = _bt["gain_port"] * 100
-                _bt_gpf  = _bt["gain_pf"]   * 100
-                _bt_sign = "+" if _bt_gp >= 0 else ""
-                _pf_sign = "+" if _bt_gpf >= 0 else ""
-                _pf_color = "#22c55e" if _bt_gpf >= 0 else "#ef4444"
-
-                st.markdown(f"""<div class="metrics-grid">
-<div class="metric-card">
-  <div class="metric-label">Esta cartera — últimos 5 años</div>
-  <div class="metric-value" style="color:#22c55e;">{_disp_prefix}{_bt_port:,.0f}{_disp_suffix}</div>
-  <div class="metric-sub">{_bt_sign}{_bt_gp:.0f}% en USD sobre capital inicial</div>
+            # 2 cards
+            st.markdown(f"""<div class="metrics-grid" style="grid-template-columns:1fr 1fr;gap:16px;">
+<div class="metric-card" style="border-left:3px solid #22c55e;">
+  <div class="metric-label">CON ESTA CARTERA EN 5 AÑOS</div>
+  <div class="metric-value" style="color:#22c55e;">{_disp_prefix}{_con_5y:,.0f}{_disp_suffix}</div>
+  <div class="metric-sub">Estimación basada en retorno histórico</div>
 </div>
-<div class="metric-card">
-  <div class="metric-label">Solo plazo fijo — últimos 5 años</div>
-  <div class="metric-value" style="color:{_pf_color};">{_disp_prefix}{_bt_pf:,.0f}{_disp_suffix}</div>
-  <div class="metric-sub">{_pf_sign}{_bt_gpf:.0f}% en USD (TNA real BCRA + devaluación)</div>
-</div>
-<div class="metric-card">
-  <div class="metric-label">Dólares guardados (sin invertir)</div>
-  <div class="metric-value" style="color:#64748b;">{_disp_prefix}{_bt_usd:,.0f}{_disp_suffix}</div>
-  <div class="metric-sub">0% nominal — pierden contra inflación global</div>
-</div>
-<div class="metric-card">
-  <div class="metric-label">Diferencia cartera vs plazo fijo</div>
-  <div class="metric-value" style="color:#a78bfa;">{_disp_prefix}{_bt_diff:,.0f}{_disp_suffix}</div>
-  <div class="metric-sub">En dólares reales, últimos 5 años</div>
+<div class="metric-card" style="border-left:3px solid #ef4444;">
+  <div class="metric-label">SIN INVERTIR EN 5 AÑOS</div>
+  <div class="metric-value" style="color:#ef4444;">{_disp_prefix}{_sin_5y:,.0f}{_disp_suffix}</div>
+  <div class="metric-sub">Perdiendo poder adquisitivo cada año</div>
 </div>
 </div>""", unsafe_allow_html=True)
 
-                if _bt.get("skipped"):
-                    _skip_str = ", ".join(a.upper() for a in _bt["skipped"])
-                    st.caption(f"Activos excluidos del backtest (sin historial limpio post-reestructuración 2020): {_skip_str}. Su peso se redistribuyó entre los demás activos.")
-
-                try:
-                    import plotly.graph_objects as _go
-                    _fig_bt = _go.Figure()
-                    _bt_port_d = [v * _disp_factor for v in _bt["portfolio"]]
-                    _bt_pf_d   = [v * _disp_factor for v in _bt["pf"]]
-                    _bt_usd_d  = [v * _disp_factor for v in _bt["usd_held"]]
-                    _fig_bt.add_trace(_go.Scatter(
-                        x=_bt["dates"], y=_bt_port_d, name="Esta cartera",
-                        line=dict(color="#22c55e", width=3), mode="lines",
-                        hovertemplate=f"{_disp_prefix}%{{y:,.0f}}{_disp_suffix}<extra>Esta cartera</extra>",
-                    ))
-                    _fig_bt.add_trace(_go.Scatter(
-                        x=_bt["dates"], y=_bt_pf_d, name="Plazo fijo (TNA real)",
-                        line=dict(color="#f59e0b", width=2, dash="dot"), mode="lines",
-                        hovertemplate=f"{_disp_prefix}%{{y:,.0f}}{_disp_suffix}<extra>Plazo fijo</extra>",
-                    ))
-                    _fig_bt.add_trace(_go.Scatter(
-                        x=_bt["dates"], y=_bt_usd_d, name="Dólares guardados",
-                        line=dict(color="#64748b", width=2, dash="dash"), mode="lines",
-                        hovertemplate=f"{_disp_prefix}%{{y:,.0f}}{_disp_suffix}<extra>USD guardados</extra>",
-                    ))
-                    _y_min = min(min(_bt_pf_d), min(_bt_usd_d)) * 0.95
-                    _y_max = max(_bt_port_d) * 1.05
-                    _fig_bt.update_layout(
-                        paper_bgcolor="#0f172a", plot_bgcolor="#0f172a",
-                        font=dict(color="#94a3b8", size=12),
-                        xaxis=dict(title="", gridcolor="#1e293b", zerolinecolor="#1e293b",
-                                   tickangle=-30),
-                        yaxis=dict(title=f"USD", range=[_y_min, _y_max],
-                                   gridcolor="#1e293b", zerolinecolor="#1e293b", tickformat=",.0f"),
-                        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0,
-                                    bgcolor="rgba(0,0,0,0)"),
-                        margin=dict(l=0, r=0, t=40, b=0), hovermode="x unified",
-                    )
-                    st.plotly_chart(_fig_bt, use_container_width=True)
-                except Exception:
-                    pass
-
-                st.caption(f"Backtest histórico {_bt['n_months']} meses — datos reales: TNA BCRA, tipo de cambio MEP y precios de mercado internacionales. No garantiza rendimientos futuros.")
-
-            else:
-                _comp = comparar_vs_alternativas(_capital_usd, profile["horizon"], portfolio["expected_cagr"])
-                _cp_f    = _comp["portfolio_final"] * _disp_factor
-                _cp_pf   = _comp["pf_final"]        * _disp_factor
-                _cp_col  = _comp["colchon_final"]   * _disp_factor
-                _dif_col = _comp["diferencia_vs_colchon"] * _disp_factor
-                st.markdown(f"""<div class="metrics-grid">
-<div class="metric-card">
-  <div class="metric-label">Esta cartera en {profile['horizon']} años</div>
-  <div class="metric-value" style="color:#22c55e;">{_disp_prefix}{_cp_f:,.0f}{_disp_suffix}</div>
-  <div class="metric-sub">Rendimiento estimado {portfolio['expected_cagr']*100:.1f}% anual</div>
-</div>
-<div class="metric-card">
-  <div class="metric-label">Solo plazo fijo en {profile['horizon']} años</div>
-  <div class="metric-value" style="color:#f59e0b;">{_disp_prefix}{_cp_pf:,.0f}{_disp_suffix}</div>
-  <div class="metric-sub">~1% real anual en dólares (históricamente)</div>
-</div>
-<div class="metric-card">
-  <div class="metric-label">Dólares guardados en {profile['horizon']} años</div>
-  <div class="metric-value" style="color:#64748b;">{_disp_prefix}{_cp_col:,.0f}{_disp_suffix}</div>
-  <div class="metric-sub">Pierden ~2.5% por año contra la inflación global</div>
-</div>
-<div class="metric-card">
-  <div class="metric-label">Diferencia vs no invertir</div>
-  <div class="metric-value" style="color:#a78bfa;">{_disp_prefix}{_dif_col:,.0f}{_disp_suffix}</div>
-  <div class="metric-sub">Diferencia real a {profile['horizon']} años</div>
-</div>
+            # Línea de diferencia
+            st.markdown(f"""<div style="text-align:center;padding:14px 18px;background:rgba(34,197,94,0.07);
+border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
+  <span style="font-size:0.95rem;color:#e2e8f0;">La diferencia estimada:
+  <strong style="color:#22c55e;font-size:1.05rem;">&nbsp;{_dif_sign}{_disp_prefix}{_dif_5y:,.0f}{_disp_suffix}</strong>
+  a su favor si invierte vs si no hace nada.</span>
 </div>""", unsafe_allow_html=True)
-                try:
-                    import plotly.graph_objects as _go
-                    _years_ax  = _comp["years"]
-                    _port_vals = [v * _disp_factor for v in _comp["portfolio"]]
-                    _pf_vals   = [v * _disp_factor for v in _comp["pf"]]
-                    _col_vals  = [v * _disp_factor for v in _comp["colchon"]]
-                    _fig_comp  = _go.Figure()
-                    _fig_comp.add_trace(_go.Scatter(x=_years_ax, y=_port_vals, name="Esta cartera",
-                        line=dict(color="#22c55e", width=3), mode="lines"))
-                    _fig_comp.add_trace(_go.Scatter(x=_years_ax, y=_pf_vals, name="Plazo fijo",
-                        line=dict(color="#f59e0b", width=2, dash="dot"), mode="lines"))
-                    _fig_comp.add_trace(_go.Scatter(x=_years_ax, y=_col_vals, name="Dólares guardados",
-                        line=dict(color="#64748b", width=2, dash="dash"), mode="lines"))
-                    _fig_comp.update_layout(
-                        paper_bgcolor="#0f172a", plot_bgcolor="#0f172a",
-                        font=dict(color="#94a3b8", size=12),
-                        xaxis=dict(title="Años", tickmode="linear", dtick=1,
-                                   gridcolor="#1e293b", zerolinecolor="#1e293b"),
-                        yaxis=dict(title=_disp_curr,
-                                   range=[min(_col_vals)*0.97, max(_port_vals)*1.03],
-                                   gridcolor="#1e293b", zerolinecolor="#1e293b", tickformat=",.0f"),
-                        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0,
-                                    bgcolor="rgba(0,0,0,0)"),
-                        margin=dict(l=0, r=0, t=40, b=0), hovermode="x unified",
-                    )
-                    st.plotly_chart(_fig_comp, use_container_width=True)
-                except Exception:
-                    pass
+
+            # Gráfico de barras: 1, 3, 5 años — dos barras por punto
+            try:
+                import plotly.graph_objects as _go
+                _yr_labels = ["1 año", "3 años", "5 años"]
+                _yr_nums   = [1, 3, 5]
+                _vals_con  = [_capital_usd * (1 + _cagr) ** y * _disp_factor for y in _yr_nums]
+                _vals_sin  = [_capital_usd * (1 - _infl_anual) ** y * _disp_factor for y in _yr_nums]
+                _fig_sim   = _go.Figure()
+                _fig_sim.add_trace(_go.Bar(
+                    name="Con esta cartera", x=_yr_labels, y=_vals_con,
+                    marker_color="#22c55e", opacity=0.9,
+                    text=[f"{_disp_prefix}{v:,.0f}" for v in _vals_con],
+                    textposition="outside", textfont=dict(size=11, color="#22c55e"),
+                    hovertemplate=f"{_disp_prefix}%{{y:,.0f}}{_disp_suffix}<extra>Con cartera</extra>",
+                ))
+                _fig_sim.add_trace(_go.Bar(
+                    name="Sin invertir", x=_yr_labels, y=_vals_sin,
+                    marker_color="#ef4444", opacity=0.7,
+                    text=[f"{_disp_prefix}{v:,.0f}" for v in _vals_sin],
+                    textposition="outside", textfont=dict(size=11, color="#ef4444"),
+                    hovertemplate=f"{_disp_prefix}%{{y:,.0f}}{_disp_suffix}<extra>Sin invertir</extra>",
+                ))
+                _y_max_sim = max(_vals_con) * 1.18
+                _fig_sim.update_layout(
+                    paper_bgcolor="#0f172a", plot_bgcolor="#0f172a",
+                    font=dict(color="#94a3b8", size=12),
+                    barmode="group", bargap=0.28, bargroupgap=0.06,
+                    xaxis=dict(showgrid=False, tickfont=dict(size=14, color="#e2e8f0")),
+                    yaxis=dict(title=_disp_curr, gridcolor="#1e293b", zerolinecolor="#1e293b",
+                               tickformat=",.0f", range=[0, _y_max_sim]),
+                    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0,
+                                bgcolor="rgba(0,0,0,0)"),
+                    margin=dict(l=0, r=0, t=40, b=0),
+                )
+                st.plotly_chart(_fig_sim, use_container_width=True)
+            except Exception:
+                pass
+
+            st.caption("Proyección estimada basada en datos históricos. No garantiza rendimientos futuros.")
 
         with _sim_tab2:
             st.caption("El patrimonio no se construye de una vez — se consolida mes a mes. Incluso montos pequeños generan una diferencia significativa a largo plazo.")
