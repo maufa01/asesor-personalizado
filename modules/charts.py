@@ -335,8 +335,9 @@ def render_pie_chart(portfolio: dict):
 
     # Leyenda horizontal debajo del gráfico — funciona bien en mobile y desktop.
     # Plotly auto-distribuye en columnas según ancho disponible.
+    _layout = {**PLOTLY_LAYOUT, "margin": dict(l=10, r=10, t=20, b=80)}
     fig.update_layout(
-        **PLOTLY_LAYOUT,
+        **_layout,
         legend=dict(
             orientation="h",
             yanchor="top",
@@ -354,7 +355,6 @@ def render_pie_chart(portfolio: dict):
             showarrow=False,
         )],
         height=420,
-        margin=dict(l=10, r=10, t=20, b=80),
     )
 
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
