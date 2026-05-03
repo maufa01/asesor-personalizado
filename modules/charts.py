@@ -580,7 +580,7 @@ def _asset_warning(asset_id: str, volatility: float) -> str:
     return ""
 
 
-def _asset_card_html(p: dict, capital: float, amt_prefix: str) -> str:
+def _asset_card_html(p: dict, capital: float, amt_prefix: str, category_items: list | None = None) -> str:
     a_pct  = p["weight"] * 100
     a_amt  = p["weight"] * capital
     razon  = (p.get("razon_en_cartera") or p.get("simple_desc") or p.get("description", ""))
@@ -588,29 +588,35 @@ def _asset_card_html(p: dict, capital: float, amt_prefix: str) -> str:
     plat, how = _PLATFORMS.get(p["id"], ("IOL, PPI", f"Buscar → {ticker}"))
     short_name = p["name"].split("(")[0].split("—")[0].strip()
 
-    # ── Chips ────────────────────────────────────────────────────────────────
-    ret = p.get("expected_return", 0) * 100
+    # ── Exactamente 2 chips: retorno (verde) + variación (amarillo) ──────────
+    # Para bonos usar TIR si está disponible (más preciso que expected_return)
+    raw_ret = p["bond_tir"] if p.get("bond_tir") is not None else p.get("expected_return", 0) * 100
+    ret = abs(raw_ret)
     vol = p.get("volatility", 0) * 100
     chips = (
-        f'<span class="adc-chip adc-chip-ret">~{ret:.0f}% anual est.</span>'
-        f'<span class="adc-chip adc-chip-vol">±{vol:.0f}% variación</span>'
-        f'<span class="adc-chip adc-chip-liq">💧 {_liquidity_label(p["id"])}</span>'
+        f'<span class="adc-chip adc-chip-ret">+{ret:.0f}% anual est.</span>'
+        f'<span class="adc-chip adc-chip-vol">±{vol:.0f}% variación posible</span>'
     )
-    if p.get("bond_tir") is not None:
-        tir_label = "TNA" if p.get("bond_type") in ("lecap", "cer") else "TIR est."
-        chips += f'<span class="adc-chip adc-chip-tir">{tir_label} {p["bond_tir"]:.1f}%</span>'
-    if p.get("bond_duration") is not None:
-        chips += f'<span class="adc-chip adc-chip-dur">Dur. {p["bond_duration"]:.1f}a</span>'
-    if p.get("bond_score") is not None:
-        chips += f'<span class="adc-chip adc-chip-score">Score {p["bond_score"]}/100</span>'
-    elif p.get("score") is not None:
-        chips += f'<span class="adc-chip adc-chip-score">Score {p["score"]}/100</span>'
 
-    # ── Warning ──────────────────────────────────────────────────────────────
-    warn_txt = _asset_warning(p["id"], p.get("volatility", 0))
-    warn_html = (
-        f'<div class="adc-warning">{warn_txt}</div>' if warn_txt else ""
-    )
+    # ── Liquidez como texto simple junto a las plataformas ───────────────────
+    liq_text = _liquidity_label(p["id"])
+    plat_line = f'🛒 {plat} · {how} · Liquidez: {liq_text}'
+
+    # ── Advertencia solo para alta volatilidad o riesgo soberano relevante ───
+    warn_txt  = _asset_warning(p["id"], p.get("volatility", 0))
+    warn_html = f'<div class="adc-warning">{warn_txt}</div>' if warn_txt else ""
+
+    # ── Nota de ponderación desigual dentro de la categoría ──────────────────
+    imbalance_html = ""
+    if category_items and len(category_items) >= 2:
+        cat_weights = [i["weight"] for i in category_items]
+        max_w = max(cat_weights)
+        min_w = min(w for w in cat_weights if w > 0)
+        if max_w / min_w >= 3 and abs(p["weight"] - max_w) < 0.001:
+            imbalance_html = (
+                '<div style="font-size:0.75rem;color:#64748b;margin-top:4px;font-style:italic;">'
+                'Mayor ponderación: mejor relación retorno/riesgo para este perfil</div>'
+            )
 
     return (
         f'<div class="asset-detail-card" style="border-left-color:{p["color"]};">'
@@ -619,7 +625,6 @@ def _asset_card_html(p: dict, capital: float, amt_prefix: str) -> str:
         f'      <div class="adc-title">{short_name}'
         f'        <span class="adc-ticker-badge">{ticker}</span>'
         f'      </div>'
-        f'      <div class="adc-meta adc-plat">🛒 {plat} · {how}</div>'
         f'    </div>'
         f'    <div class="adc-right">'
         f'      <div class="adc-pct">{a_pct:.0f}%</div>'
@@ -628,6 +633,8 @@ def _asset_card_html(p: dict, capital: float, amt_prefix: str) -> str:
         f'  </div>'
         f'  <div class="adc-desc">{razon}</div>'
         f'  <div class="adc-chips">{chips}</div>'
+        f'  <div class="adc-meta adc-plat">{plat_line}</div>'
+        f'  {imbalance_html}'
         f'  {warn_html}'
         f'</div>'
     )
@@ -650,7 +657,7 @@ def render_allocation_table(portfolio: dict, capital: float, currency_label: str
         icon  = meta["icon"]
         color = meta["color"]
 
-        assets_html = "".join(_asset_card_html(p, capital, amt_prefix) for p in items)
+        assets_html = "".join(_asset_card_html(p, capital, amt_prefix, items) for p in items)
 
         html_parts.append(
             f'<details class="cat-exp">'
