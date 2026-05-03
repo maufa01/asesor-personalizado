@@ -2448,24 +2448,54 @@ details.cat-exp[open] > summary .cat-l1-card { background: #f1f5f9 !important; b
     .personal-msg p { font-size: 0.78rem; }
 }
 
-/* ── Chat form: ocultar helper de Streamlit + borde normalizado ─ */
-/* "Press Enter to submit form" — texto default de st.form */
+/* ── Chat form: ocultar helper "Press Enter" + borde verde ──── */
+/* Streamlit muestra "Press Enter to submit form" debajo del input.
+   Cubrimos múltiples selectores porque cambia entre versiones. */
 [data-testid="InputInstructions"],
 [data-testid="stFormInputInstruction"],
+[data-testid="stTextInputInstruction"],
+[data-testid="stFormSubmitButton"] + small,
 .stForm small,
-form[data-testid="stForm"] small {
+form[data-testid="stForm"] small,
+form[data-testid="stForm"] [data-testid="InputInstructions"],
+form[data-testid="stForm"] div[class*="instruction"] {
     display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
-/* Borde rojo default del text_input dentro del form */
+
+/* Borde verde sutil del text_input — reemplaza el rojo/naranja default */
 form[data-testid="stForm"] .stTextInput input,
-form[data-testid="stForm"] [data-baseweb="input"] {
-    border-color: var(--border) !important;
+form[data-testid="stForm"] [data-baseweb="input"],
+form[data-testid="stForm"] [data-baseweb="base-input"],
+.stTextInput input,
+.stTextInput [data-baseweb="input"] {
+    border-color: rgba(34,197,94,0.4) !important;
     box-shadow: none !important;
+    outline: none !important;
 }
 form[data-testid="stForm"] .stTextInput input:focus,
-form[data-testid="stForm"] [data-baseweb="input"]:focus-within {
-    border-color: rgba(79,163,255,0.6) !important;
-    box-shadow: 0 0 0 1px rgba(79,163,255,0.2) !important;
+form[data-testid="stForm"] [data-baseweb="input"]:focus-within,
+.stTextInput input:focus,
+.stTextInput [data-baseweb="input"]:focus-within {
+    border-color: #22c55e !important;
+    box-shadow: 0 0 0 1px rgba(34,197,94,0.25) !important;
+    outline: none !important;
+}
+
+/* ── Header: toggle de tema alineado verticalmente con los botones ─ */
+.header-theme-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 40px;
+    padding-top: 4px;
+}
+.header-theme-wrap [data-testid="stToggle"] {
+    margin: 0 !important;
 }
 
 /* ── Tooltips inline del glosario ─────────────────────────────── */
@@ -2697,7 +2727,7 @@ form[data-testid="stForm"] [data-baseweb="input"]:focus-within {
 
 def render_header():
     theme = st.session_state.get("theme", "dark")
-    col_logo, col_nav = st.columns([4, 2])
+    col_logo, col_nav = st.columns([3, 3])
     with col_logo:
         st.markdown("""
         <div class="app-header">
@@ -2707,7 +2737,8 @@ def render_header():
         """, unsafe_allow_html=True)
     with col_nav:
         st.markdown('<div class="header-nav-spacer"></div>', unsafe_allow_html=True)
-        _btn_c1, _btn_c2 = st.columns(2)
+        # 3 columnas: Glosario | Cómo funciona | Toggle de tema (alineado a la derecha)
+        _btn_c1, _btn_c2, _btn_c3 = st.columns([3, 3, 1.2])
         with _btn_c1:
             if st.button("📚 Glosario", key="header_glosario", use_container_width=True):
                 st.session_state._prev_step = st.session_state.get("step", "intro")
@@ -2718,13 +2749,16 @@ def render_header():
                 st.session_state._prev_step = st.session_state.get("step", "intro")
                 st.session_state.step = "como_funciona"
                 st.rerun()
-        # Toggle de tema: 🌙 [toggle] ☀️ — íconos contextual brightness
-        _is_light = st.toggle(
-            "Modo claro",
-            value=(theme == "light"),
-            key="theme_toggle_widget",
-            label_visibility="collapsed",
-        )
+        with _btn_c3:
+            # Toggle 🌙 [toggle] ☀️ alineado verticalmente con los botones
+            st.markdown('<div class="header-theme-wrap">', unsafe_allow_html=True)
+            _is_light = st.toggle(
+                "Modo claro",
+                value=(theme == "light"),
+                key="theme_toggle_widget",
+                label_visibility="collapsed",
+            )
+            st.markdown('</div>', unsafe_allow_html=True)
         if _is_light != (theme == "light"):
             st.session_state.theme = "light" if _is_light else "dark"
             st.rerun()
