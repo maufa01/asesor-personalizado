@@ -2573,32 +2573,6 @@ section.main > div[data-testid="block-container"] > div[data-testid="stVerticalB
     padding-right: 1rem !important;
 }
 
-/* Botón "🔄 Nuevo test" en header — distintivo (color naranja/dorado) */
-.nuevo-test-btn .stButton > button {
-    background: rgba(240, 180, 41, 0.1) !important;
-    border: 1px solid rgba(240, 180, 41, 0.4) !important;
-    color: #f0b429 !important;
-    font-size: 0.78rem !important;
-    padding: 0.35rem 0.6rem !important;
-    box-shadow: none !important;
-    letter-spacing: 0 !important;
-}
-.nuevo-test-btn .stButton > button:hover {
-    background: rgba(240, 180, 41, 0.2) !important;
-    border-color: #f0b429 !important;
-    box-shadow: 0 2px 8px rgba(240, 180, 41, 0.2) !important;
-    transform: none !important;
-}
-@media (max-width: 640px) {
-    .nuevo-test-btn .stButton > button {
-        font-size: 0 !important;  /* oculta el texto */
-        padding: 0.35rem 0.5rem !important;
-    }
-    .nuevo-test-btn .stButton > button::before {
-        content: "🔄";
-        font-size: 0.95rem;
-    }
-}
 
 /* Modal de confirmación inline (no usamos st.dialog para portabilidad) */
 .reset-confirm-overlay {
@@ -3203,13 +3177,11 @@ def render_header():
     if has_portfolio:
         with col_nuevo:
             st.markdown('<div class="header-nav-spacer"></div>', unsafe_allow_html=True)
-            st.markdown('<div class="nuevo-test-btn">', unsafe_allow_html=True)
             if st.button("🔄 Nuevo test", key="header_nuevo_test",
                          use_container_width=True,
                          help="Empezar un test nuevo desde cero"):
                 _trigger_reset_confirm("profiling")
                 st.rerun()
-            st.markdown('</div>', unsafe_allow_html=True)
 
     with col_glos:
         st.markdown('<div class="header-nav-spacer"></div>', unsafe_allow_html=True)

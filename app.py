@@ -1180,16 +1180,21 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    col_glos, col_r2, _ = st.columns([1, 1, 1])
+    col_eval, col_glos, col_meto = st.columns([1, 1, 1])
+    with col_eval:
+        if st.button("🔄 Nueva Evaluación", key="restart", use_container_width=True):
+            for key in list(st.session_state.keys()):
+                del st.session_state[key]
+            st.rerun()
     with col_glos:
         if st.button("📚 Ver Glosario", key="glosario_from_results", use_container_width=True):
             st.session_state._prev_step = "results"
             st.session_state.step = "glosario"
             st.rerun()
-    with col_r2:
-        if st.button("Nueva Evaluación", key="restart", use_container_width=True):
-            for key in list(st.session_state.keys()):
-                del st.session_state[key]
+    with col_meto:
+        if st.button("ℹ️ Cómo funciona", key="how_from_results", use_container_width=True):
+            st.session_state._prev_step = "results"
+            st.session_state.step = "como_funciona"
             st.rerun()
 
 # ══════════════════════════════════════════════════════════════════════════════
