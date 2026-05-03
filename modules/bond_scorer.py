@@ -117,12 +117,12 @@ BOND_DEFS = {
         "vol_est_m":    10.0,
     },
     "cer_bond": {
-        "label":        "Bono CER – Ajuste por Inflación",
+        "label":        "Bono CER TX28 – Ajuste por Inflación",
         "type":         "cer",
-        "ticker_rava":  "TZXD5",
-        "ticker_ambito": "TZXD5",
+        "ticker_rava":  "TX28",
+        "ticker_ambito": "TX28",
         "tir_est":      5.0,
-        "duration_est": 1.5,
+        "duration_est": 2.2,   # vence julio 2028 (~2.2 años desde mayo 2026)
         "paridad_est":  96.0,
         "quality_pts":  17,
         "vol_est_m":    2.5,

@@ -82,7 +82,7 @@ _PLATFORMS = {
     "plazo_fijo":      ("Tu banco (Galicia, Santander…)", "App del banco → Inversiones"),
     "fci_t0":          (_BROKERS_FONDOS,                  "Fondos → Renta Fija T+0"),
     "lecap":           (_BROKERS_BONOS,                   "Renta Fija → S31M26 / S30J26"),
-    "cer_bond":        (_BROKERS_BONOS,                   "Renta Fija → TX26 / TX28"),
+    "cer_bond":        (_BROKERS_BONOS,                   "Renta Fija → TX28"),
     "fci_renta_pesos": (_BROKERS_FONDOS,                  "Fondos → Renta Fija"),
     "mep":             (_BROKERS_MEP,                     "Dólar MEP → operación AL30 48hs"),
     "al30":            (_BROKERS_BONOS,                   "Renta Fija → AL30"),
