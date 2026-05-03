@@ -588,16 +588,6 @@ def _asset_card_html(p: dict, capital: float, amt_prefix: str, category_items: l
     plat, how = _PLATFORMS.get(p["id"], ("IOL, PPI", f"Buscar → {ticker}"))
     short_name = p["name"].split("(")[0].split("—")[0].strip()
 
-    # ── Exactamente 2 chips: retorno (verde) + variación (amarillo) ──────────
-    # Para bonos usar TIR si está disponible (más preciso que expected_return)
-    raw_ret = p["bond_tir"] if p.get("bond_tir") is not None else p.get("expected_return", 0) * 100
-    ret = abs(raw_ret)
-    vol = p.get("volatility", 0) * 100
-    chips = (
-        f'<span class="adc-chip adc-chip-ret">+{ret:.0f}% anual est.</span>'
-        f'<span class="adc-chip adc-chip-vol">±{vol:.0f}% variación posible</span>'
-    )
-
     # ── Liquidez como texto simple junto a las plataformas ───────────────────
     liq_text = _liquidity_label(p["id"])
     plat_line = f'🛒 {plat} · {how} · Liquidez: {liq_text}'
@@ -632,7 +622,6 @@ def _asset_card_html(p: dict, capital: float, amt_prefix: str, category_items: l
         f'    </div>'
         f'  </div>'
         f'  <div class="adc-desc">{razon}</div>'
-        f'  <div class="adc-chips">{chips}</div>'
         f'  <div class="adc-meta adc-plat">{plat_line}</div>'
         f'  {imbalance_html}'
         f'  {warn_html}'
