@@ -1001,7 +1001,8 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
                 unsafe_allow_html=True,
             )
 
-    # Chips de preguntas pre-armadas (8 preguntas, grid 2/3 cols responsive)
+    # Chips de preguntas pre-armadas — DESPUÉS de los mensajes, antes del input
+    # (siguiendo patrón estándar de chat: nuevos mensajes cerca del input)
     _suggested_input = None
     _chips_label = "Estas son las preguntas más comunes:" if not chat_history else "¿Querés explorar otra cosa?"
     st.markdown(f'<p class="lucas-chips-label">{_chips_label}</p>', unsafe_allow_html=True)
@@ -1016,9 +1017,6 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
         "¿Cómo abro cuenta en un broker?",
         "¿Cuánto pago de impuestos?",
     ]
-    # Layout responsive: 2 cols en mobile (default), 3 en desktop con weights iguales.
-    # Streamlit no soporta media queries en columns, así que usamos siempre 3 cols
-    # en desktop y CSS media query maneja la apariencia en mobile.
     for _row_start in range(0, len(_chips), 3):
         _row = _chips[_row_start:_row_start + 3]
         _cols = st.columns(len(_row))
@@ -1028,37 +1026,13 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
                     _suggested_input = q
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # Input libre
-    st.markdown('<p class="lucas-divider">o escribí tu propia pregunta</p>', unsafe_allow_html=True)
-    with st.form("lucas_form", clear_on_submit=True):
-        col_inp, col_btn = st.columns([5, 1])
-        with col_inp:
-            user_input = st.text_input(
-                "Pregunta",
-                placeholder="Escribí lo que quieras saber sobre tu cartera o cómo invertir",
-                label_visibility="collapsed",
-            )
-        with col_btn:
-            send = st.form_submit_button("Enviar", use_container_width=True)
-
-    # Procesar input desde chip o form
-    _final_input = _suggested_input or (user_input.strip() if send and user_input.strip() else None)
-    if _final_input:
-        with st.spinner("Lucas está pensando tu respuesta..."):
-            answer = chat_with_advisor(_final_input, chat_history, profile, portfolio)
-        st.session_state.chat_history.append({"role": "user",      "content": _final_input})
-        st.session_state.chat_history.append({"role": "assistant", "content": answer})
-        # Marcar para auto-scroll al final del chat tras el rerun
-        st.session_state["_lucas_scroll_pending"] = True
-        st.rerun()
-
-    # Disclaimer al pie del chat (una sola vez)
+    # Footer mini: disclaimer + link 'empezar de nuevo' (al fondo de la card,
+    # por ENCIMA del st.chat_input que flota fijo abajo del viewport)
     st.markdown("""<p class="lucas-footer-note">
   Lucas es un asistente IA con fines educativos.
   No reemplaza el asesoramiento de un profesional matriculado por la CNV.
 </p>""", unsafe_allow_html=True)
 
-    # Link discreto para empezar de nuevo (solo si hay historial)
     if chat_history:
         st.markdown('<div class="lucas-restart">', unsafe_allow_html=True)
         if st.button("¿Empezar de nuevo?", key="lucas_restart"):
@@ -1068,11 +1042,23 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
 
     st.markdown('</div>', unsafe_allow_html=True)  # cierra .lucas-card
 
+    # ── Input nativo de Streamlit — sticky al fondo del viewport ─────────────
+    # st.chat_input se renderiza FUERA del flujo normal de la página, fijo al
+    # bottom. Esto resuelve el bug de scroll: el input siempre está visible,
+    # los mensajes nuevos aparecen JUSTO ARRIBA y el usuario los ve sin scroll.
+    _typed_input = st.chat_input("Escribí lo que quieras saber sobre tu cartera o cómo invertir")
+
+    # Procesar input desde chip o desde st.chat_input
+    _final_input = _suggested_input or _typed_input
+    if _final_input:
+        with st.spinner("Lucas está pensando tu respuesta..."):
+            answer = chat_with_advisor(_final_input, chat_history, profile, portfolio)
+        st.session_state.chat_history.append({"role": "user",      "content": _final_input})
+        st.session_state.chat_history.append({"role": "assistant", "content": answer})
+        st.session_state["_lucas_scroll_pending"] = True
+        st.rerun()
+
     # ── Auto-scroll a la última respuesta tras un nuevo mensaje ──────────────
-    # Posiciona el último bubble (la respuesta de Lucas) en el CENTRO del
-    # viewport — más legible que 'end' que lo empujaba detrás de los chips.
-    # Doble setTimeout (300ms + 700ms) para cubrir los re-renders en fases
-    # típicos de Streamlit.
     if st.session_state.pop("_lucas_scroll_pending", False):
         components.html("""
 <script>
@@ -1087,18 +1073,10 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
                     block: 'center',
                     inline: 'nearest'
                 });
-            } else {
-                // Fallback: scroll al final completo de la página
-                window.parent.scrollTo({
-                    top: doc.body.scrollHeight,
-                    behavior: 'smooth'
-                });
             }
         } catch(e) { /* noop */ }
     }
-    // Primer intento tras el primer paint
     setTimeout(scrollToLast, 300);
-    // Retry por si Streamlit re-renderiza en una segunda fase
     setTimeout(scrollToLast, 700);
 })();
 </script>
