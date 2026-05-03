@@ -373,14 +373,34 @@ elif step == "profiling":
 # RESULTADOS
 # ══════════════════════════════════════════════════════════════════════════════
 elif step == "results":
-    # Anchor invisible al tope de la pantalla de resultados.
-    # El JS de scroll-on-step-change lo usa como target seguro vs scrollTo(0)
-    # que a veces es interceptado por widgets que renderizan después.
-    st.markdown('<div id="results-top-anchor"></div>', unsafe_allow_html=True)
+    # Anchor invisible al tope de la pantalla de resultados (height:0 para
+    # no agregar espacio visual). Target del scroll-on-step-change.
+    st.markdown(
+        '<div id="results-top-anchor" style="height:0;line-height:0;margin:0;padding:0;"></div>',
+        unsafe_allow_html=True,
+    )
 
     profile    = st.session_state.profile
     portfolio  = st.session_state.portfolio
     simulation = st.session_state.simulation
+
+    # ── Procesar input pendiente ANTES que cualquier otro widget ─────────────
+    # Si lo hacemos en el medio del script (ej. dentro del módulo Lucas), los
+    # widgets de ARRIBA del spinner se renderizan dos veces — una en R1 antes
+    # del spinner, otra en R2 después del rerun — y el usuario ve duplicado
+    # el "Simulaciones" expander, etc. Procesando acá, el spinner aparece al
+    # tope de la página y el rerun reemplaza limpio.
+    if st.session_state.get("_lucas_pending_input"):
+        _pending = st.session_state.pop("_lucas_pending_input")
+        _hist_for_call = list(st.session_state.chat_history)
+        with st.spinner("Lucas está pensando tu respuesta..."):
+            _answer = chat_with_advisor(_pending, _hist_for_call,
+                                        st.session_state.profile,
+                                        st.session_state.portfolio)
+        st.session_state.chat_history.append({"role": "user",      "content": _pending})
+        st.session_state.chat_history.append({"role": "assistant", "content": _answer})
+        st.session_state["_lucas_scroll_pending"] = True
+        st.rerun()
 
     # ── Resolución de moneda de display ──────────────────────────────────────
     try:
@@ -992,24 +1012,10 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
 
     # ══════════════════════════════════════════════════════════════════════════
     # MÓDULO UNIFICADO: HABLÁ CON LUCAS
-    # Reemplaza al "Análisis Profesional" con tabs y al chat "Consultas al Asesor"
+    # El procesamiento del input pendiente se hace AL TOPE de la pantalla de
+    # results (no acá) para que el spinner no quede en el medio y los widgets
+    # de arriba no se dupliquen durante el rerun.
     # ══════════════════════════════════════════════════════════════════════════
-
-    # Procesar input pendiente ANTES de renderizar el form (evita que se vea
-    # duplicado durante el spinner). El chip/form solo guarda el texto en
-    # _lucas_pending_input + rerun, y este bloque lo procesa antes del render.
-    if st.session_state.get("_lucas_pending_input"):
-        _pending = st.session_state.pop("_lucas_pending_input")
-        _hist_for_call = list(st.session_state.chat_history)
-        with st.spinner("Lucas está pensando tu respuesta..."):
-            _answer = chat_with_advisor(_pending, _hist_for_call,
-                                        st.session_state.profile,
-                                        st.session_state.portfolio)
-        st.session_state.chat_history.append({"role": "user",      "content": _pending})
-        st.session_state.chat_history.append({"role": "assistant", "content": _answer})
-        st.session_state["_lucas_scroll_pending"] = True
-        st.rerun()
-
     st.markdown('<div class="lucas-card">', unsafe_allow_html=True)
 
     # Header con avatar + título
