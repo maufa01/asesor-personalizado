@@ -3,7 +3,62 @@ Glosario Financiero — definiciones educativas para inversores argentinos.
 Lenguaje formal, ejemplos en pesos argentinos, nivel de riesgo por concepto.
 """
 
+import html as _html
 import streamlit as st
+
+
+# ─── Definiciones cortas para tooltips inline ────────────────────────────────
+# Versión condensada (1-2 líneas) de cada término — para mostrar en hover/tap
+# sin sacar al usuario de su contexto actual.
+
+TOOLTIPS: dict[str, str] = {
+    "CER":           "Coeficiente que ajusta el capital del bono por inflación INDEC. Si la inflación sube 100%, su capital también.",
+    "MEP":           "Dólar legal que se compra y vende vía bonos en BYMA. Sin límite mensual, operación 100% en blanco.",
+    "CCL":           "Dólar Contado con Liquidación: similar al MEP pero el USD queda depositado en el exterior.",
+    "ON":            "Obligación Negociable: bono emitido por una empresa privada (no el Estado). Suele pagar en USD.",
+    "LECAP":         "Letra del Tesoro a tasa fija en pesos. Vencimientos cortos (60-180 días), sin riesgo de precio.",
+    "CEDEAR":        "Acción de empresa internacional (ej. Apple) que se opera en BYMA en pesos o dólares.",
+    "FCI":           "Fondo Común de Inversión: agrupa plata de muchos inversores en una cartera profesional.",
+    "TIR":           "Tasa Interna de Retorno: el rendimiento anualizado que un bono ofrece si lo mantenés hasta el vencimiento.",
+    "CAGR":          "Crecimiento anual compuesto: cuánto rinde por año en promedio asumiendo reinversión.",
+    "duration":      "Mide cuánto cae el precio de un bono si las tasas suben 1%. A mayor duration, más volátil.",
+    "volatilidad":   "Cuánto puede oscilar el valor de la inversión en un año típico (en %). No es pérdida garantizada.",
+    "Sharpe":        "Eficiencia: cuánto retorno extra obtiene por cada unidad de riesgo asumido. >0.5 es bueno.",
+    "Beta":          "Sensibilidad al mercado. Beta=1 se mueve igual que el mercado, Beta>1 amplifica los movimientos.",
+    "Markowitz":     "Modelo Nobel 1952 que optimiza el ratio retorno/riesgo combinando activos no correlacionados.",
+    "BYMA":          "Bolsas y Mercados Argentinos: el mercado oficial donde se operan acciones, bonos y CEDEARs.",
+    "CNV":           "Comisión Nacional de Valores: regulador oficial del mercado de capitales argentino.",
+    "TX26":          "Bono CER corto (vence 2026). Protege contra inflación con poca volatilidad de precio.",
+    "TX28":          "Bono CER medio (vence 2028). Protege contra inflación con horizonte 3-5 años.",
+    "DICP":          "Bono CER largo (~7 años duration). Mayor rendimiento pero más sensible a cambios de tasa.",
+    "AL30":          "Bono soberano argentino en USD, ley local. Vence 2030. Alto rendimiento, alto riesgo soberano.",
+    "GD30":          "Bono soberano argentino en USD, ley Nueva York. Más protección legal que el AL30.",
+    "SPY":           "ETF que replica el S&P 500 (las 500 empresas más grandes de EE.UU.).",
+    "QQQ":           "ETF de las 100 empresas tecnológicas más grandes de EE.UU. (Nasdaq).",
+    "Evans & Archer":"Estudio de 1968: con 10-15 acciones se elimina el 90% del riesgo diversificable.",
+    "HHI":           "Índice de concentración: <0.15 = bien diversificado, >0.25 = muy concentrado.",
+    "duration modificada": "Mide cuánto cae el precio de un bono si las tasas suben 1%. A mayor duration, más volátil.",
+}
+
+
+def tip(term: str, label: str = None) -> str:
+    """
+    Devuelve HTML con un span tooltip-able. El término se subraya con punteado azul
+    sutil; on hover (desktop) o tap (mobile via :focus) muestra la definición corta.
+
+    Uso:  f"... {tip('CER')} ..."  →  ... <span class="term-tip" ...>CER</span> ...
+          f"... {tip('CER', 'inflación')} ..."  → muestra "inflación" pero el tip es el de CER
+    """
+    text = label if label is not None else term
+    definition = TOOLTIPS.get(term)
+    if not definition:
+        return _html.escape(text)
+    safe_text = _html.escape(text)
+    safe_def  = _html.escape(definition)
+    return (
+        f'<span class="term-tip" tabindex="0" data-tip="{safe_def}">'
+        f'{safe_text}</span>'
+    )
 
 # ─── Datos ────────────────────────────────────────────────────────────────────
 

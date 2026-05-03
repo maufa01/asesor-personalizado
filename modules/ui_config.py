@@ -2423,6 +2423,65 @@ details.cat-exp[open] > summary .cat-l1-card { background: #f1f5f9 !important; b
     border-color: rgba(37,99,235,0.2) !important;
 }
 
+/* ── Tooltips inline del glosario ─────────────────────────────── */
+.term-tip {
+    border-bottom: 1px dotted rgba(79,163,255,0.55);
+    cursor: help;
+    position: relative;
+    color: inherit;
+    transition: color 0.15s ease;
+    outline: none;
+}
+.term-tip:hover,
+.term-tip:focus {
+    color: #4fa3ff;
+}
+.term-tip:hover::after,
+.term-tip:focus::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #0f172a;
+    color: #cbd5e1;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(79,163,255,0.25);
+    font-size: 0.78rem;
+    line-height: 1.5;
+    width: max-content;
+    max-width: 280px;
+    white-space: normal;
+    z-index: 9999;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: normal;
+    pointer-events: none;
+}
+.term-tip:hover::before,
+.term-tip:focus::before {
+    content: "";
+    position: absolute;
+    bottom: calc(100% + 1px);
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: rgba(79,163,255,0.25);
+    z-index: 9999;
+    pointer-events: none;
+}
+/* Mobile: tooltip ocupa más ancho relativo y se centra */
+@media (max-width: 640px) {
+    .term-tip:hover::after,
+    .term-tip:focus::after {
+        max-width: calc(100vw - 2rem);
+        font-size: 0.74rem;
+    }
+}
+/* Light theme: invertir colores */
+
 /* ── Portfolio disclaimer (cierre legal) ──────────────────────── */
 .portfolio-disclaimer {
     display: flex;

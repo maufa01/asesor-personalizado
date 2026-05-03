@@ -15,7 +15,7 @@ from modules.charts import render_pie_chart, render_evolution_chart, render_bar_
 from modules.simulator import simulate_portfolio, comparar_vs_alternativas, proyectar_con_aportes
 from modules.backtest import run_backtest
 from modules.ai_advisor import get_ai_analysis, get_rebalancing_advice, chat_with_advisor
-from modules.glossary import render_glossary
+from modules.glossary import render_glossary, tip
 from modules.costo_no_invertir import render_cost_of_not_investing, render_cost_results
 from modules.methodology import render_methodology, render_how_it_works
 
@@ -473,7 +473,7 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
 <div class="legal-disclaimer">
   ⚠️ <strong>Aviso legal</strong> · Cartera {_disc_text}
   Capital: {_disp_prefix}{_disp_capital:,.0f}{_disp_suffix} · Horizonte: {profile['horizon']} años · Perfil: {rl}.
-  Esta herramienta tiene fines educativos y no reemplaza el asesoramiento de un profesional regulado por la CNV.
+  Esta herramienta tiene fines educativos y no reemplaza el asesoramiento de un profesional regulado por la {tip("CNV")}.
 </div>
 </div>
 <div class="summary-grid summary-main-grid">
@@ -511,7 +511,7 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
 <div class="si-value">{portfolio['diversification'].upper()}</div>
 </div>
 <div class="summary-item">
-<div class="si-label">Volatilidad estimada</div>
+<div class="si-label">{tip("volatilidad", "Volatilidad")} estimada</div>
 <div class="si-value" style="color:#f59e0b;">{portfolio['expected_volatility']*100:.1f}%</div>
 </div>
 </div>
@@ -587,23 +587,31 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
         with st.expander("📐 Métricas cuantitativas del portafolio", expanded=True):
             st.markdown(f"""<div class="metrics-grid">
 <div class="metric-card">
-  <div class="metric-label">Beta del portafolio</div>
+  <div class="metric-label">{tip("Beta")} del portafolio</div>
   <div class="metric-value" style="color:{_beta_color};">{_beta:.2f}</div>
   <div class="metric-sub">Sensibilidad al mercado (1.0 = neutral)</div>
 </div>
 <div class="metric-card">
-  <div class="metric-label">Sharpe Ratio estimado</div>
+  <div class="metric-label">{tip("Sharpe", "Sharpe Ratio")} estimado</div>
   <div class="metric-value" style="color:{_sharpe_color};">{_sharpe:.2f}</div>
   <div class="metric-sub">Retorno ajustado por riesgo (rf = 4.5%)</div>
 </div>
 <div class="metric-card">
-  <div class="metric-label">Índice HHI (concentración)</div>
+  <div class="metric-label">Índice {tip("HHI")} (concentración)</div>
   <div class="metric-value" style="color:{_hhi_color};">{_hhi:.3f}</div>
   <div class="metric-sub">{_hhi_lb} — 0 = perfecto, 1 = todo en un activo</div>
 </div>
 {f'<div class="metric-card"><div class="metric-label">Score promedio ponderado</div><div class="metric-value" style="color:#a78bfa;">{_avgsco}/100</div><div class="metric-sub">Calidad fundamental de los activos scorables</div></div>' if _avgsco else ""}
 </div>""", unsafe_allow_html=True)
-            st.caption("Beta: ponderado por betas Finviz. Sharpe: (CAGR − 4.5%) / σ. HHI: Herfindahl-Hirschman. Pesos equity optimizados con Markowitz (scipy).")
+            st.markdown(
+                f'<p style="font-size:0.78rem;color:#64748b;margin-top:0.6rem;">'
+                f'{tip("Beta")}: ponderado por betas Finviz. '
+                f'{tip("Sharpe")}: (CAGR − 4.5%) / σ. '
+                f'{tip("HHI")}: Herfindahl-Hirschman. '
+                f'Pesos equity optimizados con {tip("Markowitz")} (scipy).'
+                f'</p>',
+                unsafe_allow_html=True,
+            )
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -641,10 +649,13 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
             "agresivo": "agresivo (máx. 12)",
         }
         _plabel = _profile_labels.get(profile.get("risk_profile", ""), profile.get("risk_profile", ""))
-        st.caption(
-            f"Su cartera está compuesta por **{_n_pos} instrumentos**, "
-            f"número óptimo para su perfil {_plabel} según principios de "
-            f"diversificación eficiente (Evans & Archer, 1968)."
+        st.markdown(
+            f'<p style="font-size:0.78rem;color:#94a3b8;margin:0 0 0.5rem;line-height:1.55;">'
+            f'Su cartera está compuesta por <strong>{_n_pos} instrumentos</strong>, '
+            f'número óptimo para su perfil {_plabel} según principios de '
+            f'diversificación eficiente ({tip("Evans & Archer", "Evans & Archer, 1968")}).'
+            f'</p>',
+            unsafe_allow_html=True,
         )
 
         # ── Nota positiva de diversificación geográfica ─────────────────────
@@ -1028,15 +1039,15 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── Disclaimer legal de cierre ────────────────────────────────────────────
-    st.markdown("""<div class="portfolio-disclaimer">
+    st.markdown(f"""<div class="portfolio-disclaimer">
   <div class="pd-icon">ℹ️</div>
   <div class="pd-body">
     <strong>Esta cartera es una sugerencia educativa, no asesoramiento financiero.</strong>
-    <p>Está construida con datos históricos y modelos académicos (Markowitz, Evans &amp; Archer)
-    aplicados a su perfil. No considera su situación impositiva, patrimonio total ni objetivos
-    personales puntuales. Antes de operar, consulte con un asesor financiero matriculado por
-    la <strong>CNV (Comisión Nacional de Valores)</strong> para validar que esta estrategia
-    se ajuste a su realidad.</p>
+    <p>Está construida con datos históricos y modelos académicos ({tip("Markowitz")},
+    {tip("Evans & Archer")}) aplicados a su perfil. No considera su situación impositiva,
+    patrimonio total ni objetivos personales puntuales. Antes de operar, consulte con un
+    asesor financiero matriculado por la <strong>{tip("CNV")} (Comisión Nacional de Valores)</strong>
+    para validar que esta estrategia se ajuste a su realidad.</p>
     <p class="pd-fine">FinanzasIA no recibe comisiones por las recomendaciones · No opera por
     cuenta de los usuarios · Fines exclusivamente educativos.</p>
   </div>
