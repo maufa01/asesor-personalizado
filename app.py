@@ -10,12 +10,19 @@ from pathlib import Path
 from datetime import datetime
 from modules.ui_config import apply_custom_css, render_header, render_footer
 from modules.profiler import render_profiler
-from modules.portfolio import build_portfolio, generate_risk_scenarios
+from modules.portfolio import build_portfolio
 from modules.charts import render_pie_chart, render_evolution_chart, render_bar_simulation, render_allocation_table
 from modules.simulator import simulate_portfolio, comparar_vs_alternativas, proyectar_con_aportes
 from modules.backtest import run_backtest
 from modules.ai_advisor import get_ai_analysis, get_rebalancing_advice, chat_with_advisor
-from modules.glossary import render_glossary, tip
+from modules.glossary import render_glossary, tip, wrap_terms as _wrap_terms
+
+import html as _html_lib
+
+
+def _safe_with_tips(text: str) -> str:
+    """Escapa HTML y aplica tooltips a términos del glosario."""
+    return _wrap_terms(_html_lib.escape(str(text)))
 from modules.costo_no_invertir import render_cost_of_not_investing, render_cost_results
 from modules.methodology import render_methodology, render_how_it_works
 
@@ -163,41 +170,6 @@ def init_state():
 
 
 init_state()
-
-
-def _render_risk_scenarios_tab(risk_scenarios: list) -> None:
-    if not risk_scenarios:
-        st.info("No se identificaron riesgos específicos para esta cartera en el contexto de mercado actual.")
-        return
-    st.markdown(
-        '<p style="font-size:0.88rem;color:#94a3b8;margin-bottom:1rem;">'
-        'Estos escenarios son relevantes para <strong>esta cartera en particular</strong> '
-        'según su composición actual y el contexto de mercado. '
-        'No son predicciones — son riesgos a tener presentes al tomar la decisión de invertir.'
-        '</p>',
-        unsafe_allow_html=True,
-    )
-    _sev_colors = {"bajo": "#60a5fa", "medio": "#f59e0b", "alto": "#ef4444"}
-    _sev_labels = {"bajo": "BAJO", "medio": "MEDIO", "alto": "ALTO"}
-    for _sc in risk_scenarios:
-        _sev = _sc.get("severity", "medio")
-        _col = _sev_colors.get(_sev, "#f59e0b")
-        _lbl = _sev_labels.get(_sev, "MEDIO")
-        st.markdown(f"""<div style="background:rgba(255,255,255,0.03);border-left:3px solid {_col};
-border-radius:10px;padding:14px 18px;margin-bottom:12px;">
-  <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-    <span style="font-size:1.1rem;">{_sc['icon']}</span>
-    <span style="font-weight:700;color:#e2e8f0;font-size:0.95rem;">{_sc['title']}</span>
-    <span style="font-size:0.67rem;font-weight:700;letter-spacing:0.06em;
-          background:{_col}22;color:{_col};border:1px solid {_col}44;
-          padding:2px 8px;border-radius:999px;">{_lbl}</span>
-  </div>
-  <p style="font-size:0.84rem;color:#94a3b8;line-height:1.65;margin:0 0 8px 0;">{_sc['body']}</p>
-  <p style="font-size:0.8rem;color:#64748b;margin:0;">
-    <strong style="color:#94a3b8;">Mitigación:</strong> {_sc['tip']}
-  </p>
-</div>""", unsafe_allow_html=True)
-    st.caption("Análisis basado en la composición de la cartera y datos de mercado actuales. No constituye asesoramiento financiero regulado.")
 
 
 # ── Auto-actualización de scores (una sola vez por sesión) ───────────────────
@@ -818,9 +790,6 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # ── Riesgos (se muestran en pestaña de Análisis IA) ──────────────────────
-    _risk_scenarios = generate_risk_scenarios(portfolio, portfolio.get("market_context"))
-
     # ── Simulaciones ─────────────────────────────────────────────────────────
     with st.expander("📊 Simulaciones: ¿qué pasa con su dinero?", expanded=False):
         _sim_tab1, _sim_tab2 = st.tabs(["📉 Sin invertir", "💰 Aporte mensual"])
@@ -990,7 +959,7 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
                 st.rerun()
 
         analysis = st.session_state.ai_analysis
-        tabs = st.tabs(["📝 Por qué esta cartera", "⚠️ Alertas de riesgo", "🔄 Cuándo rebalancear", "💡 Consejos", "🎯 Riesgos"])
+        tabs = st.tabs(["📝 Por qué esta cartera", "⚠️ Alertas de riesgo", "💡 Consejos"])
 
         with tabs[0]:
             st.markdown(f'<div class="ai-response">{analysis["justification"]}</div>', unsafe_allow_html=True)
@@ -1000,22 +969,18 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
                 for alert in alerts:
                     severity = alert.get("severity", "medium")
                     icon = {"high": "🔴", "medium": "🟡", "low": "🟢"}.get(severity, "🔵")
+                    _alert_title = _safe_with_tips(alert.get("title", ""))
+                    _alert_msg   = _safe_with_tips(alert.get("message", ""))
                     st.markdown(f"""<div class="alert-card alert-{severity}">
 <span class="alert-icon">{icon}</span>
-<div><strong>{alert['title']}</strong><br><span>{alert['message']}</span></div>
+<div><strong>{_alert_title}</strong><br><span>{_alert_msg}</span></div>
 </div>""", unsafe_allow_html=True)
             else:
                 st.success("✅ No se detectaron alertas de riesgo significativas.")
         with tabs[2]:
-            st.markdown(f'<div class="ai-response">{analysis["rebalancing"]}</div>', unsafe_allow_html=True)
-        with tabs[3]:
             st.markdown(f'<div class="ai-response">{analysis["tips"]}</div>', unsafe_allow_html=True)
-        with tabs[4]:
-            _render_risk_scenarios_tab(_risk_scenarios)
     else:
-        _empty_tabs = st.tabs(["📝 Por qué esta cartera", "⚠️ Alertas de riesgo", "🔄 Cuándo rebalancear", "💡 Consejos", "🎯 Riesgos"])
-        with _empty_tabs[4]:
-            _render_risk_scenarios_tab(_risk_scenarios)
+        _empty_tabs = st.tabs(["📝 Por qué esta cartera", "⚠️ Alertas de riesgo", "💡 Consejos"])
         with _empty_tabs[0]:
             st.markdown("""<div class="ai-empty-state">
 <div class="ai-empty-icon">✨</div>

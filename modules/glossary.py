@@ -38,6 +38,17 @@ TOOLTIPS: dict[str, str] = {
     "Evans & Archer":"Estudio de 1968: con 10-15 acciones se elimina el 90% del riesgo diversificable.",
     "HHI":           "Índice de concentración: <0.15 = bien diversificado, >0.25 = muy concentrado.",
     "duration modificada": "Mide cuánto cae el precio de un bono si las tasas suben 1%. A mayor duration, más volátil.",
+    # Términos comunes que aparecen mucho en el análisis del LLM:
+    "ETF":           "Fondo cotizado en bolsa que replica un índice o sector. Ej: SPY (S&P 500), QQQ (Nasdaq 100).",
+    "Money Market":  "Fondo de muy corto plazo en pesos, rescate inmediato. Alternativa al plazo fijo con mayor liquidez.",
+    "S&P 500":       "Índice de las 500 empresas más grandes de Estados Unidos. Se sigue vía el ETF SPY o su CEDEAR.",
+    "Nasdaq":        "Índice de las empresas tecnológicas más grandes de EE.UU. Se sigue vía el ETF QQQ.",
+    "Wall Street":   "Distrito financiero de Nueva York donde cotizan las acciones de empresas de EE.UU.",
+    "rebalanceo":    "Reajuste periódico de la cartera para volver a los pesos originales de cada activo.",
+    "rebalancear":   "Reajustar la cartera vendiendo lo que subió mucho y comprando lo que quedó rezagado.",
+    "diversificación":"Combinar activos distintos (acciones, bonos, monedas) para que cuando uno baja, otro pueda subir.",
+    "renta fija":    "Bonos y letras: pagan intereses conocidos en plazos definidos. Más predecible que las acciones.",
+    "renta variable":"Acciones: su valor cambia con el mercado. Mayor potencial de ganancia pero también de pérdida.",
 }
 
 
@@ -59,6 +70,44 @@ def tip(term: str, label: str = None) -> str:
         f'<span class="term-tip" tabindex="0" data-tip="{safe_def}">'
         f'{safe_text}</span>'
     )
+
+
+# ─── Auto-wrapping de términos en texto plano ────────────────────────────────
+# Compila un regex que matchea cualquier término del glosario con word
+# boundaries (\b). Ordena por longitud descendente para priorizar matches
+# largos (ej: "duration modificada" antes que "duration").
+
+import re as _re
+
+_SORTED_TERMS = sorted(TOOLTIPS.keys(), key=len, reverse=True)
+_TERMS_REGEX = _re.compile(
+    r'\b(' + '|'.join(_re.escape(t) for t in _SORTED_TERMS) + r')\b'
+)
+
+
+def wrap_terms(escaped_text: str) -> str:
+    """
+    Detecta términos del glosario en un texto YA escapado para HTML y los
+    envuelve con tooltips. Solo wrappea la PRIMERA aparición de cada término
+    por llamada para no saturar visualmente.
+
+    Case-sensitive: 'ON' matchea pero 'on' no (evita falsos positivos en
+    palabras comunes como "comisiones", "operación").
+
+    Uso típico:
+        safe = html.escape(raw_text)
+        out = wrap_terms(safe)   # listo para inyectar como HTML
+    """
+    seen: set[str] = set()
+
+    def _repl(match):
+        term = match.group(1)
+        if term in seen:
+            return term
+        seen.add(term)
+        return tip(term)
+
+    return _TERMS_REGEX.sub(_repl, escaped_text)
 
 # ─── Datos ────────────────────────────────────────────────────────────────────
 

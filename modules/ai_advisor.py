@@ -13,6 +13,8 @@ from google.genai import types
 from typing import Dict, Any
 import streamlit as st
 
+from .glossary import wrap_terms as _wrap_terms
+
 # Modelos vigentes (gemini-1.5-* fue deprecado en 2025).
 # Orden: principal → fallback → fallback rápido si los anteriores saturan.
 _MODELS = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-2.5-flash-lite"]
@@ -165,19 +167,29 @@ def _e(text: str) -> str:
     return html_lib.escape(str(text))
 
 
+def _et(text: str) -> str:
+    """
+    Escape + auto-wrap de términos del glosario con tooltips.
+    Versión 'enriquecida' de _e() para textos del análisis profesional —
+    los novatos pueden ver definiciones de FCI, MEP, ETF, etc. al pasar
+    el dedo sin salir del flujo.
+    """
+    return _wrap_terms(html_lib.escape(str(text)))
+
+
 def _build_justification_html(data: dict, portfolio: dict) -> str:
     weight_map = {p["ticker"]: p["weight"] for p in portfolio["positions"]}
 
-    intro = f'<div class="ai-intro">{_e(data.get("intro", ""))}</div>'
+    intro = f'<div class="ai-intro">{_et(data.get("intro", ""))}</div>'
 
     cards = ""
     for asset in data.get("assets", []):
         ticker  = asset.get("ticker", "")
         weight  = weight_map.get(ticker, 0)
         pct     = f"{weight*100:.1f}%"
-        what    = _e(asset.get("what", ""))
-        purpose = _e(asset.get("purpose", ""))
-        worst   = _e(asset.get("worst_case", ""))
+        what    = _et(asset.get("what", ""))
+        purpose = _et(asset.get("purpose", ""))
+        worst   = _et(asset.get("worst_case", ""))
         cards += f"""<div class="asset-card">
   <div class="asset-header">
     <span class="asset-name">{_e(ticker)}</span>
@@ -188,7 +200,7 @@ def _build_justification_html(data: dict, portfolio: dict) -> str:
   <div class="asset-row asset-row-risk"><strong>⚠ Peor caso:</strong> {worst}</div>
 </div>"""
 
-    synergy = _e(data.get("synergy", ""))
+    synergy = _et(data.get("synergy", ""))
 
     return f"""{intro}
 <div class="ai-section">
@@ -204,14 +216,14 @@ def _build_justification_html(data: dict, portfolio: dict) -> str:
 def _build_rebalancing_html(data: dict) -> str:
     triggers_html = ""
     for t in data.get("rebalancing_triggers", []):
-        situation = _e(t.get("situation", ""))
-        action    = _e(t.get("action", ""))
+        situation = _et(t.get("situation", ""))
+        action    = _et(t.get("action", ""))
         triggers_html += f"""<div class="rebalance-block">
   <strong>{situation}</strong>
   <span>{action}</span>
 </div>"""
 
-    how = _e(data.get("rebalancing_how", ""))
+    how = _et(data.get("rebalancing_how", ""))
 
     return f"""<div class="ai-section">
   <h3 class="ai-section-title">📅 ¿Cuándo rebalancear?</h3>
@@ -225,9 +237,9 @@ def _build_rebalancing_html(data: dict) -> str:
 
 def _build_tips_html(data: dict) -> str:
     items = ""
-    for tip in data.get("tips", []):
-        icon = _e(tip.get("icon", "💡"))
-        text = _e(tip.get("text", ""))
+    for tip_item in data.get("tips", []):
+        icon = _e(tip_item.get("icon", "💡"))
+        text = _et(tip_item.get("text", ""))
         items += f'<li><span class="tip-icon">{icon}</span><span>{text}</span></li>'
 
     return f"""<div class="ai-section">
