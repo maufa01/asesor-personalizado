@@ -7,6 +7,59 @@ import streamlit as st
 
 
 def apply_custom_css():
+    # ── Meta tags para iOS Safari (theme-color del notch + viewport) ─────
+    # Sin esto, iOS pinta de blanco la zona del notch y la barra inferior
+    # del browser, aunque el body sea oscuro.
+    st.markdown("""
+<meta name="theme-color" content="#0f1423" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#0f1423">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+""", unsafe_allow_html=True)
+
+    # ── Forzar fondo dark en TODAS las capas de Streamlit ─────────────────
+    # iOS Safari muestra blanco en zonas que Streamlit no controla por default
+    # (header, toolbar, decoration, safe areas).
+    st.markdown("""
+<style>
+html, body, #root, .stApp,
+[data-testid="stAppViewContainer"],
+[data-testid="stAppViewContainer"] > section,
+[data-testid="stMain"],
+.main {
+    background: #0f1423 !important;
+    background-color: #0f1423 !important;
+}
+[data-testid="stHeader"],
+header[data-testid="stHeader"],
+.stApp > header,
+[data-testid="stToolbar"],
+[data-testid="stDecoration"] {
+    background: #0f1423 !important;
+    background-color: #0f1423 !important;
+}
+[data-testid="stHeader"]::before,
+[data-testid="stHeader"]::after {
+    background: transparent !important;
+    display: none !important;
+}
+/* Altura mínima full viewport para que no aparezca blanco abajo */
+html, body, #root, .stApp {
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+/* Safe areas para iPhone con notch */
+@supports (padding: max(0px)) {
+    .stApp {
+        padding-top: env(safe-area-inset-top);
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+    }
+}
+</style>
+""", unsafe_allow_html=True)
+
     st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
@@ -1615,6 +1668,61 @@ def apply_custom_css():
     }
     .stRadio [data-baseweb="radio"]:hover {
         border-color: var(--blue) !important;
+    }
+
+    /* ── Cuestionario MOBILE compacto: que entre todo en 1 pantalla ─ */
+    @media (max-width: 640px) {
+        /* Card del cuestionario muy compacta */
+        .profiler-card {
+            padding: 0.85rem 0.9rem 0.7rem !important;
+            margin-bottom: 0.5rem !important;
+        }
+        .q-emoji {
+            font-size: 1.5rem !important;
+            margin-bottom: 0.3rem !important;
+        }
+        .q-title {
+            font-size: 0.95rem !important;
+            line-height: 1.3 !important;
+            margin-bottom: 0.25rem !important;
+        }
+        .profiler-card p.hint {
+            font-size: 0.72rem !important;
+            line-height: 1.4 !important;
+        }
+        /* Progress más chico */
+        .progress-wrap { margin-bottom: 0.5rem !important; }
+        .progress-label {
+            font-size: 0.6rem !important;
+            margin-bottom: 0.2rem !important;
+        }
+        .progress-track { height: 4px !important; }
+        /* Radio options compactos para que entren todas */
+        .stRadio [data-baseweb="radio"] {
+            padding: 0.5rem 0.7rem !important;
+            margin-bottom: 0.3rem !important;
+            font-size: 0.82rem !important;
+        }
+        /* Texto dentro del radio más chico */
+        div[data-testid="stRadio"] div[role="radiogroup"] label,
+        div[data-testid="stRadio"] div[role="radiogroup"] label p {
+            font-size: 0.82rem !important;
+            line-height: 1.35 !important;
+        }
+        /* Botones de navegación compactos al pie */
+        .stRadio + div .stButton > button,
+        .stButton[data-key^="next_"] > button,
+        .stButton[data-key^="back_"] > button {
+            padding: 0.5rem 0.8rem !important;
+            font-size: 0.78rem !important;
+        }
+        /* Reducir gap general entre elementos */
+        [data-testid="stVerticalBlock"] { gap: 0.4rem !important; }
+        /* Padding del contenedor principal */
+        .block-container {
+            padding-top: 0.5rem !important;
+            padding-bottom: 0.5rem !important;
+        }
     }
 
     /* ── Responsive Columns: stack on tablet & mobile ────────────── */
