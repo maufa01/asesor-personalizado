@@ -569,19 +569,32 @@ def render_bar_simulation(portfolio: dict, initial_capital: float,
         hovertemplate=f"<b>%{{x}} — Excelente</b><br>Capital: $%{{y:,.0f}} {currency_label}<extra></extra>",
     ))
 
-    # Línea de capital inicial
+    # Línea de capital inicial — sin label sobre la línea (evita pisar las etiquetas
+    # de % de las barras del año 1 cuando todavía no creció mucho).
     fig.add_hline(
         y=capital_original,
         line_dash="dot",
         line_color="rgba(148,163,184,0.4)",
         line_width=1.5,
-        annotation_text=f"Capital inicial ${capital_original:,.0f}",
-        annotation_position="top left",
-        annotation_font=dict(size=10, color="#64748b"),
+    )
+    # Label del capital inicial en la esquina superior izquierda del plot
+    fig.add_annotation(
+        xref="paper", yref="paper",
+        x=0.0, y=1.0,
+        text=f"— Capital inicial ${capital_original:,.0f}",
+        showarrow=False,
+        font=dict(size=10, color="#64748b"),
+        xanchor="left",
+        yanchor="bottom",
+        yshift=2,
     )
 
+    # Headroom de 15% arriba para que las etiquetas % no choquen con el borde
+    _y_max = max(disp_opt) * 1.18
+
+    _layout = {**PLOTLY_LAYOUT, "margin": dict(l=10, r=20, t=50, b=10)}
     fig.update_layout(
-        **PLOTLY_LAYOUT,
+        **_layout,
         barmode="group",
         bargap=0.22,
         bargroupgap=0.06,
@@ -592,6 +605,7 @@ def render_bar_simulation(portfolio: dict, initial_capital: float,
             tickformat="$,.0f",
             tickfont=dict(size=10),
             title="",
+            range=[0, _y_max],
         ),
         xaxis=dict(
             showgrid=False,
@@ -608,7 +622,7 @@ def render_bar_simulation(portfolio: dict, initial_capital: float,
         ),
         height=420,
     )
-    fig.update_layout(margin=dict(l=0, r=0, t=40, b=0))
+    fig.update_traces(cliponaxis=False)
 
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
