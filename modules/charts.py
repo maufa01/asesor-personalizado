@@ -88,8 +88,7 @@ _PLATFORMS = {
     "al30":            (_BROKERS_BONOS,                   "Renta Fija → AL30"),
     "gd30":            (_BROKERS_BONOS,                   "Renta Fija → GD30"),
     "on_ypf":          (_BROKERS_BONOS,                   "Renta Fija → YPFDS"),
-    "on_corp":         (_BROKERS_BONOS,                   "Renta Fija → PTSTO / TCCUD"),
-    "on_pampa":        (_BROKERS_BONOS,                   "Renta Fija → PTSTO"),
+    "on_corp":         (_BROKERS_BONOS,                   "Renta Fija → YPFDS / TGSU2O / TCCUD"),
     "on_tecpetrol":    (_BROKERS_BONOS,                   "Renta Fija → TCCUD"),
     "spy":             (_BROKERS_CEDEARS,                 "CEDEARs → SPY"),
     "qqq":             (_BROKERS_CEDEARS,                 "CEDEARs → QQQ"),
@@ -377,7 +376,7 @@ def render_bar_simulation(portfolio: dict, initial_capital: float,
         capital_original = initial_capital
     display_factor = capital_original / initial_capital if initial_capital else 1.0
 
-    def proj(c, y):    return initial_capital * math.exp(c * y)
+    def proj(c, y):    return initial_capital * (1 + c) ** y
     def proj_d(c, y):  return proj(c, y) * display_factor
     def pct(v):        return (v / initial_capital - 1) * 100
 

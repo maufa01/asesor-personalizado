@@ -110,17 +110,14 @@ def simulate_portfolio(
     t = np.linspace(0, years, months + 1)
     dt = 1 / 12  # paso mensual
 
-    # ── Escenarios deterministas ──────────────────────────────────────────────
-    # Base: cagr exacto
-    base = initial_capital * np.exp(cagr * t)
+    # ── Escenarios deterministas — interés compuesto anual (1+r)^t ───────────
+    base = initial_capital * (1 + cagr) ** t
 
-    # Optimista: cagr + 0.5σ anualizado extra
     optimistic_cagr = cagr + vol * 0.5
-    optimista = initial_capital * np.exp(optimistic_cagr * t)
+    optimista = initial_capital * (1 + optimistic_cagr) ** t
 
-    # Pesimista: cagr - 0.5σ anualizado menos
     pessimistic_cagr = max(cagr - vol * 0.7, -0.30)
-    pesimista = initial_capital * np.exp(pessimistic_cagr * t)
+    pesimista = initial_capital * (1 + pessimistic_cagr) ** t
 
     # ── Monte Carlo ────────────────────────────────────────────────────────────
     mu  = cagr - 0.5 * vol ** 2

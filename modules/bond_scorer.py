@@ -139,27 +139,17 @@ BOND_DEFS = {
         "vol_est_m":    2.0,
     },
     "on_corp": {
-        "label":        "ONs Corporativas Mix (Pampa / Arcor / MELI)",
+        "label":        "ONs Corporativas Mix (YPF / TGS / Tecpetrol)",
         "type":         "on_corp",
-        "ticker_rava":  "PTSTO",
-        "ticker_ambito": "PTSTO",
+        "ticker_rava":  "YPFDS",   # representativo del mix — verificar ticker vigente
+        "ticker_ambito": "YPFDS",
         "tir_est":      8.5,
         "duration_est": 2.0,
         "paridad_est":  100.0,
         "quality_pts":  20,
         "vol_est_m":    2.0,
     },
-    "on_pampa": {
-        "label":        "ON Pampa Energía USD",
-        "type":         "on_corp",
-        "ticker_rava":  "PTSTO",
-        "ticker_ambito": "PTSTO",
-        "tir_est":      8.0,
-        "duration_est": 2.0,
-        "paridad_est":  100.0,
-        "quality_pts":  22,
-        "vol_est_m":    1.5,
-    },
+    # on_pampa (PTSTO) removido — venció. Reincorporar cuando Pampa emita nueva serie activa.
     "on_tecpetrol": {
         "label":        "ON Tecpetrol USD",
         "type":         "on_corp",

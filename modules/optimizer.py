@@ -39,12 +39,12 @@ _YF_MAP: dict = {
     "gld":  "GLD",  "eem":  "EEM",
 }
 
-# Límites de peso por activo según perfil
+# Límites de peso por activo según perfil (ningún activo individual supera el 25%)
 _BOUNDS = {
-    "conservador": (0.05, 0.35),
-    "estable":     (0.05, 0.40),
-    "moderado":    (0.05, 0.45),
-    "agresivo":    (0.05, 0.50),
+    "conservador": (0.05, 0.20),
+    "estable":     (0.05, 0.22),
+    "moderado":    (0.05, 0.25),
+    "agresivo":    (0.05, 0.25),
 }
 
 

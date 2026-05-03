@@ -203,7 +203,7 @@ ASSET_UNIVERSE: List[Dict[str, Any]] = [
     },
     {
         "id": "on_corp",
-        "name": "ONs Corporativas (Pampa / Arcor / MercadoLibre)",
+        "name": "ONs Corporativas (YPF / TGS / Tecpetrol)",
         "category": "Bonos USD",
         "sub": "Corporativo",
         "ticker": "ON-MIX",
@@ -211,28 +211,10 @@ ASSET_UNIVERSE: List[Dict[str, Any]] = [
         "expected_return": 0.08,
         "volatility": 0.08,
         "risk_level": "bajo-medio",
-        "description": "Mezcla de obligaciones negociables de empresas privadas argentinas: Pampa Energía (PTSTO), Arcor, Tecpetrol (TCCUD), MercadoLibre. Todas pagan en dólares. Son consideradas más seguras que los bonos soberanos porque empresas privadas tienen mejor historial de pago que el Estado.",
+        "description": "Mezcla de obligaciones negociables de empresas privadas argentinas: YPF (YPFDS), TGS (TGSU2O), Tecpetrol (TCCUD). Todas pagan en dólares. Son consideradas más seguras que los bonos soberanos porque empresas privadas tienen mejor historial de pago que el Estado.",
         "currency": "USD",
         "market": "BYMA",
-        "simple_desc": "ONs de Pampa, Arcor o MercadoLibre: empresas privadas que pagan en USD",
-    },
-
-    # ══ OBLIGACIONES NEGOCIABLES ADICIONALES ══════════════════════════════════
-
-    {
-        "id": "on_pampa",
-        "name": "ON Pampa Energía (PTSTO)",
-        "category": "Bonos USD",
-        "sub": "Corporativo",
-        "ticker": "PTSTO",
-        "color": "#0c4a6e",
-        "expected_return": 0.09,
-        "volatility": 0.09,
-        "risk_level": "bajo-medio",
-        "description": "Obligación negociable de Pampa Energía en dólares. Una de las ONs más líquidas del mercado argentino. Rinde en USD con respaldo de activos energéticos.",
-        "currency": "USD",
-        "market": "BYMA",
-        "simple_desc": "Deuda de Pampa Energía en dólares, muy líquida",
+        "simple_desc": "ONs de YPF, TGS o Tecpetrol: empresas privadas que pagan en USD",
     },
     {
         "id": "on_tecpetrol",
@@ -1212,7 +1194,7 @@ _LIQUIDITY_LEVELS = {
         # Soberanos con algo menos de volumen
         "gd38",
         # ONs corporativas
-        "on_ypf","on_corp","on_pampa","on_tecpetrol","on_tgs","on_macro",
+        "on_ypf","on_corp","on_tecpetrol","on_tgs","on_macro",
         # ETFs alternativos
         "gld","iau","vti","eem",
         # CEDEARs de volumen medio en BYMA
@@ -1326,7 +1308,7 @@ _BUCKET_DEFS: Dict[str, list] = {
         {"id": "rf_pesos",   "target": 0.14, "max_pos": 1, "score_src": "bond",
          "candidates": ["lecap", "cer_bond"]},
         {"id": "rf_usd",     "target": 0.31, "max_pos": 2, "score_src": "bond",
-         "candidates": ["on_corp", "on_ypf", "on_pampa", "on_tecpetrol",
+         "candidates": ["on_corp", "on_ypf", "on_tecpetrol",
                          "on_tgs", "on_macro", "al30", "gd30", "al35", "gd35"]},
         {"id": "globales",   "target": 0.11, "max_pos": 1, "score_src": "equity",
          "candidates": ["spy", "vti", "iau", "gld"]},
@@ -1339,7 +1321,7 @@ _BUCKET_DEFS: Dict[str, list] = {
          "candidates": ["mep"]},
         {"id": "rf",        "target": 0.45, "max_pos": 3, "score_src": "bond",
          "candidates": ["lecap", "cer_bond",
-                         "on_corp", "on_ypf", "on_pampa", "on_tecpetrol", "on_tgs", "on_macro",
+                         "on_corp", "on_ypf", "on_tecpetrol", "on_tgs", "on_macro",
                          "al30", "gd30", "al35", "gd35"]},
         {"id": "globales",  "target": 0.15, "max_pos": 1, "score_src": "equity",
          "candidates": ["spy", "vti", "qqq", "iau"]},
@@ -1351,7 +1333,7 @@ _BUCKET_DEFS: Dict[str, list] = {
         {"id": "cobertura",     "target": 0.15, "max_pos": 1, "score_src": None,
          "candidates": ["mep"]},
         {"id": "rf_usd",        "target": 0.23, "max_pos": 1, "score_src": "bond",
-         "candidates": ["on_corp", "on_ypf", "on_pampa", "on_tgs", "on_macro",
+         "candidates": ["on_corp", "on_ypf", "on_tgs", "on_macro",
                          "al30", "gd30", "al35", "gd35"]},
         {"id": "etf_global",    "target": 0.22, "max_pos": 2, "score_src": "equity",
          "candidates": ["spy", "qqq", "vti"]},
@@ -1368,7 +1350,7 @@ _BUCKET_DEFS: Dict[str, list] = {
         {"id": "cobertura",     "target": 0.18, "max_pos": 1, "score_src": None,
          "candidates": ["mep"]},
         {"id": "rf_usd",        "target": 0.09, "max_pos": 1, "score_src": "bond",
-         "candidates": ["on_corp", "on_ypf", "on_pampa", "on_tgs", "on_macro",
+         "candidates": ["on_corp", "on_ypf", "on_tgs", "on_macro",
                          "al30", "gd30", "al35", "gd35", "gd38"]},
         {"id": "etf_global",    "target": 0.25, "max_pos": 2, "score_src": "equity",
          "candidates": ["qqq", "spy", "vti", "eem"]},
@@ -1826,10 +1808,9 @@ def _razon_en_cartera(asset_id: str, risk: str, horizon: int) -> str:
         "lecap":   "LECAP: letra del Tesoro a tasa fija en pesos — vencimiento en meses, sin riesgo de precio",
         "cer_bond":"Bono CER: ajustado por inflación — protege su capital en pesos contra la suba de precios",
         "on_ypf":  "Bono corporativo YPF en dólares — paga interés en USD respaldado por los activos de Vaca Muerta",
-        "on_pampa":"Bono Pampa Energía en dólares — empresa sólida con flujo de caja predecible y deuda baja",
         "on_tgs":  "Bono TGS en dólares — monopolio natural de gasoductos respaldando la deuda",
         "on_macro":"Bono Banco Macro en dólares — banco argentino sólido con buen historial de pago",
-        "on_corp": "Obligación negociable corporativa en dólares — rendimiento mejor que soberano con empresa privada de respaldo",
+        "on_corp": "ONs corporativas en dólares (YPF, TGS, Tecpetrol) — empresas privadas con mejor historial de pago que el Estado",
     }
     base = _RAZONES.get(asset_id)
     if base:
@@ -2038,6 +2019,20 @@ def build_portfolio(profile: dict) -> dict:
     allocs = _filter_by_liquidity(allocs, risk, horizon)
     allocs = _apply_overlap_exclusion(allocs)
 
+    # ── 6b. Cap de concentración: ninguna acción individual supera el 25% ─────
+    _EQUITY_SINGLE_CAP = 0.25
+    _SINGLE_STOCK_CATS = {"CEDEARs", "Acciones ARG"}
+    _capped = False
+    for _aid, _w in list(allocs.items()):
+        _cat = ASSET_INDEX.get(_aid, {}).get("category", "")
+        if _cat in _SINGLE_STOCK_CATS and _w > _EQUITY_SINGLE_CAP:
+            allocs[_aid] = _EQUITY_SINGLE_CAP
+            _capped = True
+    if _capped:
+        _total = sum(allocs.values())
+        if _total > 0:
+            allocs = {k: v / _total for k, v in allocs.items()}
+
     # Construir posiciones
     positions = []
     for asset_id, weight in allocs.items():
@@ -2093,7 +2088,7 @@ def build_portfolio(profile: dict) -> dict:
                 )
                 pos["description"] = (
                     f"Letra Capitalizable del Tesoro argentino, serie {ticker}. "
-                    f"Vencimiento: {expiry.strftime('%d de %B de %Y')} ({days_lft} días). "
+                    f"Vencimiento: {expiry.strftime('%d/%m/%Y')} ({days_lft} días). "
                     f"Se compra a precio de mercado en IOL, PPI o Balanz. "
                     f"Rinde la TNA descontada en el precio. Riesgo: contraparte soberana argentina."
                 )
