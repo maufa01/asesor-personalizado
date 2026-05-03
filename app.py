@@ -607,7 +607,7 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # ── Advertencia de concentración ARG ─────────────────────────────────────
+    # ── Cálculo de exposición geográfica ──────────────────────────────────────
     # mep excluido: el resultado es USD — riesgo argentino mínimo
     # on_corp incluidos: riesgo corporativo argentino aunque paguen en USD
     _ARG_ASSET_IDS = {
@@ -616,32 +616,16 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
         "fci_renta_pesos",
         "al30", "gd30", "al35", "gd35", "gd38",
         "on_corp", "on_ypf", "on_tecpetrol", "on_tgs", "on_macro",
-        # ONs corporativas argentinas nuevas (riesgo corporativo ARG aunque paguen en USD)
         "on_meli", "on_telecom", "on_genneia", "on_vista", "on_pampa",
         "on_tgs2", "on_arcor", "on_telecom2", "on_irsa", "on_cresud",
-        # Bonos pesos nuevos (riesgo ARG — pagan en pesos/dólares locales)
         "dual_bond", "dollar_linked",
-        # Soberanos adicionales (riesgo soberano ARG)
         "gd29", "gd41",
         "galicia", "ypf", "bbar", "pampa", "tgs", "cepu", "bma", "supv",
         "alua", "txar", "teco2", "vist", "loma", "irsa", "cres",
         "edn", "come", "valo", "harg", "txar", "mirg", "moli", "cvh", "metr",
     }
-    _arg_exposure = sum(p["weight"] for p in portfolio["positions"] if p["id"] in _ARG_ASSET_IDS)
-    if _arg_exposure > 0.40:
-        st.markdown(f"""<details class="arg-warn">
-<summary class="arg-warn-summary">
-  <span class="arg-warn-icon">🇦🇷⚠️</span>
-  <span class="arg-warn-title">Alta concentración en Argentina ({_arg_exposure*100:.0f}%)</span>
-  <span class="arg-warn-toggle">Ver detalle</span>
-</summary>
-<p class="arg-warn-body">
-  Su cartera tiene una exposición significativa a Argentina.
-  Si además percibe su salario, tiene inmuebles o ahorros en pesos,
-  su riesgo país real puede ser mayor al calculado.
-  Considere consultarlo con un asesor financiero profesional.
-</p>
-</details>""", unsafe_allow_html=True)
+    _arg_exposure  = sum(p["weight"] for p in portfolio["positions"] if p["id"] in _ARG_ASSET_IDS)
+    _intl_exposure = max(0.0, 1.0 - _arg_exposure)
 
     # ── Distribución + Evolución ──────────────────────────────────────────────
     col_pie, col_evo = st.columns([1, 1.6])
@@ -661,6 +645,28 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
             f"Su cartera está compuesta por **{_n_pos} instrumentos**, "
             f"número óptimo para su perfil {_plabel} según principios de "
             f"diversificación eficiente (Evans & Archer, 1968)."
+        )
+
+        # ── Nota positiva de diversificación geográfica ─────────────────────
+        _extra_msg = ""
+        if _arg_exposure > 0.70:
+            _extra_msg = (
+                "<br><span style='opacity:0.8;'>Considere consultar con un asesor "
+                "para evaluar si desea ampliar su diversificación internacional.</span>"
+            )
+        st.markdown(
+            f"""<div class="geo-diversification-note">
+  <span class="geo-icon">🌍</span>
+  <div class="geo-body">
+    <p>Su cartera incluye activos en Argentina y en mercados globales.
+    Esta diversificación geográfica reduce su dependencia de un solo país o economía.{_extra_msg}</p>
+    <p class="geo-breakdown">
+      Exposición local: <strong>{_arg_exposure*100:.0f}%</strong> ·
+      Internacional: <strong>{_intl_exposure*100:.0f}%</strong>
+    </p>
+  </div>
+</div>""",
+            unsafe_allow_html=True,
         )
 
     with col_evo:
@@ -739,7 +745,7 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
 
     # ── Simulaciones ─────────────────────────────────────────────────────────
     with st.expander("📊 Simulaciones: ¿qué pasa con su dinero?", expanded=False):
-        _sim_tab1, _sim_tab2 = st.tabs(["📉 Si no invierto", "💰 ¿Qué pasa si ahorro un poco cada mes?"])
+        _sim_tab1, _sim_tab2 = st.tabs(["📉 Sin invertir", "💰 Aporte mensual"])
 
         with _sim_tab1:
             _cagr      = portfolio["expected_cagr"]
@@ -807,7 +813,7 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
                                 bgcolor="rgba(0,0,0,0)"),
                     margin=dict(l=0, r=0, t=40, b=0),
                 )
-                st.plotly_chart(_fig_sim, use_container_width=True)
+                st.plotly_chart(_fig_sim, use_container_width=True, config={"displayModeBar": False, "responsive": True})
             except Exception:
                 pass
 
@@ -887,7 +893,7 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
                         f'Valores en {_disp_curr}</p>',
                         unsafe_allow_html=True,
                     )
-                    st.plotly_chart(_fig_ap, use_container_width=True)
+                    st.plotly_chart(_fig_ap, use_container_width=True, config={"displayModeBar": False, "responsive": True})
                 except Exception:
                     pass
 

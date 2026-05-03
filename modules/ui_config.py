@@ -2423,60 +2423,69 @@ details.cat-exp[open] > summary .cat-l1-card { background: #f1f5f9 !important; b
     border-color: rgba(37,99,235,0.2) !important;
 }
 
-/* ── ARG warning collapsible banner ───────────────────────────── */
-.arg-warn {
-    background: rgba(245,158,11,0.07);
-    border: 1.5px solid #f59e0b;
-    border-radius: 12px;
-    margin-bottom: 1rem;
-    overflow: hidden;
-}
-.arg-warn-summary {
-    list-style: none;
-    cursor: pointer;
+/* ── Geographic diversification note (positive tone) ──────────── */
+.geo-diversification-note {
     display: flex;
-    align-items: center;
     gap: 10px;
-    padding: 12px 16px;
-    color: #f59e0b;
-    font-size: 0.93rem;
-    font-weight: 700;
+    align-items: flex-start;
+    background: rgba(148,163,184,0.05);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin: 0.5rem 0 0.75rem;
 }
-.arg-warn-summary::-webkit-details-marker,
-.arg-warn-summary::marker { display: none; content: ''; }
-.arg-warn-icon { font-size: 1.1rem; flex-shrink: 0; }
-.arg-warn-title { flex: 1; min-width: 0; }
-.arg-warn-toggle {
-    font-size: 0.72rem;
-    font-weight: 600;
-    color: #fbbf24;
-    background: rgba(245,158,11,0.15);
-    padding: 3px 9px;
-    border-radius: 999px;
+.geo-diversification-note .geo-icon {
+    font-size: 1rem;
     flex-shrink: 0;
+    line-height: 1.4;
 }
-.arg-warn[open] .arg-warn-toggle::after { content: " ↑"; }
-.arg-warn:not([open]) .arg-warn-toggle::after { content: " ↓"; }
-.arg-warn-body {
-    font-size: 0.83rem;
+.geo-diversification-note .geo-body { flex: 1; min-width: 0; }
+.geo-diversification-note p {
+    font-size: 0.78rem;
     color: #94a3b8;
     margin: 0;
-    padding: 0 16px 14px 42px;
-    line-height: 1.65;
+    line-height: 1.55;
 }
+.geo-diversification-note .geo-breakdown {
+    margin-top: 4px;
+    font-size: 0.72rem;
+    opacity: 0.75;
+}
+.geo-diversification-note .geo-breakdown strong { color: #cbd5e1; font-weight: 600; }
 @media (max-width: 640px) {
-    .arg-warn-summary {
-        padding: 10px 12px;
-        font-size: 0.82rem;
-        gap: 8px;
+    .geo-diversification-note p { font-size: 0.74rem; }
+    .geo-diversification-note .geo-breakdown { font-size: 0.68rem; }
+}
+
+/* ── #7 Ticker badges más sutiles en mobile ──────────────────── */
+@media (max-width: 768px) {
+    .adc-ticker-badge,
+    .ticker-badge {
+        font-size: 0.65rem !important;
+        opacity: 0.65;
+        padding: 0.15rem 0.4rem !important;
     }
-    .arg-warn-title {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+}
+
+/* ── #8 Profile badge compacto en mobile ──────────────────────── */
+@media (max-width: 768px) {
+    .profile-badge {
+        padding: 0.4rem 0.9rem !important;
+        font-size: 0.72rem !important;
+        letter-spacing: 0.06em !important;
+        margin-bottom: 0.6rem !important;
     }
-    .arg-warn-toggle { font-size: 0.65rem; padding: 2px 7px; }
-    .arg-warn-body { padding: 0 12px 12px 32px; font-size: 0.78rem; }
+}
+
+/* ── #10 Tipografía global mobile ─────────────────────────────── */
+@media (max-width: 768px) {
+    h1, .stMarkdown h1 { font-size: 1.5rem !important; line-height: 1.2; }
+    h2, .stMarkdown h2 { font-size: 1.1rem !important; line-height: 1.3; }
+    h3, .stMarkdown h3 { font-size: 0.95rem !important; line-height: 1.35; }
+    .stMarkdown p, .stMarkdown li { font-size: 0.9rem !important; line-height: 1.45; }
+    .block-container {
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+    }
 }
 
 /* ── Mobile spacing & section-title reduction (#6) ────────────── */
