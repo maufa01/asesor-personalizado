@@ -108,6 +108,67 @@ GLOSSARY = [
                 ),
             },
             {
+                "name": "Bonos CER (Coeficiente de Estabilización de Referencia)",
+                "risk_label": "Bajo a Medio",
+                "risk_color": "#22c55e",
+                "definition": (
+                    "Los bonos CER son títulos del Tesoro Nacional argentino cuyo capital se "
+                    "ajusta diariamente por el Coeficiente de Estabilización de Referencia (CER), "
+                    "que replica la inflación medida por el INDEC. "
+                    "En la práctica funcionan como un préstamo al gobierno que devuelve el capital "
+                    "actualizado por inflación, más una tasa real adicional. "
+                    "Son la herramienta más usada para preservar el poder adquisitivo en pesos. "
+                    "Las series más conocidas son TX26 (corto plazo), TX28 (medio) y DICP (largo)."
+                ),
+                "example": (
+                    "Si compra el TX26 hoy por $1.000.000 y la inflación acumulada hasta su vencimiento "
+                    "es del 100%, el capital se ajusta a $2.000.000 — más una tasa real (TIR) de ~2-5% "
+                    "que se suma encima. Es decir, su capital sigue valiendo lo mismo en términos reales "
+                    "y además gana algo extra. Su principal riesgo es soberano: depende de que el Tesoro "
+                    "pague."
+                ),
+            },
+            {
+                "name": "Bonos Duales",
+                "risk_label": "Bajo a Medio",
+                "risk_color": "#22c55e",
+                "definition": (
+                    "Los bonos duales son títulos del Tesoro que pagan al vencimiento el mayor "
+                    "entre dos opciones: el ajuste por inflación (CER) o el ajuste por tipo de "
+                    "cambio oficial (devaluación del peso). "
+                    "Es decir, le ofrecen una protección doble: si la inflación supera a la "
+                    "devaluación, cobra por inflación; si la devaluación supera a la inflación, "
+                    "cobra por devaluación. "
+                    "El más conocido en la app es el TDA27."
+                ),
+                "example": (
+                    "Si invierte $500.000 en un bono dual y al vencimiento la inflación acumulada "
+                    "fue del 80% pero la devaluación oficial fue del 95%, recibirá $975.000 "
+                    "(ajustado por la devaluación, que fue mayor). "
+                    "Es una cobertura útil cuando no se sabe si el escenario será inflacionario "
+                    "o devaluatorio."
+                ),
+            },
+            {
+                "name": "Bonos Dollar Linked",
+                "risk_label": "Bajo a Medio",
+                "risk_color": "#22c55e",
+                "definition": (
+                    "Los bonos dollar linked son títulos en pesos cuyo capital se ajusta por la "
+                    "variación del tipo de cambio oficial mayorista. "
+                    "No pagan en dólares, pero replican su evolución: si el dólar oficial sube, "
+                    "el capital del bono sube en la misma proporción. "
+                    "Son útiles para quien espera una devaluación del peso pero opera en el "
+                    "mercado local. El más representativo en la app es el TV26."
+                ),
+                "example": (
+                    "Si compra el TV26 por $1.000.000 cuando el dólar oficial está a $1.000 y al "
+                    "vencimiento el dólar subió a $1.500, su capital se ajusta a $1.500.000. "
+                    "Su rendimiento depende exclusivamente del tipo de cambio oficial, no del MEP "
+                    "ni del CCL."
+                ),
+            },
+            {
                 "name": "Fondos Comunes de Inversión (FCI)",
                 "risk_label": "Variable según tipo",
                 "risk_color": "#60a5fa",
@@ -379,6 +440,67 @@ GLOSSARY = [
                 ),
             },
             {
+                "name": "Volatilidad",
+                "risk_label": "Medida de riesgo",
+                "risk_color": "#f59e0b",
+                "definition": (
+                    "La volatilidad mide cuánto puede fluctuar el valor de una inversión en un "
+                    "período determinado. Se expresa habitualmente como un porcentaje anual y "
+                    "técnicamente equivale a la desviación estándar de los retornos. "
+                    "Una volatilidad del 15% significa que en un año típico, el valor puede subir "
+                    "o bajar aproximadamente un 15% respecto del rendimiento promedio esperado. "
+                    "No es una predicción de pérdida sino una medida de cuánto suele moverse el precio."
+                ),
+                "example": (
+                    "Un FCI Money Market tiene volatilidad cercana a 0% — su saldo prácticamente "
+                    "no oscila. El S&P 500 tiene una volatilidad histórica del ~15-20% anual. "
+                    "Una acción individual de tecnología puede tener volatilidad del 35-50%. "
+                    "Mayor volatilidad implica mayor potencial de ganancia pero también mayor "
+                    "posibilidad de caídas significativas en el corto plazo."
+                ),
+            },
+            {
+                "name": "Duration (Duración Modificada)",
+                "risk_label": "Medida de riesgo en bonos",
+                "risk_color": "#f59e0b",
+                "definition": (
+                    "La duration mide la sensibilidad del precio de un bono ante cambios en las "
+                    "tasas de interés del mercado. Se expresa en años y aproximadamente equivale "
+                    "al porcentaje de variación del precio del bono cuando la tasa de mercado "
+                    "sube o baja un 1%. "
+                    "A mayor duration, mayor sensibilidad: bonos largos sufren más con subas de "
+                    "tasas, pero también ganan más cuando las tasas bajan."
+                ),
+                "example": (
+                    "Si un bono tiene duration de 2 años y la tasa de mercado sube un 1%, "
+                    "su precio caerá aproximadamente un 2%. "
+                    "Si la tasa baja un 1%, el precio subirá aproximadamente un 2%. "
+                    "El TX26 tiene duration ~0.5 años (poca sensibilidad), mientras que el DICP "
+                    "tiene duration ~7 años (alta sensibilidad). Por eso el DICP es más volátil."
+                ),
+            },
+            {
+                "name": "CAGR (Tasa de Crecimiento Anual Compuesta)",
+                "risk_label": "Métrica de retorno",
+                "risk_color": "#22c55e",
+                "definition": (
+                    "El CAGR (Compound Annual Growth Rate) es el rendimiento anual promedio que "
+                    "una inversión generó de forma compuesta a lo largo de varios años. "
+                    "A diferencia del promedio simple, asume reinversión constante y refleja "
+                    "el verdadero crecimiento sostenido. "
+                    "Se calcula como: (Valor final / Valor inicial)^(1/años) − 1. "
+                    "Es la métrica estándar para comparar rendimientos entre distintos activos "
+                    "y horizontes."
+                ),
+                "example": (
+                    "Si invierte USD 1.000 y a los 5 años tiene USD 1.610, su CAGR es del 10% "
+                    "anual — equivalente a haber ganado 10% cada año compuesto. "
+                    "El S&P 500 tiene un CAGR histórico de ~10-11% anual a largo plazo. "
+                    "Las proyecciones de la app usan el CAGR esperado de cada cartera para "
+                    "estimar el valor futuro de su capital."
+                ),
+            },
+            {
                 "name": "Perfil de Riesgo",
                 "risk_label": "Clasificación personal",
                 "risk_color": "#60a5fa",
@@ -389,7 +511,7 @@ GLOSSARY = [
                     "estabilidad de ingresos, fondo de emergencia, experiencia previa "
                     "y reacción emocional ante pérdidas. "
                     "Conservador: prioriza seguridad. "
-                    "Estable: algo mejor que el plazo fijo con riesgo controlado. "
+                    "Balanceado: algo mejor que el plazo fijo con riesgo controlado. "
                     "Moderado: equilibrio entre crecimiento y protección. "
                     "Agresivo: maximiza el rendimiento asumiendo alta volatilidad."
                 ),

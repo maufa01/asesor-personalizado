@@ -2423,6 +2423,53 @@ details.cat-exp[open] > summary .cat-l1-card { background: #f1f5f9 !important; b
     border-color: rgba(37,99,235,0.2) !important;
 }
 
+/* ── Portfolio disclaimer (cierre legal) ──────────────────────── */
+.portfolio-disclaimer {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    background: rgba(79,163,255,0.04);
+    border: 1px solid rgba(79,163,255,0.15);
+    border-left: 3px solid #4fa3ff;
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin: 1.5rem 0 1rem;
+}
+.portfolio-disclaimer .pd-icon {
+    font-size: 1.3rem;
+    flex-shrink: 0;
+    line-height: 1.4;
+}
+.portfolio-disclaimer .pd-body { flex: 1; min-width: 0; }
+.portfolio-disclaimer strong {
+    color: #cbd5e1;
+    font-size: 0.93rem;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+.portfolio-disclaimer p {
+    font-size: 0.83rem;
+    color: #94a3b8;
+    margin: 0 0 0.7rem;
+    line-height: 1.6;
+}
+.portfolio-disclaimer p:last-child { margin-bottom: 0; }
+.portfolio-disclaimer .pd-fine {
+    font-size: 0.72rem;
+    color: #64748b;
+    font-style: italic;
+}
+@media (max-width: 640px) {
+    .portfolio-disclaimer {
+        padding: 14px 16px;
+        gap: 10px;
+    }
+    .portfolio-disclaimer .pd-icon { font-size: 1.1rem; }
+    .portfolio-disclaimer strong { font-size: 0.85rem; }
+    .portfolio-disclaimer p { font-size: 0.78rem; }
+    .portfolio-disclaimer .pd-fine { font-size: 0.68rem; }
+}
+
 /* ── Geographic diversification note (positive tone) ──────────── */
 .geo-diversification-note {
     display: flex;

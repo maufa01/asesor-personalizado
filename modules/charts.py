@@ -15,6 +15,14 @@ PLOTLY_LAYOUT = dict(
     margin=dict(l=0, r=0, t=10, b=0),
 )
 
+# Display label por perfil de riesgo (la clave interna sigue siendo "estable")
+_RISK_DISPLAY = {
+    "conservador": "Conservador",
+    "estable":     "Balanceado",
+    "moderado":    "Moderado",
+    "agresivo":    "Agresivo",
+}
+
 _CATEGORY_ORDER = [
     "Liquidez",
     "Cobertura cambiaria",
@@ -349,7 +357,7 @@ def render_pie_chart(portfolio: dict):
             itemwidth=60,
         ),
         annotations=[dict(
-            text=f"<b>{portfolio['risk_profile'].upper()}</b>",
+            text=f"<b>{_RISK_DISPLAY.get(portfolio['risk_profile'], portfolio['risk_profile']).upper()}</b>",
             x=0.5, y=0.5,
             font=dict(size=13, color=_t1(), family="Syne, sans-serif"),
             showarrow=False,

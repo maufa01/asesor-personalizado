@@ -438,7 +438,7 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
     risk_emojis = {"conservador": "🟢", "estable": "🔵", "moderado": "🟡", "agresivo": "🔴"}
     risk_labels = {
         "conservador": "Inversor Conservador",
-        "estable":     "Inversor Estable",
+        "estable":     "Inversor Balanceado",
         "moderado":    "Inversor Moderado",
         "agresivo":    "Inversor Agresivo",
     }
@@ -636,7 +636,7 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
         _n_pos = len(portfolio["positions"])
         _profile_labels = {
             "conservador": "conservador (máx. 5)",
-            "estable": "estable (máx. 7)",
+            "estable": "balanceado (máx. 7)",
             "moderado": "moderado (máx. 8)",
             "agresivo": "agresivo (máx. 12)",
         }
@@ -1023,6 +1023,23 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
     </details>
   </div>
 </div>
+</div>""", unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # ── Disclaimer legal de cierre ────────────────────────────────────────────
+    st.markdown("""<div class="portfolio-disclaimer">
+  <div class="pd-icon">ℹ️</div>
+  <div class="pd-body">
+    <strong>Esta cartera es una sugerencia educativa, no asesoramiento financiero.</strong>
+    <p>Está construida con datos históricos y modelos académicos (Markowitz, Evans &amp; Archer)
+    aplicados a su perfil. No considera su situación impositiva, patrimonio total ni objetivos
+    personales puntuales. Antes de operar, consulte con un asesor financiero matriculado por
+    la <strong>CNV (Comisión Nacional de Valores)</strong> para validar que esta estrategia
+    se ajuste a su realidad.</p>
+    <p class="pd-fine">FinanzasIA no recibe comisiones por las recomendaciones · No opera por
+    cuenta de los usuarios · Fines exclusivamente educativos.</p>
+  </div>
 </div>""", unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)

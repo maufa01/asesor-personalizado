@@ -191,7 +191,7 @@ PROFILES = {
     },
     "estable": {
         "emoji": "🔵",
-        "label": "Inversor Estable",
+        "label": "Inversor Balanceado",
         "color": "#60a5fa",
         "tagline": "Rendimiento superior al plazo fijo con exposición al riesgo controlada.",
         "explanation": (
