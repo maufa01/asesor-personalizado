@@ -132,6 +132,66 @@ ASSET_UNIVERSE: List[Dict[str, Any]] = [
         "market": "FCI",
         "simple_desc": "Consultatio o SBS Renta Fija: mezcla de bonos en pesos, manejada por expertos",
     },
+    {
+        "id": "fci_usd_rf",
+        "name": "Fondo Renta Fija USD (Compass / Balanz)",
+        "category": "Fondos USD", "sub": "Renta Fija USD",
+        "ticker": "FCI-USD", "color": "#0ea5e9",
+        "expected_return": 0.065, "volatility": 0.05, "risk_level": "bajo",
+        "description": "Fondos como Compass Renta Fija o Balanz Capital Ahorro en USD. Invierten en obligaciones negociables y bonos corporativos en dólares. Rescate en 24-48hs hábiles. Ideal para dolarizar sin seleccionar bonos individuales.",
+        "currency": "USD", "market": "FCI",
+        "simple_desc": "Fondo en USD que invierte en ONs corporativas — rescate en 24-48hs",
+    },
+    {
+        "id": "fci_usd_ahorro",
+        "name": "Fondo Ahorro USD Corto Plazo (Cohen / Quinquela)",
+        "category": "Fondos USD", "sub": "Liquidez USD",
+        "ticker": "FCI-USDCP", "color": "#38bdf8",
+        "expected_return": 0.055, "volatility": 0.03, "risk_level": "muy bajo",
+        "description": "Fondos como Cohen Ahorro en Dólares o Quinquela Ahorro. Invierten en letras del Tesoro de EE.UU. y activos de muy corto plazo en USD. Rescate T+0 o T+1. Alternativa al colchón de dólares con rendimiento.",
+        "currency": "USD", "market": "FCI",
+        "simple_desc": "Fondo en USD de muy corto plazo — alternativa al colchón, rescate inmediato",
+    },
+    {
+        "id": "fci_latam",
+        "name": "Fondo Deuda Latinoamérica (SBS / OnCapital)",
+        "category": "Fondos USD", "sub": "Deuda Emergente",
+        "ticker": "FCI-LATAM", "color": "#6366f1",
+        "expected_return": 0.075, "volatility": 0.09, "risk_level": "medio",
+        "description": "Fondos como SBS Deuda Latinoamérica u OnCapital Renta Fija. Diversifican en bonos corporativos y soberanos de Brasil, México, Chile, Colombia y Argentina. Mayor diversificación geográfica que invertir solo en Argentina.",
+        "currency": "USD", "market": "FCI",
+        "simple_desc": "Fondo en USD diversificado en deuda de Brasil, México, Chile y Argentina",
+    },
+    {
+        "id": "fci_acciones",
+        "name": "Fondo Acciones Argentinas (Alpha / Criteria)",
+        "category": "Fondos ARS", "sub": "Equity ARG",
+        "ticker": "FCI-ACC", "color": "#f97316",
+        "expected_return": 0.18, "volatility": 0.35, "risk_level": "alto",
+        "description": "Fondos como Alpha Acciones o Criteria Acciones Argentinas. Invierten en acciones del panel Merval. Un gestor profesional selecciona las mejores acciones locales. Alto potencial de retorno a largo plazo, alta volatilidad de corto.",
+        "currency": "ARS", "market": "FCI",
+        "simple_desc": "Fondo de acciones argentinas manejado por un gestor profesional",
+    },
+    {
+        "id": "fci_cedears",
+        "name": "Fondo CEDEARs (Galicia / Balanz)",
+        "category": "Fondos ARS", "sub": "Equity Global",
+        "ticker": "FCI-CED", "color": "#a78bfa",
+        "expected_return": 0.14, "volatility": 0.22, "risk_level": "medio-alto",
+        "description": "Fondos como Galicia Acciones Globales o Balanz Performance. Invierten en CEDEARs de empresas líderes de EE.UU. y el mundo. Permiten exposición al mercado global en pesos, con cobertura cambiaria natural.",
+        "currency": "ARS", "market": "FCI",
+        "simple_desc": "Fondo de CEDEARs: acciones globales en pesos, cobertura cambiaria incluida",
+    },
+    {
+        "id": "fci_mixto",
+        "name": "Fondo Mixto (Consultatio / SBS)",
+        "category": "Fondos ARS", "sub": "Mixto",
+        "ticker": "FCI-MIX", "color": "#8b5cf6",
+        "expected_return": 0.11, "volatility": 0.13, "risk_level": "medio",
+        "description": "Fondos como Consultatio Balanceado o SBS Estrategia. Combinan renta fija (LECAPs, bonos CER) con acciones y CEDEARs. Un gestor decide la mezcla según el contexto de mercado. Ideal para quien quiere diversificación sin seleccionar activos.",
+        "currency": "ARS", "market": "FCI",
+        "simple_desc": "Fondo mixto: bonos + acciones en pesos, gestión activa profesional",
+    },
 
     # ══ DÓLAR MEP Y COBERTURA ══════════════════════════════════════════════════
 
@@ -262,6 +322,26 @@ ASSET_UNIVERSE: List[Dict[str, Any]] = [
         "simple_desc": "Bono soberano USD Argentina 2038, mayor duración",
     },
     {
+        "id": "gd29",
+        "name": "Bono GD29 — soberano USD ley Nueva York",
+        "category": "Bonos USD", "sub": "Soberano",
+        "ticker": "GD29", "color": "#1d4ed8",
+        "expected_return": 0.09, "volatility": 0.14, "risk_level": "medio",
+        "description": "Bono soberano argentino en dólares con vencimiento 2029, ley de Nueva York. Plazo intermedio entre GD30 y GD35. Mayor protección legal que los bonos ley argentina. Cotiza con alta liquidez en BYMA.",
+        "currency": "USD", "market": "BYMA",
+        "simple_desc": "Bono soberano USD Argentina 2029 (ley NY, vencimiento cercano)",
+    },
+    {
+        "id": "gd41",
+        "name": "Bono GD41 — soberano USD ley Nueva York",
+        "category": "Bonos USD", "sub": "Soberano",
+        "ticker": "GD41", "color": "#1e3a8a",
+        "expected_return": 0.095, "volatility": 0.16, "risk_level": "medio-alto",
+        "description": "Bono soberano argentino en dólares con vencimiento 2041, ley de Nueva York. El de mayor duration de la serie Global: máxima sensibilidad a cambios en el riesgo país. Para quien apuesta al largo plazo argentino.",
+        "currency": "USD", "market": "BYMA",
+        "simple_desc": "Bono soberano USD Argentina 2041 — apuesta al largo plazo argentino",
+    },
+    {
         "id": "on_tgs",
         "name": "ON TGS USD (TGSU2O)",
         "category": "Bonos USD", "sub": "Corporativo",
@@ -280,6 +360,56 @@ ASSET_UNIVERSE: List[Dict[str, Any]] = [
         "description": "Obligación negociable de Banco Macro en dólares. Banco sólido con fuerte capitalización. Rinde más que los soberanos con riesgo corporativo diversificado.",
         "currency": "USD", "market": "BYMA",
         "simple_desc": "Deuda corporativa de Banco Macro en USD",
+    },
+    {
+        "id": "on_meli",
+        "name": "ON MercadoLibre USD (MLIUSD)",
+        "category": "Bonos USD", "sub": "Corporativo",
+        "ticker": "MLIUSD", "color": "#fbbf24",
+        "expected_return": 0.075, "volatility": 0.07, "risk_level": "bajo-medio",
+        "description": "Obligación negociable de MercadoLibre en dólares. La empresa líder de e-commerce y fintech de Latinoamérica. Menor riesgo soberano: MercadoLibre tiene ingresos en múltiples países y calificación investment grade regional.",
+        "currency": "USD", "market": "BYMA",
+        "simple_desc": "Deuda de MercadoLibre en USD — tech latam con ingresos en toda la región",
+    },
+    {
+        "id": "on_telecom",
+        "name": "ON Telecom Argentina USD (TCOMD)",
+        "category": "Bonos USD", "sub": "Corporativo",
+        "ticker": "TCOMD", "color": "#0891b2",
+        "expected_return": 0.09, "volatility": 0.09, "risk_level": "bajo-medio",
+        "description": "Obligación negociable de Telecom Argentina en dólares. Principal operadora de telecomunicaciones del país, con flujos en pesos y USD. Infraestructura crítica con barreras de entrada altas.",
+        "currency": "USD", "market": "BYMA",
+        "simple_desc": "Deuda de Telecom Argentina en USD, principal telco del país",
+    },
+    {
+        "id": "on_genneia",
+        "name": "ON Genneia USD (GNCXO)",
+        "category": "Bonos USD", "sub": "Corporativo",
+        "ticker": "GNCXO", "color": "#10b981",
+        "expected_return": 0.095, "volatility": 0.10, "risk_level": "medio",
+        "description": "Obligación negociable de Genneia en dólares. Líder en energía renovable en Argentina (eólica y solar). Sus ingresos están en USD por contratos de largo plazo con CAMMESA. Beneficiada por la transición energética global.",
+        "currency": "USD", "market": "BYMA",
+        "simple_desc": "Deuda de Genneia en USD — energía renovable con contratos en dólares",
+    },
+    {
+        "id": "on_vista",
+        "name": "ON Vista Oil & Gas USD (VSCOD)",
+        "category": "Bonos USD", "sub": "Corporativo",
+        "ticker": "VSCOD", "color": "#059669",
+        "expected_return": 0.10, "volatility": 0.11, "risk_level": "medio",
+        "description": "Obligación negociable de Vista Oil & Gas en dólares. Empresa de exploración y producción de petróleo en Vaca Muerta. Flujos 100% en USD. Alto crecimiento de producción. Riesgo: precio del crudo y riesgo país.",
+        "currency": "USD", "market": "BYMA",
+        "simple_desc": "Deuda de Vista Oil & Gas en USD — productor de Vaca Muerta",
+    },
+    {
+        "id": "on_pampa",
+        "name": "ON Pampa Energía USD (PGN2O)",
+        "category": "Bonos USD", "sub": "Corporativo",
+        "ticker": "PGN2O", "color": "#f59e0b",
+        "expected_return": 0.09, "volatility": 0.09, "risk_level": "bajo-medio",
+        "description": "Obligación negociable de Pampa Energía en dólares. Holding eléctrico más grande de Argentina: generación, transporte y distribución. Contratos regulados en USD. Alta cobertura de intereses.",
+        "currency": "USD", "market": "BYMA",
+        "simple_desc": "Deuda de Pampa Energía en USD, holding eléctrico con contratos regulados",
     },
 
     # ══ CEDEARs TECNOLOGÍA ═════════════════════════════════════════════════════
@@ -1789,7 +1919,7 @@ _LIQUIDITY_LEVELS = {
         "cash_pesos","money_market","plazo_fijo","fci_t0","lecap",
         "cer_bond","fci_renta_pesos","mep",
         # Soberanos USD más líquidos (AL30/GD30 operan >$10M/día en BYMA)
-        "al30","gd30","al35","gd35",
+        "al30","gd30","al35","gd35","gd29","gd41",
         # CEDEARs de alto volumen en BYMA
         "spy","qqq","aapl","meli","ypf","galicia","bma","msft","nvda","v","ma",
         "intc","tsm","pg",
@@ -1800,6 +1930,10 @@ _LIQUIDITY_LEVELS = {
         "gd38",
         # ONs corporativas
         "on_ypf","on_corp","on_tecpetrol","on_tgs","on_macro",
+        "on_meli","on_telecom","on_genneia","on_vista","on_pampa",
+        # FCIs USD y ARS adicionales
+        "fci_usd_rf","fci_usd_ahorro","fci_latam",
+        "fci_acciones","fci_cedears","fci_mixto",
         # ETFs alternativos
         "gld","iau","vti","eem",
         # CEDEARs de volumen medio en BYMA
@@ -1934,7 +2068,8 @@ _BUCKET_DEFS: Dict[str, list] = {
          "candidates": ["mep"]},
         {"id": "rf",        "target": 0.28, "max_pos": 1, "score_src": "bond",
          "candidates": ["lecap", "cer_bond", "on_corp", "on_ypf", "on_tecpetrol",
-                         "on_tgs", "on_macro", "al30", "gd30", "al35", "gd35"]},
+                         "on_tgs", "on_macro", "al30", "gd30", "al35", "gd35",
+                         "fci_usd_rf", "fci_usd_ahorro"]},
         {"id": "defensivo", "target": 0.22, "max_pos": 1, "score_src": "equity",
          "candidates": ["iau", "gld"]},
         {"id": "globales",  "target": 0.20, "max_pos": 1, "score_src": "equity",
@@ -1950,7 +2085,9 @@ _BUCKET_DEFS: Dict[str, list] = {
          "candidates": ["lecap", "cer_bond"]},
         {"id": "rf_usd",    "target": 0.18, "max_pos": 1, "score_src": "bond",
          "candidates": ["on_corp", "on_ypf", "on_tecpetrol", "on_tgs", "on_macro",
-                         "al30", "gd30", "al35", "gd35"]},
+                         "al30", "gd30", "al35", "gd35",
+                         "fci_usd_rf", "fci_usd_ahorro", "on_meli", "on_telecom",
+                         "on_genneia", "on_vista", "on_pampa", "gd29", "gd41"]},
         {"id": "globales",  "target": 0.22, "max_pos": 1, "score_src": "equity",
          "candidates": ["spy", "vti", "qqq"]},
         {"id": "defensivo", "target": 0.12, "max_pos": 1, "score_src": "equity",
@@ -1966,9 +2103,11 @@ _BUCKET_DEFS: Dict[str, list] = {
          "candidates": ["mep"]},
         {"id": "rf_usd",        "target": 0.12, "max_pos": 1, "score_src": "bond",
          "candidates": ["on_corp", "on_ypf", "on_tgs", "on_macro",
-                         "al30", "gd30", "al35", "gd35"]},
+                         "al30", "gd30", "al35", "gd35",
+                         "on_meli", "on_telecom", "on_genneia", "on_vista", "on_pampa",
+                         "gd29", "gd41", "fci_usd_rf"]},
         {"id": "etf_global",    "target": 0.28, "max_pos": 2, "score_src": "equity",
-         "candidates": ["spy", "qqq", "vti"]},
+         "candidates": ["spy", "qqq", "vti", "fci_cedears", "fci_mixto"]},
         {"id": "equity_global", "target": 0.22, "max_pos": 1, "score_src": "equity",
          "candidates": ["nvda", "amd", "msft", "meta", "googl", "amzn", "aapl",
                          "tsm", "v", "ma", "unh", "lly", "cost", "nflx", "orcl",
@@ -1978,7 +2117,8 @@ _BUCKET_DEFS: Dict[str, list] = {
         {"id": "equity_arg",    "target": 0.16, "max_pos": 1, "score_src": "equity",
          "candidates": ["ypf", "galicia", "bma", "tgs", "cepu", "pampa",
                          "vist", "meli", "alua", "irsa",
-                         "edn", "come", "metr", "moli", "harg", "txar"]},
+                         "edn", "come", "metr", "moli", "harg", "txar",
+                         "fci_acciones", "fci_cedears"]},
     ],
     "agresivo": [
         # 8 posiciones
@@ -1986,7 +2126,9 @@ _BUCKET_DEFS: Dict[str, list] = {
          "candidates": ["mep"]},
         {"id": "rf_usd",        "target": 0.09, "max_pos": 1, "score_src": "bond",
          "candidates": ["on_corp", "on_ypf", "on_tgs", "on_macro",
-                         "al30", "gd30", "al35", "gd35", "gd38"]},
+                         "al30", "gd30", "al35", "gd35", "gd38",
+                         "on_meli", "on_telecom", "on_genneia", "on_vista", "on_pampa",
+                         "gd29", "gd41"]},
         {"id": "etf_global",    "target": 0.25, "max_pos": 2, "score_src": "equity",
          "candidates": ["qqq", "spy", "vti", "eem"]},
         {"id": "equity_global", "target": 0.28, "max_pos": 3, "score_src": "equity",
@@ -2004,7 +2146,8 @@ _BUCKET_DEFS: Dict[str, list] = {
          "candidates": ["ypf", "galicia", "bma", "supv", "tgs", "cepu",
                          "pampa", "vist", "bbar", "alua", "irsa", "cres",
                          "loma", "teco2",
-                         "edn", "come", "valo", "harg", "txar", "mirg", "moli", "cvh", "metr"]},
+                         "edn", "come", "valo", "harg", "txar", "mirg", "moli", "cvh", "metr",
+                         "fci_acciones", "fci_cedears"]},
     ],
 }
 
@@ -2441,6 +2584,12 @@ _STRUCTURAL_IDS = {
     "money_market", "plazo_fijo", "fci_t0", "cash_pesos", "fci_renta_pesos",
     "mep", "lecap", "cer_bond", "al30", "gd30", "al35", "gd35", "gd38",
     "on_corp", "on_ypf", "on_tecpetrol", "on_tgs", "on_macro",
+    # FCIs USD (structural — renta fija)
+    "fci_usd_rf", "fci_usd_ahorro", "fci_latam",
+    # ONs adicionales
+    "on_meli", "on_telecom", "on_genneia", "on_vista", "on_pampa",
+    # Soberanos adicionales
+    "gd29", "gd41",
 }
 
 
@@ -2761,6 +2910,23 @@ def _razon_en_cartera(asset_id: str, risk: str, horizon: int) -> str:
         "amt":   "American Tower alquila torres de celular a AT&T y Verizon — cada 5G instalado paga más renta",
         "pld":   "Prologis alquila depósitos a Amazon y FedEx — la escasez de espacio logístico es estructural",
         "o":     "Realty Income paga dividendo mensual hace 30 años — el 'bono con upside' del inversor conservador",
+        # FCIs USD
+        "fci_usd_rf":    "Fondo en USD que invierte en ONs corporativas — dolarizate sin elegir bonos individuales",
+        "fci_usd_ahorro":"Fondo ahorro en USD de muy corto plazo — alternativa al colchón con rendimiento",
+        "fci_latam":     "Deuda latinoamericana: Brasil, México, Chile y Argentina en un solo fondo",
+        # FCIs ARS
+        "fci_acciones":  "Fondo de acciones argentinas — gestor profesional selecciona el mejor Merval",
+        "fci_cedears":   "Fondo de CEDEARs: exposición global en pesos con cobertura cambiaria automática",
+        "fci_mixto":     "Fondo mixto: bonos + acciones, el gestor ajusta la mezcla según el mercado",
+        # ONs adicionales
+        "on_meli":       "MercadoLibre paga en USD con ingresos regionales — menor riesgo soberano que el Estado",
+        "on_telecom":    "Telecom: infraestructura crítica, contratos en USD, barreras de entrada imposibles",
+        "on_genneia":    "Energía renovable con contratos CAMMESA en dólares — beneficiada por la transición global",
+        "on_vista":      "Vista produce petróleo en Vaca Muerta y cobra en USD — crecimiento de producción record",
+        "on_pampa":      "Pampa Energía: el mayor holding eléctrico del país con contratos regulados en USD",
+        # Soberanos adicionales
+        "gd29":          "GD29: bono soberano en USD con vencimiento 2029 y protección ley Nueva York",
+        "gd41":          "GD41: la apuesta más larga al crédito argentino — máximo upside si baja el riesgo país",
     }
     base = _RAZONES.get(asset_id)
     if base:

@@ -615,6 +615,10 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
         "fci_renta_pesos",
         "al30", "gd30", "al35", "gd35", "gd38",
         "on_corp", "on_ypf", "on_tecpetrol", "on_tgs", "on_macro",
+        # ONs corporativas argentinas nuevas (riesgo corporativo ARG aunque paguen en USD)
+        "on_meli", "on_telecom", "on_genneia", "on_vista", "on_pampa",
+        # Soberanos adicionales (riesgo soberano ARG)
+        "gd29", "gd41",
         "galicia", "ypf", "bbar", "pampa", "tgs", "cepu", "bma", "supv",
         "alua", "txar", "teco2", "vist", "loma", "irsa", "cres",
         "edn", "come", "valo", "harg", "txar", "mirg", "moli", "cvh", "metr",

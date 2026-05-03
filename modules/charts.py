@@ -54,7 +54,11 @@ _CATEGORY_META = {
 _CATEGORY_ASSET_IDS = {
     "Liquidez": {"cash_pesos", "money_market", "plazo_fijo", "fci_t0"},
     "Cobertura cambiaria": {"mep"},
-    "Renta fija": {"lecap", "cer_bond", "fci_renta_pesos", "al30", "gd30", "on_ypf", "on_corp", "on_pampa", "on_tecpetrol"},
+    "Renta fija": {"lecap", "cer_bond", "fci_renta_pesos", "al30", "gd30", "on_ypf", "on_corp", "on_pampa", "on_tecpetrol",
+                   "al35", "gd35", "gd38", "on_tgs", "on_macro",
+                   "fci_usd_rf", "fci_usd_ahorro", "fci_latam",
+                   "on_meli", "on_telecom", "on_genneia", "on_vista", "on_pampa",
+                   "gd29", "gd41"},
     "Fondos globales": {"spy", "qqq", "vti"},
     "Renta variable": {"aapl", "msft", "nvda", "meli", "ypf", "galicia"},
 }
@@ -204,6 +208,22 @@ _PLATFORMS = {
     "amt":   (_BROKERS_CEDEARS, "CEDEARs → AMT"),
     "pld":   (_BROKERS_CEDEARS, "CEDEARs → PLD"),
     "o":     (_BROKERS_CEDEARS, "CEDEARs → O"),
+    # FCIs adicionales
+    "fci_usd_rf":    (_BROKERS_FONDOS,  "Fondos → Renta Fija USD"),
+    "fci_usd_ahorro":(_BROKERS_FONDOS,  "Fondos → Ahorro en Dólares"),
+    "fci_latam":     (_BROKERS_FONDOS,  "Fondos → Deuda Latinoamérica"),
+    "fci_acciones":  (_BROKERS_FONDOS,  "Fondos → Acciones Argentinas"),
+    "fci_cedears":   (_BROKERS_FONDOS,  "Fondos → CEDEARs / Acciones Globales"),
+    "fci_mixto":     (_BROKERS_FONDOS,  "Fondos → Mixto / Balanceado"),
+    # ONs adicionales
+    "on_meli":       (_BROKERS_BONOS,   "Renta Fija → ON MercadoLibre MLIUSD"),
+    "on_telecom":    (_BROKERS_BONOS,   "Renta Fija → ON Telecom TCOMD"),
+    "on_genneia":    (_BROKERS_BONOS,   "Renta Fija → ON Genneia GNCXO"),
+    "on_vista":      (_BROKERS_BONOS,   "Renta Fija → ON Vista VSCOD"),
+    "on_pampa":      (_BROKERS_BONOS,   "Renta Fija → ON Pampa PGN2O"),
+    # Soberanos adicionales
+    "gd29":          (_BROKERS_BONOS,   "Renta Fija → GD29"),
+    "gd41":          (_BROKERS_BONOS,   "Renta Fija → GD41"),
 }
 
 
