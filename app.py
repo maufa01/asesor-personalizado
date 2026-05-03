@@ -986,7 +986,13 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
     # Render del historial (si hay)
     if chat_history:
         import html as _html
-        for msg in chat_history:
+        # Anchor justo ANTES de la última pregunta del usuario (penúltimo mensaje
+        # cuando Lucas ya respondió). scrollIntoView con block='start' deja la
+        # pregunta en el tope del viewport y la respuesta abajo, visible y legible.
+        _anchor_idx = max(0, len(chat_history) - 2)
+        for i, msg in enumerate(chat_history):
+            if i == _anchor_idx:
+                st.markdown('<div id="chat-jump-anchor"></div>', unsafe_allow_html=True)
             is_user = msg["role"] == "user"
             align   = "chat-user" if is_user else "chat-advisor"
             label   = "Usted" if is_user else "Lucas · Asesor IA"
@@ -996,8 +1002,6 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
                 f'<div class="chat-text">{safe_content}</div></div>',
                 unsafe_allow_html=True,
             )
-        # Anchor invisible al final del historial para auto-scroll
-        st.markdown('<div id="chat-end-anchor"></div>', unsafe_allow_html=True)
 
     # Chips de preguntas pre-armadas (8 preguntas, grid 2/3 cols responsive)
     _suggested_input = None
@@ -1066,23 +1070,31 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
 
     st.markdown('</div>', unsafe_allow_html=True)  # cierra .lucas-card
 
-    # ── Auto-scroll al final del chat tras un nuevo mensaje ──────────────────
-    # Streamlit no scrollea automáticamente al final cuando se agregan elementos.
-    # Inyectamos JS via components.html (corre en iframe pero accede a window.parent
-    # para scrollear el documento principal). El flag .pop() garantiza que el
-    # script solo se ejecuta UNA vez después de un nuevo mensaje, no en cada rerun.
+    # ── Auto-scroll al chat tras un nuevo mensaje ────────────────────────────
+    # Tras st.rerun() Streamlit suele resetear scroll al top. Posicionamos
+    # la última pregunta del usuario al tope del viewport, dejando la respuesta
+    # de Lucas visible inmediatamente debajo. Reintenta varias veces porque
+    # el DOM tarda en estar listo después de un rerun.
     if st.session_state.pop("_lucas_scroll_pending", False):
         components.html("""
 <script>
-setTimeout(function() {
-    try {
-        const doc = window.parent.document;
-        const anchor = doc.getElementById('chat-end-anchor');
-        if (anchor) {
-            anchor.scrollIntoView({ behavior: 'smooth', block: 'end' });
-        }
-    } catch(e) { /* noop */ }
-}, 200);
+(function() {
+    function tryScroll(attempts) {
+        if (attempts <= 0) return;
+        try {
+            const doc = window.parent.document;
+            const anchor = doc.getElementById('chat-jump-anchor');
+            if (anchor) {
+                anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                return;  // éxito
+            }
+        } catch(e) { /* noop */ }
+        // Reintentar — el DOM puede no estar listo aún tras el rerun
+        setTimeout(function() { tryScroll(attempts - 1); }, 150);
+    }
+    // Esperar 300ms inicial para que Streamlit termine el primer paint
+    setTimeout(function() { tryScroll(8); }, 300);
+})();
 </script>
 """, height=0)
 
