@@ -2738,15 +2738,74 @@ section.main > div[data-testid="block-container"] > div[data-testid="stVerticalB
     opacity: 1 !important;
 }
 @media (max-width: 640px) {
-    .lucas-card { padding: 14px 16px 12px; }
+    .lucas-card { padding: 14px 14px 10px; }
     .lucas-avatar { width: 36px; height: 36px; font-size: 1.15rem; }
     .lucas-title { font-size: 1rem; }
     .lucas-subtitle { font-size: 0.72rem; }
     .lucas-welcome { font-size: 0.8rem; padding: 10px 12px; }
+    .lucas-chips-label { font-size: 0.7rem; margin: 10px 0 6px; }
+    .lucas-input-label { font-size: 0.7rem; margin: 12px 0 4px; }
+    .lucas-footer-note { font-size: 0.66rem; line-height: 1.5; margin: 10px 0 4px; }
     .lucas-chips-block .stButton > button {
         font-size: 0.74rem !important;
-        padding: 0.5rem 0.7rem !important;
-        min-height: 40px;
+        padding: 0.6rem 0.7rem !important;
+        min-height: 44px;  /* iOS HIG touch target */
+        line-height: 1.2 !important;
+    }
+    /* Form input + Enviar: cuando Streamlit empila las columnas en mobile,
+       darles ancho completo y altura coherente */
+    form[data-testid="stForm"] [data-testid="stTextInput"] input {
+        font-size: 16px !important;  /* evita zoom auto en iOS Safari */
+        padding: 0.6rem 0.8rem !important;
+        min-height: 44px;
+    }
+    form[data-testid="stForm"] button[kind="primary"],
+    form[data-testid="stForm"] button[kind="primaryFormSubmit"] {
+        min-height: 44px;
+        font-size: 0.85rem !important;
+    }
+    /* Chat bubbles más compactos en mobile */
+    .chat-bubble {
+        padding: 0.6rem 0.85rem !important;
+        margin-bottom: 0.5rem !important;
+        max-width: 100% !important;
+        font-size: 0.85rem !important;
+    }
+    .chat-text { font-size: 0.85rem !important; line-height: 1.55 !important; }
+    .chat-label { font-size: 0.6rem !important; margin-bottom: 0.2rem !important; }
+}
+
+/* iOS Safari específico: prevenir bounce-scroll que oculta el header */
+@supports (-webkit-touch-callout: none) {
+    body { overscroll-behavior-y: none; }
+    .lucas-card { -webkit-overflow-scrolling: touch; }
+}
+
+/* ── Chips Lucas: forzar 2 columnas en mobile (más legible que 3 apretadas) */
+@media (max-width: 640px) {
+    .lucas-chips-block [data-testid="stHorizontalBlock"] {
+        flex-wrap: wrap !important;
+        gap: 0.4rem !important;
+    }
+    .lucas-chips-block [data-testid="column"],
+    .lucas-chips-block [data-testid="stColumn"] {
+        flex: 0 0 calc(50% - 0.2rem) !important;
+        min-width: calc(50% - 0.2rem) !important;
+        max-width: calc(50% - 0.2rem) !important;
+    }
+}
+
+/* ── Form Lucas en mobile: input full-width arriba, botón abajo ─────────── */
+@media (max-width: 480px) {
+    form[data-testid="stForm"] [data-testid="stHorizontalBlock"] {
+        flex-wrap: wrap !important;
+        gap: 0.4rem !important;
+    }
+    form[data-testid="stForm"] [data-testid="column"],
+    form[data-testid="stForm"] [data-testid="stColumn"] {
+        flex: 0 0 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
     }
 }
 
