@@ -1719,17 +1719,24 @@ def apply_custom_css():
         align-items: center !important;
         gap: 6px !important;
     }
+    /* Modo oscuro (default): luna brillante, sol tenue */
     [data-testid="stToggle"]::before {
         content: "🌙";
         font-size: 0.85rem;
         line-height: 1;
         flex-shrink: 0;
+        opacity: 1;
+        filter: grayscale(0.2);
+        transition: opacity 0.25s ease, filter 0.25s ease;
     }
     [data-testid="stToggle"]::after {
         content: "☀️";
         font-size: 0.85rem;
         line-height: 1;
         flex-shrink: 0;
+        opacity: 0.35;
+        filter: grayscale(0.7);
+        transition: opacity 0.25s ease, filter 0.25s ease;
     }
     /* Track: fondo oscuro cuando OFF (modo oscuro) */
     [data-testid="stToggle"] [data-baseweb="checkbox"] > div:first-child {
@@ -2352,6 +2359,15 @@ div[data-testid="stRadio"] div[role="radiogroup"] label p { color: #334155 !impo
 [data-testid="stToggle"] input:checked ~ div > div:first-child {
     background-color: #2563eb !important;
 }
+/* Modo claro: invertir brillos — sol brillante, luna tenue */
+[data-testid="stToggle"]::before {
+    opacity: 0.35 !important;
+    filter: grayscale(0.7) !important;
+}
+[data-testid="stToggle"]::after {
+    opacity: 1 !important;
+    filter: grayscale(0.2) !important;
+}
 
 /* Category L1 cards en modo claro */
 .cat-l1-card  { background: #ffffff !important; }
@@ -2542,14 +2558,7 @@ def render_header():
                 st.session_state._prev_step = st.session_state.get("step", "intro")
                 st.session_state.step = "como_funciona"
                 st.rerun()
-        # Toggle de tema con etiqueta
-        _theme_label = "☀️ Claro" if theme == "light" else "🌙 Oscuro"
-        st.markdown(
-            f'<div class="theme-toggle-row">'
-            f'<span class="theme-toggle-label">{_theme_label}</span>'
-            f'</div>',
-            unsafe_allow_html=True,
-        )
+        # Toggle de tema: 🌙 [toggle] ☀️ — íconos contextual brightness
         _is_light = st.toggle(
             "Modo claro",
             value=(theme == "light"),
