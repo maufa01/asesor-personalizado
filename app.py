@@ -519,25 +519,6 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
 <div class="summary-desc">{portfolio['summary']}</div>
 </div>""", unsafe_allow_html=True)
 
-    # ── Contexto de mercado live ──────────────────────────────────────────────
-    _mkt = portfolio.get("market_context", {})
-    if _mkt and _mkt.get("riesgo_pais_bps") is not None:
-        _rp   = _mkt["riesgo_pais_bps"]
-        _t5y  = _mkt.get("us_treasury_5y")
-        _t10y = _mkt.get("us_treasury_10y")
-        _rp_icon = "🟢" if _rp < 500 else ("🟡" if _rp < 800 else "🔴")
-        _mkt_parts = [f"{_rp_icon} Riesgo país: <strong>{_rp:,.0f} bps</strong>"]
-        if _t10y:
-            _mkt_parts.append(f"Treasury 10Y EE.UU.: <strong>{_t10y:.2f}%</strong>")
-        if _t5y:
-            _mkt_parts.append(f"Treasury 5Y EE.UU.: <strong>{_t5y:.2f}%</strong>")
-        _mkt_parts.append(f"Datos: <strong>{_mkt.get('as_of','hoy')}</strong>")
-        _mkt_str = " &nbsp;·&nbsp; ".join(_mkt_parts)
-        st.markdown(
-            f'<div class="market-context-bar">{_mkt_str}</div>',
-            unsafe_allow_html=True,
-        )
-
     st.markdown("<br>", unsafe_allow_html=True)
 
     # ── Métricas de simulación ────────────────────────────────────────────────
