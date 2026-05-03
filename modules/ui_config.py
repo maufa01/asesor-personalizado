@@ -3178,8 +3178,7 @@ def render_header():
         with col_nuevo:
             st.markdown('<div class="header-nav-spacer"></div>', unsafe_allow_html=True)
             if st.button("🔄 Nuevo test", key="header_nuevo_test",
-                         use_container_width=True,
-                         help="Empezar un test nuevo desde cero"):
+                         use_container_width=True):
                 _trigger_reset_confirm("profiling")
                 st.rerun()
 
