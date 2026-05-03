@@ -2004,6 +2004,17 @@ def apply_custom_css():
         padding: 4px 10px;
         margin-top: 0.5rem;
     }
+    .adc-score-line {
+        font-size: 0.78rem;
+        color: #94a3b8;
+        margin-top: 0.45rem;
+    }
+    .adc-score-desc {
+        font-size: 0.72rem;
+        color: #64748b;
+        margin-top: 2px;
+        font-style: italic;
+    }
     /* New chip types */
     .adc-chip-ret { background: rgba(16,217,138,0.10); color: #34d399; border: 1px solid rgba(16,217,138,0.22); }
     .adc-chip-vol { background: rgba(245,158,11,0.10); color: #fbbf24; border: 1px solid rgba(245,158,11,0.22); }

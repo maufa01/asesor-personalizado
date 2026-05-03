@@ -1411,13 +1411,15 @@ def _build_from_buckets(
         ranked = sorted(cands, key=lambda c: scores.get(c, 0), reverse=True) if scores else cands
         top    = ranked[:max_p]
 
-        # Peso proporcional al score dentro del bucket
+        # Peso proporcional al score dentro del bucket, respetando caps por perfil
         total_s = sum(scores.get(c, 50) for c in top) if scores else 0
         for c in top:
-            if total_s > 0:
-                allocs[c] = target * (scores.get(c, 50) / total_s)
+            raw_w = (target * (scores.get(c, 50) / total_s)) if total_s > 0 else (target / len(top))
+            if src == "equity" and scores:
+                max_w = get_max_weight(scores.get(c), risk, c)
+                allocs[c] = min(raw_w, max_w) if max_w > 0 else 0.0
             else:
-                allocs[c] = target / len(top)
+                allocs[c] = raw_w
 
     # Normalizar al 100% por si algún bucket quedó vacío
     total = sum(allocs.values())
@@ -1524,6 +1526,131 @@ _VOLATILE_ASSETS = {
 }
 _LIQUID_SAFE = ["money_market", "mep", "lecap"]
 _ETF_IDS     = {"spy", "qqq", "vti", "iau", "gld", "eem"}
+
+_ARG_INDIVIDUAL_IDS = {
+    "ypf", "vist", "galicia", "bma", "bbar", "supv", "pampa",
+    "tgs", "cepu", "loma", "teco2", "irsa", "cres", "alua",
+}
+
+
+def get_max_weight(score: int | None, profile: str, asset_id: str) -> float:
+    """
+    Peso máximo permitido para un activo dado su score Finviz y perfil.
+    Retorna 0.0 si el activo debe excluirse del perfil.
+    score=None → activo no scorable (bonos, MM, MEP) → sin límite por score.
+
+    CONSERVADOR: solo ETFs; score>=70→10%, score 50-69→5%, <50→0%
+    ESTABLE:     ETFs→15%/8%/0%; globales individuales→8%/5%/0%; ARG→0%
+    MODERADO:    score>=70→15%, 50-69→8%, <50→0%; individual cap 8%; ETF cap 20%
+    AGRESIVO:    score>=70→20%, 50-69→12%, 40-49→5%, <40→0%; individual cap 15%; ETF cap 25%
+    """
+    if score is None:
+        return 1.0  # no scorable → sin límite por score
+
+    is_etf        = asset_id in _ETF_IDS
+    is_arg_ind    = asset_id in _ARG_INDIVIDUAL_IDS
+
+    if profile == "conservador":
+        if not is_etf:
+            return 0.0
+        if score >= 70: return 0.10
+        if score >= 50: return 0.05
+        return 0.0
+
+    if profile == "estable":
+        if is_arg_ind:
+            return 0.0
+        if is_etf:
+            if score >= 70: return 0.15
+            if score >= 50: return 0.08
+            return 0.0
+        if score >= 70: return 0.08
+        if score >= 50: return 0.05
+        return 0.0
+
+    if profile == "moderado":
+        if score < 50: return 0.0
+        if is_etf:
+            return min(0.15 if score >= 70 else 0.08, 0.20)
+        return min(0.15 if score >= 70 else 0.08, 0.08)
+
+    if profile == "agresivo":
+        if score < 40: return 0.0
+        if score < 50: return 0.05
+        if is_etf:
+            return min(0.20 if score >= 70 else 0.12, 0.25)
+        return min(0.20 if score >= 70 else 0.12, 0.15)
+
+    return 1.0
+
+
+def _apply_score_caps(allocs: dict, risk: str, eq_scores: dict) -> dict:
+    """
+    Enforcement final: recorta cada activo equity a su límite score/perfil.
+    El exceso se redistribuye (iterativamente) al siguiente activo de mayor score
+    que tenga capacidad; si no hay ninguno, va a los activos estructurales
+    (bonos, MEP, liquidez) que no tienen límite por score.
+    """
+    adj = dict(allocs)
+
+    equity_sorted = sorted(
+        [aid for aid in adj if aid in eq_scores],
+        key=lambda a: eq_scores[a],
+        reverse=True,
+    )
+
+    # Excluir activos con max_w=0 y redistribuir al resto
+    for aid in list(equity_sorted):
+        if get_max_weight(eq_scores[aid], risk, aid) == 0.0:
+            excess = adj.pop(aid, 0.0)
+            equity_sorted = [x for x in equity_sorted if x != aid]
+            rest_total = sum(adj.values())
+            if rest_total > 0 and excess > 0:
+                for k in adj:
+                    adj[k] += excess * (adj[k] / rest_total)
+
+    # Iteración convergente: recortar exceso y redistribuir
+    for _ in range(20):                      # max 20 rondas → siempre converge
+        any_excess = False
+        for i, aid in enumerate(equity_sorted):
+            if aid not in adj:
+                continue
+            max_w = get_max_weight(eq_scores[aid], risk, aid)
+            w = adj[aid]
+            if w <= max_w + 1e-9:
+                continue
+            excess = w - max_w
+            adj[aid] = max_w
+            any_excess = True
+
+            # 1. Siguiente equity de mayor score que aún tenga capacidad
+            next_eq = [
+                equity_sorted[j] for j in range(i + 1, len(equity_sorted))
+                if equity_sorted[j] in adj
+                and adj[equity_sorted[j]] < get_max_weight(
+                    eq_scores[equity_sorted[j]], risk, equity_sorted[j]
+                ) - 1e-9
+            ]
+            # 2. Si no hay, ir a activos estructurales (sin score Finviz)
+            structural = [k for k in adj if k not in eq_scores]
+            candidates = next_eq or structural or [k for k in adj if k != aid]
+
+            cand_total = sum(adj[k] for k in candidates)
+            if cand_total > 0:
+                for k in candidates:
+                    adj[k] += excess * (adj[k] / cand_total)
+            elif candidates:
+                per = excess / len(candidates)
+                for k in candidates:
+                    adj[k] += per
+
+        if not any_excess:
+            break
+
+    total = sum(adj.values())
+    if total > 0:
+        adj = {k: v / total for k, v in adj.items()}
+    return adj
 
 
 def _adjust_for_experience(allocs: dict, experience: str) -> dict:
@@ -2019,19 +2146,10 @@ def build_portfolio(profile: dict) -> dict:
     allocs = _filter_by_liquidity(allocs, risk, horizon)
     allocs = _apply_overlap_exclusion(allocs)
 
-    # ── 6b. Cap de concentración: ninguna acción individual supera el 25% ─────
-    _EQUITY_SINGLE_CAP = 0.25
-    _SINGLE_STOCK_CATS = {"CEDEARs", "Acciones ARG"}
-    _capped = False
-    for _aid, _w in list(allocs.items()):
-        _cat = ASSET_INDEX.get(_aid, {}).get("category", "")
-        if _cat in _SINGLE_STOCK_CATS and _w > _EQUITY_SINGLE_CAP:
-            allocs[_aid] = _EQUITY_SINGLE_CAP
-            _capped = True
-    if _capped:
-        _total = sum(allocs.values())
-        if _total > 0:
-            allocs = {k: v / _total for k, v in allocs.items()}
+    # ── 6b. Caps por score/perfil — enforcement final post-Markowitz ──────────
+    # Reemplaza el hard-cap fijo del 25%: ahora cada activo tiene su propio
+    # límite basado en su score Finviz y el perfil del usuario.
+    allocs = _apply_score_caps(allocs, risk, eq_scores)
 
     # Construir posiciones
     positions = []
