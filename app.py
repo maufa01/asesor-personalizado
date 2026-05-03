@@ -1139,21 +1139,44 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
                 unsafe_allow_html=True,
             )
 
+    # ── Sugerencias de preguntas frecuentes (solo si el chat está vacío) ──────
+    _suggested_input = None
+    if not chat_history:
+        st.markdown(
+            '<p style="font-size:0.82rem;color:#94a3b8;margin:0 0 8px;">'
+            '👋 Hola, soy Lucas. Si querés, te ayudo con alguna de estas dudas comunes:'
+            '</p>',
+            unsafe_allow_html=True,
+        )
+        _suggestions = [
+            "¿Por qué me sugeriste estos activos?",
+            "Explicame mi cartera en 30 segundos",
+            "¿Qué pasa si necesito el dinero antes de tiempo?",
+            "¿Es muy riesgoso para mí?",
+        ]
+        _cols = st.columns(len(_suggestions))
+        for i, q in enumerate(_suggestions):
+            with _cols[i]:
+                if st.button(q, key=f"sugg_q_{i}", use_container_width=True):
+                    _suggested_input = q
+
     with st.form("chat_form", clear_on_submit=True):
         col_inp, col_btn = st.columns([5, 1])
         with col_inp:
             user_input = st.text_input(
                 "Pregunta",
-                placeholder="Ej: ¿Qué es exactamente una LECAP? ¿Cómo compro el dólar MEP?",
+                placeholder="Escribí cualquier duda sobre tu cartera o sobre cómo invertir",
                 label_visibility="collapsed",
             )
         with col_btn:
             send = st.form_submit_button("Enviar", use_container_width=True)
 
-    if send and user_input.strip():
-        with st.spinner("El asesor está procesando su consulta..."):
-            answer = chat_with_advisor(user_input.strip(), chat_history, profile, portfolio)
-        st.session_state.chat_history.append({"role": "user",      "content": user_input.strip()})
+    # Procesar input desde sugerencia o desde el form
+    _final_input = _suggested_input or (user_input.strip() if send and user_input.strip() else None)
+    if _final_input:
+        with st.spinner("Lucas está pensando tu respuesta..."):
+            answer = chat_with_advisor(_final_input, chat_history, profile, portfolio)
+        st.session_state.chat_history.append({"role": "user",      "content": _final_input})
         st.session_state.chat_history.append({"role": "assistant", "content": answer})
         st.rerun()
 
