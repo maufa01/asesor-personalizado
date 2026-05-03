@@ -1055,32 +1055,6 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # ── Compartir por WhatsApp ────────────────────────────────────────────────
-    try:
-        import urllib.parse as _up
-        _app_url_r = st.secrets.get("APP_URL", "")
-    except Exception:
-        _app_url_r = ""
-    _suffix_r = f" 👉 {_app_url_r}" if _app_url_r else ". Buscá FinanzasIA en Google"
-    _rl = risk_labels.get(profile["risk_profile"], profile["risk_profile"].upper())
-    _wa_portfolio_text = (
-        f"Hice el test de perfil inversor en FinanzasIA "
-        f"y me sugirió una cartera {_rl.upper()} "
-        f"con retorno estimado del {portfolio['expected_cagr']*100:.1f}% anual en USD. "
-        f"Es gratis y tarda 5 minutos{_suffix_r}"
-    )
-    _wa_portfolio_url = f"https://wa.me/?text={_up.quote(_wa_portfolio_text)}"
-    st.markdown(
-        f'<div style="text-align:center;margin:0.5rem 0 1.2rem;">'
-        f'<a href="{_wa_portfolio_url}" target="_blank" rel="noopener" '
-        f'style="display:inline-flex;align-items:center;gap:8px;'
-        f'background:#25D366;color:#fff;font-weight:700;font-size:0.88rem;'
-        f'padding:10px 24px;border-radius:10px;text-decoration:none;'
-        f'box-shadow:0 2px 10px rgba(37,211,102,0.28);">'
-        f'📲 Compartir por WhatsApp</a></div>',
-        unsafe_allow_html=True,
-    )
-
     col_glos, col_r2, _ = st.columns([1, 1, 1])
     with col_glos:
         if st.button("📚 Ver Glosario", key="glosario_from_results", use_container_width=True):
