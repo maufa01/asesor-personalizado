@@ -958,10 +958,10 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
 <div class="action-step">
   <div class="action-step-number">1</div>
   <div class="action-step-body">
-    <div class="action-step-title">Abra una cuenta en IOL o Balanz</div>
+    <div class="action-step-title">Abra una cuenta en un broker habilitado por la CNV</div>
     <div class="action-step-copy">El proceso es gratuito y demora aproximadamente 10 minutos.</div>
     <details class="action-step-help"><summary>¿Cómo hacerlo?</summary>
-      <div>Seleccione la plataforma, complete sus datos personales y verifique su identidad con DNI y selfie.</div>
+      <div>Elija un broker regulado por la CNV, complete sus datos personales y verifique su identidad con DNI y selfie.</div>
     </details>
     <details class="action-step-help"><summary>¿Cuánto necesito para empezar?</summary>
       <div>No existe un mínimo formal. En la práctica:<br>
