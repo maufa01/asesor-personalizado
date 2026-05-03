@@ -58,6 +58,8 @@ _CATEGORY_ASSET_IDS = {
                    "al35", "gd35", "gd38", "on_tgs", "on_macro",
                    "fci_usd_rf", "fci_usd_ahorro", "fci_latam",
                    "on_meli", "on_telecom", "on_genneia", "on_vista", "on_pampa",
+                   "on_tgs2", "on_arcor", "on_telecom2", "on_irsa", "on_cresud",
+                   "dual_bond", "dollar_linked",
                    "gd29", "gd41"},
     "Fondos globales": {"spy", "qqq", "vti"},
     "Renta variable": {"aapl", "msft", "nvda", "meli", "ypf", "galicia"},
@@ -224,6 +226,15 @@ _PLATFORMS = {
     # Soberanos adicionales
     "gd29":          (_BROKERS_BONOS,   "Renta Fija → GD29"),
     "gd41":          (_BROKERS_BONOS,   "Renta Fija → GD41"),
+    # ONs nuevas
+    "on_tgs2":       (_BROKERS_BONOS,   "Renta Fija → ON TGS TGS2O"),
+    "on_arcor":      (_BROKERS_BONOS,   "Renta Fija → ON Arcor RCCJO"),
+    "on_telecom2":   (_BROKERS_BONOS,   "Renta Fija → ON Telecom TLCMO"),
+    "on_irsa":       (_BROKERS_BONOS,   "Renta Fija → ON IRSA IRCFO"),
+    "on_cresud":     (_BROKERS_BONOS,   "Renta Fija → ON Cresud CSDOO"),
+    # Bonos pesos nuevos
+    "dual_bond":     (_BROKERS_BONOS,   "Renta Fija → Bono Dual TDA27"),
+    "dollar_linked": (_BROKERS_BONOS,   "Renta Fija → Dollar Linked TV26"),
 }
 
 

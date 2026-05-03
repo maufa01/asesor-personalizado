@@ -617,6 +617,9 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
         "on_corp", "on_ypf", "on_tecpetrol", "on_tgs", "on_macro",
         # ONs corporativas argentinas nuevas (riesgo corporativo ARG aunque paguen en USD)
         "on_meli", "on_telecom", "on_genneia", "on_vista", "on_pampa",
+        "on_tgs2", "on_arcor", "on_telecom2", "on_irsa", "on_cresud",
+        # Bonos pesos nuevos (riesgo ARG — pagan en pesos/dólares locales)
+        "dual_bond", "dollar_linked",
         # Soberanos adicionales (riesgo soberano ARG)
         "gd29", "gd41",
         "galicia", "ypf", "bbar", "pampa", "tgs", "cepu", "bma", "supv",

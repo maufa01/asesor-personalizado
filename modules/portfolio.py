@@ -412,6 +412,96 @@ ASSET_UNIVERSE: List[Dict[str, Any]] = [
         "simple_desc": "Deuda de Pampa Energía en USD, holding eléctrico con contratos regulados",
     },
 
+    # ══ ONs CORPORATIVAS ADICIONALES ══════════════════════════════════════════
+
+    {
+        "id": "on_tgs2",
+        "name": "ON TGS USD Serie 2 (TGS2O)",
+        "category": "Bonos USD", "sub": "Corporativo",
+        "ticker": "TGS2O", "color": "#0369a1",
+        "expected_return": 0.085, "volatility": 0.08, "risk_level": "bajo-medio",
+        "description": "Obligación negociable de Transportadora Gas del Sur en dólares, serie TGS2O. La mayor transportadora de gas del país, con ingresos regulados en USD. Infraestructura crítica con contratos de largo plazo.",
+        "currency": "USD", "market": "BYMA",
+        "simple_desc": "Deuda de la mayor transportadora de gas del país — paga intereses en dólares",
+        "activo": True, "nota_analista": "Infraestructura regulada, bajo riesgo operativo",
+        "fuente_retorno": "Estimación propia / BYMA",
+    },
+    {
+        "id": "on_arcor",
+        "name": "ON Arcor USD (RCCJO)",
+        "category": "Bonos USD", "sub": "Corporativo",
+        "ticker": "RCCJO", "color": "#f97316",
+        "expected_return": 0.085, "volatility": 0.09, "risk_level": "bajo-medio",
+        "description": "Obligación negociable de Arcor S.A.I.C. en dólares. La empresa de alimentos más grande de Argentina, con presencia en 120 países y exportaciones que generan divisas propias. Menor dependencia del tipo de cambio local.",
+        "currency": "USD", "market": "BYMA",
+        "simple_desc": "Deuda de Arcor en USD — exportadora de alimentos con ingresos en dólares",
+        "activo": True, "nota_analista": "Exportadora diversificada, bajo riesgo soberano relativo",
+        "fuente_retorno": "Estimación propia / BYMA",
+    },
+    {
+        "id": "on_telecom2",
+        "name": "ON Telecom Argentina USD (TLCMO)",
+        "category": "Bonos USD", "sub": "Corporativo",
+        "ticker": "TLCMO", "color": "#0891b2",
+        "expected_return": 0.09, "volatility": 0.09, "risk_level": "bajo-medio",
+        "description": "Obligación negociable de Telecom Argentina, serie TLCMO. Principal operadora de telecomunicaciones del país. Infraestructura crítica con barreras de entrada muy altas y flujos en USD.",
+        "currency": "USD", "market": "BYMA",
+        "simple_desc": "Deuda de Telecom Argentina serie TLCMO — telecomunicaciones líder del país",
+        "activo": True, "nota_analista": "Serie distinta a TCOMD, diferente vencimiento y TIR",
+        "fuente_retorno": "Estimación propia / BYMA",
+    },
+    {
+        "id": "on_irsa",
+        "name": "ON IRSA USD (IRCFO)",
+        "category": "Bonos USD", "sub": "Corporativo",
+        "ticker": "IRCFO", "color": "#7c3aed",
+        "expected_return": 0.10, "volatility": 0.11, "risk_level": "medio",
+        "description": "Obligación negociable de IRSA Inversiones y Representaciones en dólares. La mayor empresa inmobiliaria de Argentina: shoppings, oficinas premium y hoteles. Exposición al ciclo económico local y al real estate argentino.",
+        "currency": "USD", "market": "BYMA",
+        "simple_desc": "Deuda de IRSA en USD — mayor empresa inmobiliaria de Argentina",
+        "activo": True, "nota_analista": "Exposición a real estate ARG, correlación con ciclo económico local",
+        "fuente_retorno": "Estimación propia / BYMA",
+    },
+    {
+        "id": "on_cresud",
+        "name": "ON Cresud USD (CSDOO)",
+        "category": "Bonos USD", "sub": "Corporativo",
+        "ticker": "CSDOO", "color": "#65a30d",
+        "expected_return": 0.10, "volatility": 0.12, "risk_level": "medio",
+        "description": "Obligación negociable de Cresud S.A.C.I.F. y A. en dólares. Empresa agropecuaria con campos en Argentina, Brasil, Bolivia y Paraguay. Ingresos en USD por exportaciones agrícolas.",
+        "currency": "USD", "market": "BYMA",
+        "simple_desc": "Deuda de Cresud en USD — campo agropecuario en Argentina y Latinoamérica",
+        "activo": True, "nota_analista": "Liquidez baja, solo agresivo",
+        "fuente_retorno": "Estimación propia / BYMA",
+    },
+
+    # ══ BONOS EN PESOS — COBERTURA DUAL Y DOLLAR LINKED ══════════════════════
+
+    {
+        "id": "dual_bond",
+        "name": "Bono Dual TDA27 (CER o devaluación, lo que sea mayor)",
+        "category": "Pesos ARS", "sub": "Deuda Pública ARS",
+        "ticker": "TDA27", "color": "#a78bfa",
+        "expected_return": 0.08, "volatility": 0.12, "risk_level": "bajo-medio",
+        "description": "Bono del Tesoro argentino que ajusta por el máximo entre inflación (CER) y devaluación del peso. Si el dólar sube más que la inflación, te paga con el dólar. Si la inflación supera al dólar, te paga con inflación. Doble cobertura ante incertidumbre macro.",
+        "currency": "ARS", "market": "BYMA",
+        "simple_desc": "Bono dual: ajusta por inflación O devaluación, lo que sea mayor — doble cobertura",
+        "activo": True, "nota_analista": "Dual, buena cobertura ante incertidumbre macro",
+        "fuente_retorno": "Estimación propia / BYMA",
+    },
+    {
+        "id": "dollar_linked",
+        "name": "Bono Dollar Linked TV26 (sigue al dólar oficial)",
+        "category": "Pesos ARS", "sub": "Deuda Pública ARS",
+        "ticker": "TV26", "color": "#38bdf8",
+        "expected_return": 0.07, "volatility": 0.10, "risk_level": "bajo-medio",
+        "description": "Bono del Tesoro argentino cuyo capital y renta ajustan por el tipo de cambio oficial. Si el dólar oficial sube, el bono vale más en pesos. Protege contra devaluación sin necesidad de comprar dólares directamente.",
+        "currency": "ARS", "market": "BYMA",
+        "simple_desc": "Bono dollar linked TV26: sigue al dólar oficial, protege contra devaluación del peso",
+        "activo": True, "nota_analista": "Protección contra devaluación del tipo de cambio oficial",
+        "fuente_retorno": "Estimación propia / BYMA",
+    },
+
     # ══ CEDEARs TECNOLOGÍA ═════════════════════════════════════════════════════
 
     {
@@ -1931,6 +2021,8 @@ _LIQUIDITY_LEVELS = {
         # ONs corporativas
         "on_ypf","on_corp","on_tecpetrol","on_tgs","on_macro",
         "on_meli","on_telecom","on_genneia","on_vista","on_pampa",
+        "on_tgs2","on_arcor","on_telecom2","on_irsa",
+        "dual_bond","dollar_linked",
         # FCIs USD y ARS adicionales
         "fci_usd_rf","fci_usd_ahorro","fci_latam",
         "fci_acciones","fci_cedears","fci_mixto",
@@ -2067,8 +2159,10 @@ _BUCKET_DEFS: Dict[str, list] = {
         {"id": "cobertura", "target": 0.18, "max_pos": 1, "score_src": None,
          "candidates": ["mep"]},
         {"id": "rf",        "target": 0.28, "max_pos": 1, "score_src": "bond",
-         "candidates": ["lecap", "cer_bond", "on_corp", "on_ypf", "on_tecpetrol",
-                         "on_tgs", "on_macro", "al30", "gd30", "al35", "gd35",
+         "candidates": ["lecap", "cer_bond", "dual_bond", "dollar_linked",
+                         "on_corp", "on_ypf", "on_tecpetrol", "on_tgs", "on_macro",
+                         "on_tgs2", "on_arcor", "on_telecom2",
+                         "al30", "gd30", "al35", "gd35",
                          "fci_usd_rf", "fci_usd_ahorro"]},
         {"id": "defensivo", "target": 0.22, "max_pos": 1, "score_src": "equity",
          "candidates": ["iau", "gld"]},
@@ -2082,9 +2176,10 @@ _BUCKET_DEFS: Dict[str, list] = {
         {"id": "cobertura", "target": 0.18, "max_pos": 1, "score_src": None,
          "candidates": ["mep"]},
         {"id": "rf_pesos",  "target": 0.10, "max_pos": 1, "score_src": "bond",
-         "candidates": ["lecap", "cer_bond"]},
+         "candidates": ["lecap", "cer_bond", "dual_bond", "dollar_linked"]},
         {"id": "rf_usd",    "target": 0.18, "max_pos": 1, "score_src": "bond",
          "candidates": ["on_corp", "on_ypf", "on_tecpetrol", "on_tgs", "on_macro",
+                         "on_tgs2", "on_arcor", "on_telecom2", "on_irsa", "on_cresud",
                          "al30", "gd30", "al35", "gd35",
                          "fci_usd_rf", "fci_usd_ahorro", "on_meli", "on_telecom",
                          "on_genneia", "on_vista", "on_pampa", "gd29", "gd41"]},
@@ -2103,6 +2198,7 @@ _BUCKET_DEFS: Dict[str, list] = {
          "candidates": ["mep"]},
         {"id": "rf_usd",        "target": 0.12, "max_pos": 1, "score_src": "bond",
          "candidates": ["on_corp", "on_ypf", "on_tgs", "on_macro",
+                         "on_tgs2", "on_arcor", "on_telecom2", "on_irsa", "on_cresud",
                          "al30", "gd30", "al35", "gd35",
                          "on_meli", "on_telecom", "on_genneia", "on_vista", "on_pampa",
                          "gd29", "gd41", "fci_usd_rf"]},
@@ -2126,6 +2222,7 @@ _BUCKET_DEFS: Dict[str, list] = {
          "candidates": ["mep"]},
         {"id": "rf_usd",        "target": 0.09, "max_pos": 1, "score_src": "bond",
          "candidates": ["on_corp", "on_ypf", "on_tgs", "on_macro",
+                         "on_tgs2", "on_arcor", "on_telecom2", "on_irsa", "on_cresud",
                          "al30", "gd30", "al35", "gd35", "gd38",
                          "on_meli", "on_telecom", "on_genneia", "on_vista", "on_pampa",
                          "gd29", "gd41"]},
@@ -2588,6 +2685,10 @@ _STRUCTURAL_IDS = {
     "fci_usd_rf", "fci_usd_ahorro", "fci_latam",
     # ONs adicionales
     "on_meli", "on_telecom", "on_genneia", "on_vista", "on_pampa",
+    # ONs nuevas
+    "on_tgs2", "on_arcor", "on_telecom2", "on_irsa", "on_cresud",
+    # Bonos pesos nuevos
+    "dual_bond", "dollar_linked",
     # Soberanos adicionales
     "gd29", "gd41",
 }
@@ -2927,6 +3028,15 @@ def _razon_en_cartera(asset_id: str, risk: str, horizon: int) -> str:
         # Soberanos adicionales
         "gd29":          "GD29: bono soberano en USD con vencimiento 2029 y protección ley Nueva York",
         "gd41":          "GD41: la apuesta más larga al crédito argentino — máximo upside si baja el riesgo país",
+        # ONs nuevas
+        "on_tgs2":       "TGS opera el principal gasoducto del país — segunda serie ON en dólares con mayor plazo y cupón",
+        "on_arcor":      "Arcor exporta a 120 países y genera USD propios — ON respaldada por el grupo agroindustrial más grande de Argentina",
+        "on_telecom2":   "Telecom (segunda serie): infraestructura crítica de telecomunicaciones con contratos en dólares",
+        "on_irsa":       "IRSA posee los shoppings premium de Argentina — flujo en USD de arrendamientos dolarizados",
+        "on_cresud":     "Cresud: campo argentino y propiedades urbanas, ON de mayor rendimiento para inversor agresivo",
+        # Bonos pesos nuevos
+        "dual_bond":     "Bono Dual TDA27: paga el mayor entre inflación CER o devaluación — protege contra cualquier escenario",
+        "dollar_linked": "Bono Dollar Linked TV26: replica el tipo de cambio oficial — protege si se acelera la devaluación",
     }
     base = _RAZONES.get(asset_id)
     if base:

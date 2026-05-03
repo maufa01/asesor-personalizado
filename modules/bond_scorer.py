@@ -218,6 +218,85 @@ BOND_DEFS = {
         "quality_pts":  20,
         "vol_est_m":    0.8,
     },
+    # ── ONs corporativas adicionales ─────────────────────────────────────────
+    "on_tgs2": {
+        "label":        "ON TGS USD Serie 2 (TGS2O)",
+        "type":         "on_corp",
+        "ticker_rava":  "TGS2O",
+        "ticker_ambito": "TGS2O",
+        "tir_est":      8.5,
+        "duration_est": 2.0,
+        "paridad_est":  100.0,
+        "quality_pts":  22,
+        "vol_est_m":    1.0,
+    },
+    "on_arcor": {
+        "label":        "ON Arcor USD (RCCJO)",
+        "type":         "on_corp",
+        "ticker_rava":  "RCCJO",
+        "ticker_ambito": "RCCJO",
+        "tir_est":      8.5,
+        "duration_est": 2.5,
+        "paridad_est":  99.0,
+        "quality_pts":  21,
+        "vol_est_m":    1.5,
+    },
+    "on_telecom2": {
+        "label":        "ON Telecom Argentina USD (TLCMO)",
+        "type":         "on_corp",
+        "ticker_rava":  "TLCMO",
+        "ticker_ambito": "TLCMO",
+        "tir_est":      9.0,
+        "duration_est": 2.0,
+        "paridad_est":  98.0,
+        "quality_pts":  20,
+        "vol_est_m":    1.5,
+    },
+    "on_irsa": {
+        "label":        "ON IRSA USD (IRCFO)",
+        "type":         "on_corp",
+        "ticker_rava":  "IRCFO",
+        "ticker_ambito": "IRCFO",
+        "tir_est":      10.0,
+        "duration_est": 2.5,
+        "paridad_est":  97.0,
+        "quality_pts":  18,
+        "vol_est_m":    2.5,
+    },
+    "on_cresud": {
+        "label":        "ON Cresud USD (CSDOO)",
+        "type":         "on_corp",
+        "ticker_rava":  "CSDOO",
+        "ticker_ambito": "CSDOO",
+        "tir_est":      10.0,
+        "duration_est": 2.0,
+        "paridad_est":  97.0,
+        "quality_pts":  17,
+        "vol_est_m":    3.0,
+    },
+    # ── Bonos en pesos — cobertura dual y dollar linked ───────────────────────
+    "dual_bond": {
+        "label":        "Bono Dual TDA27 (max CER / devaluación)",
+        "type":         "cer",          # tratado como CER para scoring de duration/calidad
+        "ticker_rava":  "TDA27",
+        "ticker_ambito": "TDA27",
+        "tir_est":      6.0,            # TNA estimada real
+        "duration_est": 1.2,            # vence 2027
+        "paridad_est":  98.0,
+        "quality_pts":  19,
+        "vol_est_m":    2.0,
+    },
+    "dollar_linked": {
+        "label":        "Bono Dollar Linked TV26",
+        "type":         "cer",          # scoring similar a CER
+        "ticker_rava":  "TV26",
+        "ticker_ambito": "TV26",
+        "tir_est":      3.0,            # spread sobre devaluación esperada
+        "duration_est": 0.8,            # vence 2026
+        "paridad_est":  99.0,
+        "quality_pts":  18,
+        "vol_est_m":    2.5,
+    },
     # ── FCIs USD ──────────────────────────────────────────────────────────────
     "fci_usd_rf": {
         "label":        "FCI Renta Fija USD (Compass / Balanz)",
