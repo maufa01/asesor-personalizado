@@ -405,9 +405,9 @@ def render_bar_simulation(portfolio: dict, initial_capital: float,
 
     fig = go.Figure()
 
-    # Si el mercado va mal
+    # Pésimo
     fig.add_trace(go.Bar(
-        name="Si el mercado va mal 📉",
+        name="😟 Pésimo",
         x=labels,
         y=disp_pess,
         marker_color="#ef4444",
@@ -416,12 +416,12 @@ def render_bar_simulation(portfolio: dict, initial_capital: float,
         text=[f"{fmt(d)}<br><span style='font-size:11px'>{fmt_pct(v)}</span>" for d, v in zip(disp_pess, vals_pess)],
         textposition="outside",
         textfont=dict(size=11, color="#ef4444"),
-        hovertemplate=f"<b>%{{x}} — Si el mercado va mal</b><br>Capital: $%{{y:,.0f}} {currency_label}<extra></extra>",
+        hovertemplate=f"<b>%{{x}} — Pésimo</b><br>Capital: $%{{y:,.0f}} {currency_label}<extra></extra>",
     ))
 
-    # Lo más probable
+    # Base
     fig.add_trace(go.Bar(
-        name="Lo más probable 📊",
+        name="📊 Base",
         x=labels,
         y=disp_base,
         marker_color="#f0b429",
@@ -430,12 +430,12 @@ def render_bar_simulation(portfolio: dict, initial_capital: float,
         text=[f"{fmt(d)}<br><span style='font-size:11px'>{fmt_pct(v)}</span>" for d, v in zip(disp_base, vals_base)],
         textposition="outside",
         textfont=dict(size=11, color="#f0b429"),
-        hovertemplate=f"<b>%{{x}} — Lo más probable</b><br>Capital: $%{{y:,.0f}} {currency_label}<extra></extra>",
+        hovertemplate=f"<b>%{{x}} — Base</b><br>Capital: $%{{y:,.0f}} {currency_label}<extra></extra>",
     ))
 
-    # Si el mercado va bien
+    # Excelente
     fig.add_trace(go.Bar(
-        name="Si el mercado va bien 📈",
+        name="🚀 Excelente",
         x=labels,
         y=disp_opt,
         marker_color="#10d98a",
@@ -444,7 +444,7 @@ def render_bar_simulation(portfolio: dict, initial_capital: float,
         text=[f"{fmt(d)}<br><span style='font-size:11px'>{fmt_pct(v)}</span>" for d, v in zip(disp_opt, vals_opt)],
         textposition="outside",
         textfont=dict(size=11, color="#10d98a"),
-        hovertemplate=f"<b>%{{x}} — Si el mercado va bien</b><br>Capital: $%{{y:,.0f}} {currency_label}<extra></extra>",
+        hovertemplate=f"<b>%{{x}} — Excelente</b><br>Capital: $%{{y:,.0f}} {currency_label}<extra></extra>",
     ))
 
     # Línea de capital inicial
