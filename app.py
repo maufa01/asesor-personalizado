@@ -996,6 +996,8 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
                 f'<div class="chat-text">{safe_content}</div></div>',
                 unsafe_allow_html=True,
             )
+        # Anchor invisible al final del historial para auto-scroll
+        st.markdown('<div id="chat-end-anchor"></div>', unsafe_allow_html=True)
 
     # Chips de preguntas pre-armadas (8 preguntas, grid 2/3 cols responsive)
     _suggested_input = None
@@ -1044,6 +1046,8 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
             answer = chat_with_advisor(_final_input, chat_history, profile, portfolio)
         st.session_state.chat_history.append({"role": "user",      "content": _final_input})
         st.session_state.chat_history.append({"role": "assistant", "content": answer})
+        # Marcar para auto-scroll al final del chat tras el rerun
+        st.session_state["_lucas_scroll_pending"] = True
         st.rerun()
 
     # Disclaimer al pie del chat (una sola vez)
@@ -1061,6 +1065,26 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
         st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown('</div>', unsafe_allow_html=True)  # cierra .lucas-card
+
+    # ── Auto-scroll al final del chat tras un nuevo mensaje ──────────────────
+    # Streamlit no scrollea automáticamente al final cuando se agregan elementos.
+    # Inyectamos JS via components.html (corre en iframe pero accede a window.parent
+    # para scrollear el documento principal). El flag .pop() garantiza que el
+    # script solo se ejecuta UNA vez después de un nuevo mensaje, no en cada rerun.
+    if st.session_state.pop("_lucas_scroll_pending", False):
+        components.html("""
+<script>
+setTimeout(function() {
+    try {
+        const doc = window.parent.document;
+        const anchor = doc.getElementById('chat-end-anchor');
+        if (anchor) {
+            anchor.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }
+    } catch(e) { /* noop */ }
+}, 200);
+</script>
+""", height=0)
 
     st.markdown("<br>", unsafe_allow_html=True)
 

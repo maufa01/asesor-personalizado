@@ -2787,11 +2787,16 @@ button[data-testid="stBaseButton-secondary"][aria-label*="logo_home"],
     width: auto !important;
     box-shadow: none !important;
     min-height: 0 !important;
+    opacity: 0.55 !important;
+    font-weight: 400 !important;
+    letter-spacing: 0 !important;
+    transition: opacity 0.15s ease, color 0.15s ease !important;
 }
 .lucas-restart .stButton > button:hover {
     color: #ef4444 !important;
     background: transparent !important;
     transform: none !important;
+    opacity: 1 !important;
 }
 @media (max-width: 640px) {
     .lucas-card { padding: 14px 16px 12px; }
