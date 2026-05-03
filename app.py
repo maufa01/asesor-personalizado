@@ -974,6 +974,22 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
     # MÓDULO UNIFICADO: HABLÁ CON LUCAS
     # Reemplaza al "Análisis Profesional" con tabs y al chat "Consultas al Asesor"
     # ══════════════════════════════════════════════════════════════════════════
+
+    # Procesar input pendiente ANTES de renderizar el form (evita que se vea
+    # duplicado durante el spinner). El chip/form solo guarda el texto en
+    # _lucas_pending_input + rerun, y este bloque lo procesa antes del render.
+    if st.session_state.get("_lucas_pending_input"):
+        _pending = st.session_state.pop("_lucas_pending_input")
+        _hist_for_call = list(st.session_state.chat_history)
+        with st.spinner("Lucas está pensando tu respuesta..."):
+            _answer = chat_with_advisor(_pending, _hist_for_call,
+                                        st.session_state.profile,
+                                        st.session_state.portfolio)
+        st.session_state.chat_history.append({"role": "user",      "content": _pending})
+        st.session_state.chat_history.append({"role": "assistant", "content": _answer})
+        st.session_state["_lucas_scroll_pending"] = True
+        st.rerun()
+
     st.markdown('<div class="lucas-card">', unsafe_allow_html=True)
 
     # Header con avatar + título
@@ -1063,14 +1079,12 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
         with col_btn:
             send = st.form_submit_button("Enviar", use_container_width=True, type="primary")
 
-    # Procesar desde chip o form
+    # Resolver input desde chip o form, guardarlo como pendiente y rerun.
+    # El procesamiento real (con spinner) ocurre al PRINCIPIO del módulo en el
+    # próximo render — así el form no se ve duplicado durante el "Lucas está pensando".
     _final_input = _suggested_input or (user_input.strip() if send and user_input.strip() else None)
     if _final_input:
-        with st.spinner("Lucas está pensando tu respuesta..."):
-            answer = chat_with_advisor(_final_input, chat_history, profile, portfolio)
-        st.session_state.chat_history.append({"role": "user",      "content": _final_input})
-        st.session_state.chat_history.append({"role": "assistant", "content": answer})
-        st.session_state["_lucas_scroll_pending"] = True
+        st.session_state["_lucas_pending_input"] = _final_input
         st.rerun()
 
     # Footer mini: disclaimer + link 'empezar de nuevo'
