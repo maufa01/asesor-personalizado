@@ -2448,6 +2448,119 @@ details.cat-exp[open] > summary .cat-l1-card { background: #f1f5f9 !important; b
     .personal-msg p { font-size: 0.78rem; }
 }
 
+/* ── Header sticky + logo clickeable + Nuevo test ────────────── */
+/* Aplica position:sticky al primer bloque horizontal (header) */
+section.main > div[data-testid="block-container"] > div[data-testid="stVerticalBlock"]
+  > div[data-testid="stHorizontalBlock"]:first-of-type {
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    background: rgba(5, 8, 16, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+    padding: 0.6rem 0 !important;
+    margin: 0 -1rem 1rem !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+}
+
+/* Logo button: parece un logo, no un botón */
+.stButton > button[kind="secondary"][data-testid*="logo_home"],
+button[data-testid="stBaseButton-secondary"][aria-label*="logo_home"],
+.app-logo-btn .stButton > button {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0.4rem 0.6rem 0.4rem 0 !important;
+    text-align: left !important;
+    font-family: var(--font-display) !important;
+    font-size: 1.4rem !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.03em !important;
+    color: var(--text-1) !important;
+    width: auto !important;
+    min-height: 0 !important;
+    cursor: pointer !important;
+}
+.app-logo-btn .stButton > button:hover {
+    background: transparent !important;
+    transform: none !important;
+    box-shadow: none !important;
+    opacity: 0.75 !important;
+}
+@media (max-width: 640px) {
+    .app-logo-btn .stButton > button {
+        font-size: 1.05rem !important;
+        padding: 0.3rem 0 !important;
+    }
+}
+
+/* Botón "🔄 Nuevo test" en header — distintivo (color naranja/dorado) */
+.nuevo-test-btn .stButton > button {
+    background: rgba(240, 180, 41, 0.1) !important;
+    border: 1px solid rgba(240, 180, 41, 0.4) !important;
+    color: #f0b429 !important;
+    font-size: 0.78rem !important;
+    padding: 0.35rem 0.6rem !important;
+    box-shadow: none !important;
+    letter-spacing: 0 !important;
+}
+.nuevo-test-btn .stButton > button:hover {
+    background: rgba(240, 180, 41, 0.2) !important;
+    border-color: #f0b429 !important;
+    box-shadow: 0 2px 8px rgba(240, 180, 41, 0.2) !important;
+    transform: none !important;
+}
+@media (max-width: 640px) {
+    .nuevo-test-btn .stButton > button {
+        font-size: 0 !important;  /* oculta el texto */
+        padding: 0.35rem 0.5rem !important;
+    }
+    .nuevo-test-btn .stButton > button::before {
+        content: "🔄";
+        font-size: 0.95rem;
+    }
+}
+
+/* Modal de confirmación inline (no usamos st.dialog para portabilidad) */
+.reset-confirm-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(5, 8, 16, 0.85);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    animation: fadeIn 0.2s ease;
+}
+.reset-confirm-modal {
+    background: var(--bg-2);
+    border: 1px solid var(--border-glow);
+    border-radius: 14px;
+    padding: 24px 28px;
+    max-width: 420px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+.reset-confirm-modal h3 {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-1);
+    margin: 0 0 10px;
+}
+.reset-confirm-modal p {
+    font-size: 0.88rem;
+    color: var(--text-2);
+    line-height: 1.6;
+    margin: 0 0 18px;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
 /* ── Hablá con Lucas: módulo unificado ──────────────────────── */
 .lucas-card {
     background: linear-gradient(180deg, rgba(79,163,255,0.04), rgba(79,163,255,0.01));
@@ -2933,18 +3046,98 @@ form[data-testid="stForm"] [data-baseweb="input"]:focus-within,
 </style>"""
 
 
+def _trigger_reset_confirm(target_step: str = "intro"):
+    """Setea flag para mostrar modal de confirmación de reset."""
+    st.session_state["_reset_confirm_target"] = target_step
+
+
+def _do_reset(target_step: str):
+    """Resetea el state del usuario y navega al destino."""
+    keys_to_clear = [
+        "portfolio", "simulation", "chat_history", "show_celebration",
+        "answers", "profile",
+    ]
+    for k in keys_to_clear:
+        if k == "chat_history":
+            st.session_state[k] = []
+        elif k == "answers":
+            st.session_state[k] = {}
+        else:
+            st.session_state[k] = None
+    st.session_state.step = target_step
+    st.session_state.pop("_reset_confirm_target", None)
+
+
+def _render_reset_confirm_modal():
+    """Modal inline de confirmación antes de perder el portfolio actual."""
+    target = st.session_state.get("_reset_confirm_target")
+    if not target:
+        return
+    st.markdown("""<div class="reset-confirm-overlay">
+  <div class="reset-confirm-modal">
+    <h3>¿Empezar de nuevo?</h3>
+    <p>Vas a perder el portafolio actual y el cuestionario que completaste.
+    ¿Querés continuar?</p>
+  </div>
+</div>""", unsafe_allow_html=True)
+    # Botones reales debajo (Streamlit no puede inyectar botones dentro del overlay HTML)
+    _, _c1, _c2, _ = st.columns([2, 2, 2, 2])
+    with _c1:
+        if st.button("Cancelar", key="reset_cancel", use_container_width=True):
+            st.session_state.pop("_reset_confirm_target", None)
+            st.rerun()
+    with _c2:
+        if st.button("Sí, empezar de nuevo", key="reset_confirm",
+                     type="primary", use_container_width=True):
+            _do_reset(target)
+            st.rerun()
+
+
 def render_header():
     theme = st.session_state.get("theme", "dark")
-    # Layout top-level: 4 columnas. La última (toggle) es la más angosta y queda
-    # alineada a la derecha al lado de "Cómo funciona".
-    col_logo, col_glos, col_meto, col_theme = st.columns([4, 1.5, 1.5, 0.7])
+    has_portfolio = bool(st.session_state.get("portfolio"))
+
+    # Mostrar modal si fue solicitado
+    if st.session_state.get("_reset_confirm_target"):
+        _render_reset_confirm_modal()
+
+    # Layout: si hay portfolio, agregamos col para "Nuevo test"
+    # [Logo+badge | Nuevo test? | Glosario | Cómo funciona | Toggle]
+    if has_portfolio:
+        col_logo, col_nuevo, col_glos, col_meto, col_theme = st.columns(
+            [3.2, 1, 1.5, 1.5, 0.7]
+        )
+    else:
+        col_logo, col_glos, col_meto, col_theme = st.columns([4, 1.5, 1.5, 0.7])
+
     with col_logo:
-        st.markdown("""
-        <div class="app-header">
-            <div class="app-logo">Finanzas<span>IA</span></div>
-            <div class="app-badge">Asesoramiento Financiero Digital</div>
-        </div>
-        """, unsafe_allow_html=True)
+        # Logo clickeable: sin border, sin background — parece un texto/logo
+        st.markdown('<div class="app-logo-btn">', unsafe_allow_html=True)
+        if st.button("FinanzasIA", key="logo_home", help="Volver al inicio"):
+            if has_portfolio and st.session_state.get("step") not in ("intro",):
+                _trigger_reset_confirm("intro")
+                st.rerun()
+            else:
+                st.session_state.step = "intro"
+                st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div class="app-badge" style="margin-top:-0.4rem;">'
+            'Asesoramiento Financiero Digital</div>',
+            unsafe_allow_html=True,
+        )
+
+    if has_portfolio:
+        with col_nuevo:
+            st.markdown('<div class="header-nav-spacer"></div>', unsafe_allow_html=True)
+            st.markdown('<div class="nuevo-test-btn">', unsafe_allow_html=True)
+            if st.button("🔄 Nuevo test", key="header_nuevo_test",
+                         use_container_width=True,
+                         help="Empezar un test nuevo desde cero"):
+                _trigger_reset_confirm("profiling")
+                st.rerun()
+            st.markdown('</div>', unsafe_allow_html=True)
+
     with col_glos:
         st.markdown('<div class="header-nav-spacer"></div>', unsafe_allow_html=True)
         if st.button("📚 Glosario", key="header_glosario", use_container_width=True):
@@ -2958,7 +3151,6 @@ def render_header():
             st.session_state.step = "como_funciona"
             st.rerun()
     with col_theme:
-        # Spacer para alinear verticalmente con los botones
         st.markdown('<div class="header-nav-spacer"></div>', unsafe_allow_html=True)
         st.markdown('<div class="header-theme-wrap">', unsafe_allow_html=True)
         _is_light = st.toggle(
