@@ -175,6 +175,35 @@ Sobre la asignación base se aplican ajustes en cascada:
 6. **Filtros**: liquidez mínima, exclusión de overlaps ETF/stocks
 """)
 
+        st.markdown("---")
+        st.markdown("### Base académica del modelo")
+        st.info("""
+**La cantidad óptima de activos por perfil está basada en:**
+
+- **Markowitz, H. (1952).** *Portfolio Selection.* Journal of Finance. Premio Nobel 1990.
+  Demostró matemáticamente que la diversificación reduce el riesgo sin sacrificar retorno esperado,
+  y que existe una frontera eficiente de carteras óptimas.
+
+- **Evans, J. & Archer, S. (1968).** *Diversification and the Reduction of Dispersion.*
+  Journal of Finance. Demostró empíricamente que con 10 activos se elimina el 90% del riesgo
+  diversificable; el beneficio marginal de agregar más activos cae rápidamente.
+
+- **Vanguard Research (2012).** Demostró que 4–7 ETFs bien diversificados replican el 95%
+  de los beneficios de un portafolio de 500 activos.
+
+> **Nota:** dado que esta cartera incluye ETFs que contienen internamente cientos de empresas,
+> el número óptimo de instrumentos es menor que en portafolios de acciones individuales puras.
+> Un ETF como SPY ya representa 500 empresas; añadir más posiciones individuales genera
+> redundancia sin mejora estadística de diversificación.
+
+| Perfil | Posiciones máx. | Fundamento |
+|---|---|---|
+| Conservador | 5 | Vanguard: 4–7 ETFs = 95% del beneficio |
+| Estable | 7 | Balance entre simplicidad y cobertura sectorial |
+| Moderado | 8 | Evans & Archer: beneficio marginal ≈ 0 después del activo 10 |
+| Agresivo | 12 | Mayor granularidad en equity individual; riesgo idiosincrático controlado |
+""")
+
     # ── Tab 4: Señales de mercado ─────────────────────────────────────────────
     with tabs[3]:
         st.markdown("""

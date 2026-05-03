@@ -1830,10 +1830,26 @@ for _a in ASSET_UNIVERSE:
 # ─── Plantillas de cartera por perfil ─────────────────────────────────────────
 # Máximo de posiciones por perfil (tarea 1 + 3)
 _MAX_POSITIONS = {
-    "conservador": 6,
-    "estable":     6,
-    "moderado":    7,
-    "agresivo":    8,
+    "conservador": 5,
+    "estable":     7,
+    "moderado":    8,
+    "agresivo":    12,
+}
+
+# Score mínimo para equity por perfil (bonos y liquidez siempre pasan)
+_MIN_SCORE_EQUITY = {
+    "conservador": 70,
+    "estable":     60,
+    "moderado":    50,
+    "agresivo":    40,
+}
+
+# Peso máximo global por activo individual (post-Markowitz, post-score-caps)
+_MAX_WEIGHT_GLOBAL = {
+    "conservador": 0.30,
+    "estable":     0.25,
+    "moderado":    0.20,
+    "agresivo":    0.15,
 }
 
 PORTFOLIO_TEMPLATES = {
@@ -1911,35 +1927,36 @@ PORTFOLIO_TEMPLATES = {
 
 _BUCKET_DEFS: Dict[str, list] = {
     "conservador": [
-        # 7 posiciones — 35-38% ARG (mm+rf_pesos+rf_usd), resto global
-        {"id": "liquidez",   "target": 0.12, "max_pos": 1, "score_src": None,
+        # 5 posiciones — máximo teórico según Evans & Archer (1968)
+        {"id": "liquidez",  "target": 0.12, "max_pos": 1, "score_src": None,
          "candidates": ["money_market"]},
-        {"id": "cobertura",  "target": 0.18, "max_pos": 1, "score_src": None,
+        {"id": "cobertura", "target": 0.18, "max_pos": 1, "score_src": None,
          "candidates": ["mep"]},
-        {"id": "rf_pesos",   "target": 0.07, "max_pos": 1, "score_src": "bond",
-         "candidates": ["lecap", "cer_bond"]},
-        {"id": "rf_usd",     "target": 0.18, "max_pos": 2, "score_src": "bond",
-         "candidates": ["on_corp", "on_ypf", "on_tecpetrol",
+        {"id": "rf",        "target": 0.28, "max_pos": 1, "score_src": "bond",
+         "candidates": ["lecap", "cer_bond", "on_corp", "on_ypf", "on_tecpetrol",
                          "on_tgs", "on_macro", "al30", "gd30", "al35", "gd35"]},
-        {"id": "globales",   "target": 0.25, "max_pos": 1, "score_src": "equity",
-         "candidates": ["spy", "vti", "iau", "gld"]},
-        {"id": "defensivo",  "target": 0.20, "max_pos": 1, "score_src": "equity",
+        {"id": "defensivo", "target": 0.22, "max_pos": 1, "score_src": "equity",
          "candidates": ["iau", "gld"]},
+        {"id": "globales",  "target": 0.20, "max_pos": 1, "score_src": "equity",
+         "candidates": ["spy", "vti"]},
     ],
     "estable": [
-        # 7 posiciones — ~36% ARG, resto global+oro
+        # 7 posiciones
         {"id": "liquidez",  "target": 0.10, "max_pos": 1, "score_src": None,
          "candidates": ["money_market"]},
         {"id": "cobertura", "target": 0.18, "max_pos": 1, "score_src": None,
          "candidates": ["mep"]},
-        {"id": "rf",        "target": 0.28, "max_pos": 2, "score_src": "bond",
-         "candidates": ["lecap", "cer_bond",
-                         "on_corp", "on_ypf", "on_tecpetrol", "on_tgs", "on_macro",
+        {"id": "rf_pesos",  "target": 0.10, "max_pos": 1, "score_src": "bond",
+         "candidates": ["lecap", "cer_bond"]},
+        {"id": "rf_usd",    "target": 0.18, "max_pos": 1, "score_src": "bond",
+         "candidates": ["on_corp", "on_ypf", "on_tecpetrol", "on_tgs", "on_macro",
                          "al30", "gd30", "al35", "gd35"]},
-        {"id": "globales",  "target": 0.25, "max_pos": 2, "score_src": "equity",
-         "candidates": ["spy", "vti", "qqq", "iau", "gld"]},
-        {"id": "defensivo", "target": 0.19, "max_pos": 1, "score_src": "equity",
+        {"id": "globales",  "target": 0.22, "max_pos": 1, "score_src": "equity",
+         "candidates": ["spy", "vti", "qqq"]},
+        {"id": "defensivo", "target": 0.12, "max_pos": 1, "score_src": "equity",
          "candidates": ["iau", "gld"]},
+        {"id": "equity_g",  "target": 0.10, "max_pos": 1, "score_src": "equity",
+         "candidates": ["msft", "nvda", "tsm", "meta", "googl", "avgo", "mu", "gild", "vrtx"]},
     ],
     "moderado": [
         # 7 posiciones — ~38% ARG
@@ -2420,6 +2437,97 @@ def _trim_to_max(allocations: dict, max_pos: int, scores: dict = None) -> dict:
     return {k: v / total for k, v in trimmed.items()}
 
 
+_STRUCTURAL_IDS = {
+    "money_market", "plazo_fijo", "fci_t0", "cash_pesos", "fci_renta_pesos",
+    "mep", "lecap", "cer_bond", "al30", "gd30", "al35", "gd35", "gd38",
+    "on_corp", "on_ypf", "on_tecpetrol", "on_tgs", "on_macro",
+}
+
+
+def select_top_assets(
+    allocs: dict,
+    risk: str,
+    eq_scores: dict,
+) -> dict:
+    """
+    Aplica límite global de posiciones por perfil (Evans & Archer, 1968).
+
+    Lógica:
+    1. Activos estructurales (liquidez, bonos, MEP) siempre se mantienen.
+    2. Equity sin score mínimo requerido es eliminado; su peso redistribuido.
+    3. Si el total de posiciones excede _MAX_POSITIONS[risk], se eliminan
+       los equity de menor score hasta llegar al límite.
+    4. Se aplica el cap máximo por activo (_MAX_WEIGHT_GLOBAL) y renormaliza.
+    """
+    max_pos    = _MAX_POSITIONS.get(risk, 12)
+    min_score  = _MIN_SCORE_EQUITY.get(risk, 40)
+    max_w      = _MAX_WEIGHT_GLOBAL.get(risk, 0.30)
+
+    structural = {k: v for k, v in allocs.items() if k in _STRUCTURAL_IDS}
+    equity     = {k: v for k, v in allocs.items() if k not in _STRUCTURAL_IDS}
+
+    # 1. Filtrar equity por score mínimo
+    passing, failing = {}, {}
+    for aid, w in equity.items():
+        score = eq_scores.get(aid)
+        if score is None or score >= min_score:
+            passing[aid] = w
+        else:
+            failing[aid] = w
+
+    # Redistribuir failing equity → passing equity (proporcional)
+    if failing and passing:
+        fail_total = sum(failing.values())
+        pass_total = sum(passing.values())
+        if pass_total > 0:
+            for aid in passing:
+                passing[aid] += fail_total * (passing[aid] / pass_total)
+
+    # 2. Aplicar límite global de posiciones
+    slots_left = max_pos - len(structural)
+    if slots_left < 1:
+        slots_left = 1
+
+    if len(passing) > slots_left:
+        # Ordenar por score desc, luego por peso desc como desempate
+        def sort_key(aid):
+            s = eq_scores.get(aid, 0) or 0
+            return (s, passing[aid])
+        ranked = sorted(passing, key=sort_key, reverse=True)
+        kept   = set(ranked[:slots_left])
+        excess_w = sum(v for k, v in passing.items() if k not in kept)
+        trimmed  = {k: v for k, v in passing.items() if k in kept}
+        # Redistribuir exceso → equity mantenido
+        if trimmed and excess_w > 0:
+            trim_total = sum(trimmed.values())
+            for aid in trimmed:
+                trimmed[aid] += excess_w * (trimmed[aid] / trim_total)
+        passing = trimmed
+
+    # 3. Aplicar cap global por activo
+    result = {**structural, **passing}
+    total  = sum(result.values())
+    if total > 0:
+        result = {k: v / total for k, v in result.items()}
+
+    # Aplicar cap y renormalizar iterativamente
+    for _ in range(10):
+        over   = {k: v for k, v in result.items() if v > max_w}
+        if not over:
+            break
+        excess = sum(v - max_w for v in over.values())
+        for k in over:
+            result[k] = max_w
+        rest_total = sum(v for k, v in result.items() if k not in over)
+        if rest_total > 0:
+            for k in result:
+                if k not in over:
+                    result[k] += excess * (result[k] / rest_total)
+
+    total = sum(result.values())
+    return {k: v / total for k, v in result.items()} if total > 0 else result
+
+
 _EQUITY_CATEGORIES = {"CEDEARs", "Acciones ARG"}
 
 
@@ -2865,6 +2973,7 @@ def build_portfolio(profile: dict) -> dict:
     # Reemplaza el hard-cap fijo del 25%: ahora cada activo tiene su propio
     # límite basado en su score Finviz y el perfil del usuario.
     allocs = _apply_score_caps(allocs, risk, eq_scores)
+    allocs = select_top_assets(allocs, risk, eq_scores)
 
     # Construir posiciones
     positions = []

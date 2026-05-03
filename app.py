@@ -662,6 +662,19 @@ border-radius:12px;padding:14px 18px;margin-bottom:1rem;display:flex;gap:12px;al
     with col_pie:
         st.markdown('<div class="section-title">📊 Distribución de la Cartera</div>', unsafe_allow_html=True)
         render_pie_chart(portfolio)
+        _n_pos = len(portfolio["positions"])
+        _profile_labels = {
+            "conservador": "conservador (máx. 5)",
+            "estable": "estable (máx. 7)",
+            "moderado": "moderado (máx. 8)",
+            "agresivo": "agresivo (máx. 12)",
+        }
+        _plabel = _profile_labels.get(profile.get("risk_profile", ""), profile.get("risk_profile", ""))
+        st.caption(
+            f"Su cartera está compuesta por **{_n_pos} instrumentos**, "
+            f"número óptimo para su perfil {_plabel} según principios de "
+            f"diversificación eficiente (Evans & Archer, 1968)."
+        )
 
     with col_evo:
         st.markdown('<div class="section-title">📈 Proyección de Crecimiento</div>', unsafe_allow_html=True)
