@@ -715,16 +715,6 @@ def _liquidity_label(asset_id: str) -> str:
     return "1–3 días hábiles"
 
 
-def _asset_warning(asset_id: str, volatility: float) -> str:
-    if asset_id in {"al30", "gd30", "al35", "gd35", "gd38"}:
-        return "⚠️ Bono soberano argentino — riesgo de reestructuración"
-    if asset_id in {"lecap", "cer_tx26", "cer_tx28", "cer_dicp"}:
-        return "⚠️ Riesgo de contraparte: Tesoro Nacional argentino"
-    if volatility > 0.40:
-        return f"⚠️ Alta volatilidad — puede caer más del {volatility*100:.0f}% en un año"
-    return ""
-
-
 def _asset_card_html(p: dict, capital: float, amt_prefix: str, category_items: list | None = None) -> str:
     a_pct  = p["weight"] * 100
     a_amt  = p["weight"] * capital
@@ -736,10 +726,6 @@ def _asset_card_html(p: dict, capital: float, amt_prefix: str, category_items: l
     # ── Liquidez como texto simple junto a las plataformas ───────────────────
     liq_text = _liquidity_label(p["id"])
     plat_line = f'🛒 {plat} · {how} · Liquidez: {liq_text}'
-
-    # ── Advertencia solo para alta volatilidad o riesgo soberano relevante ───
-    warn_txt  = _asset_warning(p["id"], p.get("volatility", 0))
-    warn_html = f'<div class="adc-warning">{warn_txt}</div>' if warn_txt else ""
 
     # ── Nota de ponderación desigual dentro de la categoría ──────────────────
     imbalance_html = ""
@@ -769,7 +755,6 @@ def _asset_card_html(p: dict, capital: float, amt_prefix: str, category_items: l
         f'  <div class="adc-desc">{razon}</div>'
         f'  <div class="adc-meta adc-plat">{plat_line}</div>'
         f'  {imbalance_html}'
-        f'  {warn_html}'
         f'</div>'
     )
 

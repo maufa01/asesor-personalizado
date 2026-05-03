@@ -2018,15 +2018,6 @@ def apply_custom_css():
         color: var(--text-3) !important;
         margin-top: 0.2rem;
     }
-    /* Warning */
-    .adc-warning {
-        font-size: 0.77rem;
-        color: #f59e0b;
-        background: rgba(245,158,11,0.07);
-        border-radius: 6px;
-        padding: 4px 10px;
-        margin-top: 0.5rem;
-    }
     /* New chip types */
     .adc-chip-ret { background: rgba(16,217,138,0.10); color: #34d399; border: 1px solid rgba(16,217,138,0.22); }
     .adc-chip-vol { background: rgba(245,158,11,0.10); color: #fbbf24; border: 1px solid rgba(245,158,11,0.22); }
@@ -2378,7 +2369,6 @@ details.cat-exp[open] > summary .cat-l1-card { background: #f1f5f9 !important; b
 .adc-desc  { color: #334155 !important; }
 .adc-ticker-badge { background: rgba(37,99,235,0.07) !important; color: #2563eb !important; border-color: rgba(37,99,235,0.18) !important; }
 .adc-plat  { color: #94a3b8 !important; }
-.adc-warning { color: #b45309 !important; background: rgba(217,119,6,0.06) !important; }
 .adc-chip-ret   { background: rgba(5,150,105,0.08)  !important; color: #047857 !important; border-color: rgba(5,150,105,0.18) !important; }
 .adc-chip-vol   { background: rgba(217,119,6,0.08)  !important; color: #b45309 !important; border-color: rgba(217,119,6,0.18) !important; }
 .adc-chip-liq   { background: rgba(37,99,235,0.07)  !important; color: #1d4ed8 !important; border-color: rgba(37,99,235,0.16) !important; }
