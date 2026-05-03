@@ -1021,25 +1021,9 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
   o cualquier duda sobre cómo empezar a invertir.
 </div>""", unsafe_allow_html=True)
 
-    # Render del historial (si hay)
-    if chat_history:
-        import html as _html
-        for i, msg in enumerate(chat_history):
-            is_last  = (i == len(chat_history) - 1)
-            is_user  = msg["role"] == "user"
-            align    = "chat-user" if is_user else "chat-advisor"
-            label    = "Usted" if is_user else "Lucas · Asesor IA"
-            safe_content = _html.escape(msg["content"]).replace("\n", "<br>")
-            # ID en el último bubble para que el JS lo posicione en el centro del viewport
-            id_attr = ' id="last-message-anchor"' if is_last else ''
-            st.markdown(
-                f'<div class="chat-bubble {align}"{id_attr}>'
-                f'<div class="chat-label">{label}</div>'
-                f'<div class="chat-text">{safe_content}</div></div>',
-                unsafe_allow_html=True,
-            )
-
-    # Chips de preguntas pre-armadas — antes del input
+    # ── Chips de preguntas pre-armadas — ARRIBA (antes de los mensajes) ─────
+    # Layout chat-real: chips fijos arriba, mensajes crecen hacia abajo, último
+    # mensaje queda pegado al input.
     _suggested_input = None
     _chips_label = "Estas son las preguntas más comunes:" if not chat_history else "¿Querés explorar otra cosa?"
     st.markdown(f'<p class="lucas-chips-label">{_chips_label}</p>', unsafe_allow_html=True)
@@ -1063,10 +1047,26 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
                     _suggested_input = q
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # ── Input INLINE al final de la card ────────────────────────────────────
-    # Form custom (no st.chat_input) — visible inmediatamente después de los chips,
-    # se integra con el flujo de la card. El usuario puede preguntar cualquier
-    # duda financiera escribiéndola acá.
+    # ── Render del historial — DESPUÉS de los chips, ANTES del input ────────
+    # Los mensajes crecen hacia abajo. La última respuesta de Lucas queda
+    # pegada justo encima del input, como cualquier app de chat real.
+    if chat_history:
+        import html as _html
+        for i, msg in enumerate(chat_history):
+            is_last  = (i == len(chat_history) - 1)
+            is_user  = msg["role"] == "user"
+            align    = "chat-user" if is_user else "chat-advisor"
+            label    = "Usted" if is_user else "Lucas · Asesor IA"
+            safe_content = _html.escape(msg["content"]).replace("\n", "<br>")
+            id_attr = ' id="last-message-anchor"' if is_last else ''
+            st.markdown(
+                f'<div class="chat-bubble {align}"{id_attr}>'
+                f'<div class="chat-label">{label}</div>'
+                f'<div class="chat-text">{safe_content}</div></div>',
+                unsafe_allow_html=True,
+            )
+
+    # ── Input INLINE — JUSTO debajo del último mensaje ───────────────────────
     st.markdown('<p class="lucas-input-label">o escribí tu propia pregunta:</p>', unsafe_allow_html=True)
     with st.form("lucas_form_inline", clear_on_submit=True):
         col_inp, col_btn = st.columns([5, 1])
