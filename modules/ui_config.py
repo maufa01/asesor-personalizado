@@ -129,6 +129,19 @@ html, body, #root, .stApp {
     ::-webkit-scrollbar { width: 6px; background: var(--bg-1); }
     ::-webkit-scrollbar-thumb { background: var(--bg-3); border-radius: 99px; }
 
+    /* ── Esconder iframes de utilidad (scroll JS) que generan hueco ─ */
+    /* components.html(height=0) inserta un iframe envuelto en un contenedor
+       con padding/margin default. Lo colapsamos para que no genere espacio. */
+    .stIFrame:has(iframe[height="0"]),
+    [data-testid="stIFrame"]:has(iframe[height="0"]),
+    iframe[height="0"] {
+        height: 0 !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: block;
+    }
+
     /* ── Header ───────────────────────────────────────────────────── */
     .app-header {
         display: flex;

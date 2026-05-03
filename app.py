@@ -274,8 +274,6 @@ if _last_step is not None and _last_step != step:
         if (userScrolled) return;  // respetar al usuario si ya scrolleó
         try {
             const doc = window.parent.document;
-            const anchor = doc.getElementById('results-top-anchor');
-            if (anchor) anchor.scrollIntoView({ block: 'start', behavior: 'instant' });
             window.parent.scrollTo({ top: 0, behavior: 'instant' });
             doc.documentElement.scrollTop = 0;
             doc.body.scrollTop = 0;
@@ -381,12 +379,9 @@ elif step == "profiling":
 # RESULTADOS
 # ══════════════════════════════════════════════════════════════════════════════
 elif step == "results":
-    # Anchor invisible al tope de la pantalla de resultados (height:0 para
-    # no agregar espacio visual). Target del scroll-on-step-change.
-    st.markdown(
-        '<div id="results-top-anchor" style="height:0;line-height:0;margin:0;padding:0;"></div>',
-        unsafe_allow_html=True,
-    )
+    # No usamos un anchor extra — Streamlit envuelve el div en un element-container
+    # con padding default que genera un hueco visible. El JS de scroll-on-step-change
+    # ahora apunta directo a window.parent (top: 0), que es suficiente.
 
     profile    = st.session_state.profile
     portfolio  = st.session_state.portfolio
