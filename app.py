@@ -388,18 +388,29 @@ elif step == "results":
     simulation = st.session_state.simulation
 
     # ── Procesar input pendiente ANTES que cualquier otro widget ─────────────
-    # Si lo hacemos en el medio del script (ej. dentro del módulo Lucas), los
-    # widgets de ARRIBA del spinner se renderizan dos veces — una en R1 antes
-    # del spinner, otra en R2 después del rerun — y el usuario ve duplicado
-    # el "Simulaciones" expander, etc. Procesando acá, el spinner aparece al
-    # tope de la página y el rerun reemplaza limpio.
+    # El procesamiento se hace acá (no dentro del módulo Lucas) para evitar
+    # que los widgets de arriba se dupliquen durante el rerun.
+    # Mostramos un OVERLAY FIJO en el viewport para que el usuario vea
+    # 'Lucas está pensando' sin importar dónde esté scrolleando.
     if st.session_state.get("_lucas_pending_input"):
         _pending = st.session_state.pop("_lucas_pending_input")
         _hist_for_call = list(st.session_state.chat_history)
-        with st.spinner("Lucas está pensando tu respuesta..."):
-            _answer = chat_with_advisor(_pending, _hist_for_call,
-                                        st.session_state.profile,
-                                        st.session_state.portfolio)
+        # Overlay fijo en el viewport — visible aunque el usuario esté en
+        # cualquier parte de la página
+        st.markdown("""
+<div class="lucas-thinking-overlay">
+  <div class="lucas-thinking-box">
+    <div class="lucas-thinking-spinner"></div>
+    <div class="lucas-thinking-text">
+      <strong>Lucas está pensando tu respuesta...</strong>
+      <small>Esto suele tardar unos segundos</small>
+    </div>
+  </div>
+</div>
+""", unsafe_allow_html=True)
+        _answer = chat_with_advisor(_pending, _hist_for_call,
+                                    st.session_state.profile,
+                                    st.session_state.portfolio)
         st.session_state.chat_history.append({"role": "user",      "content": _pending})
         st.session_state.chat_history.append({"role": "assistant", "content": _answer})
         st.session_state["_lucas_scroll_pending"] = True

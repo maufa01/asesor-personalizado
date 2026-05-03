@@ -2788,6 +2788,60 @@ section.main > div[data-testid="block-container"] > div[data-testid="stVerticalB
     .chat-label { font-size: 0.6rem !important; margin-bottom: 0.2rem !important; }
 }
 
+/* ── Overlay 'Lucas está pensando' (fijo en viewport, visible en cualquier scroll) */
+.lucas-thinking-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(5, 8, 16, 0.55);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 99998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    animation: lucasFadeIn 0.2s ease;
+}
+.lucas-thinking-box {
+    background: linear-gradient(135deg, #1a3a6a 0%, #0f2247 100%);
+    border: 1px solid rgba(79,163,255,0.35);
+    border-radius: 14px;
+    padding: 18px 22px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    max-width: 90vw;
+}
+.lucas-thinking-spinner {
+    width: 28px;
+    height: 28px;
+    border: 3px solid rgba(79,163,255,0.25);
+    border-top-color: #4fa3ff;
+    border-radius: 50%;
+    animation: lucasSpin 0.8s linear infinite;
+    flex-shrink: 0;
+}
+.lucas-thinking-text { display: flex; flex-direction: column; gap: 2px; }
+.lucas-thinking-text strong {
+    color: #eef2ff;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+.lucas-thinking-text small {
+    color: #94a3b8;
+    font-size: 0.78rem;
+}
+@keyframes lucasSpin { to { transform: rotate(360deg); } }
+@keyframes lucasFadeIn { from { opacity: 0; } to { opacity: 1; } }
+@media (max-width: 480px) {
+    .lucas-thinking-box { padding: 14px 16px; gap: 10px; }
+    .lucas-thinking-spinner { width: 22px; height: 22px; border-width: 2.5px; }
+    .lucas-thinking-text strong { font-size: 0.85rem; }
+    .lucas-thinking-text small { font-size: 0.72rem; }
+}
+
 /* iOS Safari específico: prevenir bounce-scroll que oculta el header */
 @supports (-webkit-touch-callout: none) {
     body { overscroll-behavior-y: none; }
