@@ -376,10 +376,9 @@ elif step == "results":
         _disp_prefix  = "USD "
         _disp_suffix  = ""
 
-    st.markdown("""<a class="fab-btn" href="#chat-section"
-onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smooth'});return false;">
-💬 Consultar al Asesor
-</a>""", unsafe_allow_html=True)
+    # FAB removido: con st.chat_input sticky al fondo, el chat de Lucas
+    # está SIEMPRE visible al final del viewport. El FAB era redundante
+    # y colisionaba con el chat_input en mobile.
 
     # ── Aviso de scores actualizados en esta sesión ───────────────────────────
     if st.session_state.scores_refreshed and not st.session_state.get("refresh_banner_dismissed"):

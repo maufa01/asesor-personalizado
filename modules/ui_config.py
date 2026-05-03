@@ -962,44 +962,36 @@ html, body, #root, .stApp {
         .asc-pct  { font-size: 1.1rem; }
     }
 
-    /* ── Floating Action Button ───────────────────────────────────── */
-    @keyframes fabSlideUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to   { opacity: 1; transform: translateY(0); }
+    /* ── st.chat_input — sticky bottom (Lucas) ─────────────────────── */
+    /* Streamlit lo posiciona fijo al fondo del viewport. Aseguramos
+       safe-area-inset-bottom para iPhone con notch + dark theme. */
+    [data-testid="stChatInput"] {
+        background: #0f1423 !important;
+        border-top: 1px solid rgba(148,163,184,0.12) !important;
+        padding-bottom: env(safe-area-inset-bottom) !important;
     }
-    .fab-btn {
-        position: fixed;
-        bottom: calc(2rem + env(safe-area-inset-bottom));
-        right: calc(2rem + env(safe-area-inset-right));
-        z-index: 9999;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dim) 100%);
-        color: #fff !important;
-        padding: 0.85rem 1.4rem;
-        border-radius: 99px;
-        font-family: var(--font-display);
-        font-weight: 700;
-        font-size: 0.88rem;
-        text-decoration: none !important;
-        box-shadow: 0 4px 24px rgba(79,163,255,0.45);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        animation: fabSlideUp 0.45s ease-out 1.5s both;
-        white-space: nowrap;
-        -webkit-tap-highlight-color: transparent;
-        min-height: 44px; /* touch target iOS */
+    [data-testid="stChatInput"] textarea,
+    [data-testid="stChatInputTextArea"] {
+        background: rgba(255,255,255,0.04) !important;
+        color: var(--text-1) !important;
+        border-color: rgba(148,163,184,0.2) !important;
     }
-    .fab-btn:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 32px rgba(79,163,255,0.6);
+    [data-testid="stChatInput"] textarea:focus,
+    [data-testid="stChatInputTextArea"]:focus {
+        border-color: rgba(79,163,255,0.5) !important;
+        box-shadow: 0 0 0 1px rgba(79,163,255,0.2) !important;
+    }
+    /* Padding extra al body para que el chat_input no tape contenido */
+    .block-container {
+        padding-bottom: 6rem !important;
     }
     @media (max-width: 640px) {
-        .fab-btn {
-            bottom: calc(1.2rem + env(safe-area-inset-bottom));
-            right: calc(1rem + env(safe-area-inset-right));
-            font-size: 0.8rem;
-            padding: 0.7rem 1.1rem;
+        .block-container {
+            padding-bottom: 7rem !important;
+        }
+        [data-testid="stChatInput"] textarea,
+        [data-testid="stChatInputTextArea"] {
+            font-size: 0.88rem !important;
         }
     }
 
@@ -2423,8 +2415,6 @@ div[data-testid="stRadio"] div[role="radiogroup"] label p { color: #334155 !impo
     box-shadow: 0 4px 16px rgba(37,99,235,0.25) !important;
 }
 
-/* FAB */
-.fab-btn { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important; }
 
 /* Tabs */
 .stTabs [data-baseweb="tab-list"] { background: #f1f5f9 !important; border-color: rgba(100,116,139,0.2) !important; }
@@ -3059,29 +3049,6 @@ form[data-testid="stForm"] [data-baseweb="input"]:focus-within,
         padding-top: 0.6rem !important;
     }
     [data-testid="stVerticalBlock"] { gap: 0.6rem !important; }
-}
-
-/* ── Mobile FAB: fixed bottom semitransparente (#7) ──────────── */
-@media (max-width: 640px) {
-    .fab-btn {
-        bottom: 0 !important;
-        right: 0 !important;
-        left: 0 !important;
-        border-radius: 0 !important;
-        padding: 0.85rem 1rem !important;
-        padding-bottom: calc(0.85rem + env(safe-area-inset-bottom)) !important;
-        justify-content: center;
-        background: linear-gradient(135deg,
-            rgba(79,163,255,0.92) 0%,
-            rgba(56,189,248,0.92) 100%) !important;
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        box-shadow: 0 -4px 20px rgba(0,0,0,0.4) !important;
-        font-size: 0.85rem !important;
-        animation: none !important;
-    }
-    /* Padding al body para que el botón fijo no tape contenido */
-    .block-container { padding-bottom: 5rem !important; }
 }
 
 /* ── Cat-l1-card: ocultar descripción en mobile (#5) ──────────── */
