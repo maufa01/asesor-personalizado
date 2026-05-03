@@ -2027,17 +2027,6 @@ def apply_custom_css():
         padding: 4px 10px;
         margin-top: 0.5rem;
     }
-    .adc-score-line {
-        font-size: 0.78rem;
-        color: #94a3b8;
-        margin-top: 0.45rem;
-    }
-    .adc-score-desc {
-        font-size: 0.72rem;
-        color: #64748b;
-        margin-top: 2px;
-        font-style: italic;
-    }
     /* New chip types */
     .adc-chip-ret { background: rgba(16,217,138,0.10); color: #34d399; border: 1px solid rgba(16,217,138,0.22); }
     .adc-chip-vol { background: rgba(245,158,11,0.10); color: #fbbf24; border: 1px solid rgba(245,158,11,0.22); }
@@ -2467,90 +2456,6 @@ details.cat-exp[open] > summary .cat-l1-card { background: #f1f5f9 !important; b
     .personal-msg .pm-icon { font-size: 1.4rem; }
     .personal-msg strong { font-size: 0.88rem; }
     .personal-msg p { font-size: 0.78rem; }
-}
-
-/* ── Bloque histórico de drawdowns (dentro de st.expander) ────── */
-.hist-body {
-    padding: 4px 0 0;
-}
-.hist-intro {
-    font-size: 0.85rem;
-    color: #94a3b8;
-    line-height: 1.6;
-    margin: 12px 0 16px;
-    padding-left: 12px;
-    border-left: 3px solid rgba(79,163,255,0.4);
-}
-.hist-intro strong { color: #cbd5e1; font-weight: 600; }
-
-.hist-card {
-    background: rgba(255,255,255,0.025);
-    border: 1px solid rgba(148,163,184,0.12);
-    border-radius: 8px;
-    padding: 12px 14px;
-    margin-bottom: 10px;
-}
-.hist-card-header {
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
-    margin-bottom: 10px;
-}
-.hist-year {
-    font-family: var(--font-numbers);
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: #f59e0b;
-    letter-spacing: -0.02em;
-}
-.hist-event {
-    font-size: 0.88rem;
-    font-weight: 600;
-    color: #cbd5e1;
-}
-.hist-stats {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 10px;
-}
-.hist-stat-label {
-    font-size: 0.7rem;
-    color: #64748b;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    margin-bottom: 2px;
-}
-.hist-stat-value {
-    font-family: var(--font-numbers);
-    font-size: 1.15rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-}
-.hist-context {
-    font-size: 0.8rem;
-    color: #94a3b8;
-    line-height: 1.55;
-    margin: 0;
-}
-.hist-footer {
-    font-size: 0.83rem;
-    color: #cbd5e1;
-    background: rgba(34,197,94,0.06);
-    border-left: 3px solid #22c55e;
-    padding: 10px 14px;
-    border-radius: 6px;
-    margin: 12px 0 0;
-    line-height: 1.55;
-}
-@media (max-width: 640px) {
-    .hist-intro { font-size: 0.78rem; }
-    .hist-card { padding: 10px 12px; }
-    .hist-year { font-size: 1.05rem; }
-    .hist-event { font-size: 0.82rem; }
-    .hist-stat-value { font-size: 1rem; }
-    .hist-context { font-size: 0.74rem; }
-    .hist-footer { font-size: 0.76rem; }
 }
 
 /* ── Tooltips inline del glosario ─────────────────────────────── */

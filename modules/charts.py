@@ -741,25 +741,6 @@ def _asset_card_html(p: dict, capital: float, amt_prefix: str, category_items: l
     warn_txt  = _asset_warning(p["id"], p.get("volatility", 0))
     warn_html = f'<div class="adc-warning">{warn_txt}</div>' if warn_txt else ""
 
-    # ── Score de selección (Finviz para equity, bond scorer para RF) ─────────
-    score_val = p.get("score") or p.get("bond_score")
-    if score_val is not None:
-        if score_val >= 70:
-            score_color = "#22c55e"
-        elif score_val >= 50:
-            score_color = "#f59e0b"
-        else:
-            score_color = "#ef4444"
-        score_html = (
-            f'<div class="adc-score-line">'
-            f'Score de selección: <span style="color:{score_color};font-weight:600;">{score_val}/100</span>'
-            f'</div>'
-            f'<div class="adc-score-desc">Este puntaje refleja la solidez financiera del activo '
-            f'según múltiplos de valuación, calidad y crecimiento.</div>'
-        )
-    else:
-        score_html = ""
-
     # ── Nota de ponderación desigual dentro de la categoría ──────────────────
     imbalance_html = ""
     if category_items and len(category_items) >= 2:
@@ -787,7 +768,6 @@ def _asset_card_html(p: dict, capital: float, amt_prefix: str, category_items: l
         f'  </div>'
         f'  <div class="adc-desc">{razon}</div>'
         f'  <div class="adc-meta adc-plat">{plat_line}</div>'
-        f'  {score_html}'
         f'  {imbalance_html}'
         f'  {warn_html}'
         f'</div>'
