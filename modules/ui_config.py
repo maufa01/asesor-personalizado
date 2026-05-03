@@ -1792,7 +1792,7 @@ html, body, #root, .stApp {
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
-        margin-bottom: 0.6rem;
+        margin-bottom: 1rem;
         flex-wrap: wrap;
     }
     .currency-toggle-label {
@@ -1801,10 +1801,6 @@ html, body, #root, .stApp {
         letter-spacing: 0.06em;
         text-transform: uppercase;
         color: var(--text-3);
-    }
-    /* Radio del currency toggle también centrado */
-    .stRadio > div[role="radiogroup"] {
-        justify-content: center !important;
     }
     .fx-rate-note {
         text-align: center;
