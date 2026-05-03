@@ -462,6 +462,73 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
     }
     _disc_text = _disc_by_risk.get(profile["risk_profile"], "")
 
+    # ── Mensaje personalizado para usuario novato/lastimado ───────────────────
+    # Detecta el patrón en las respuestas del cuestionario y muestra una nota
+    # de validación + reassurance al inicio del resultado.
+    _exp_answer  = profile.get("experience", "")
+    _loss_answer = profile.get("loss_tolerance", "")
+    _mot_answer  = profile.get("objective", "")
+
+    _is_novice = "Prácticamente nada" in _exp_answer or "Solo conozco el plazo fijo" in _exp_answer
+    _was_burned = "Los saco de inmediato" in _loss_answer or "Saco la mitad" in _loss_answer
+    _wants_protection = "La inflación me come" in _mot_answer
+
+    _personal_msg = None
+    if _was_burned and _is_novice:
+        _personal_msg = {
+            "icon": "🤝",
+            "title": "Sabemos que ya intentaste y no salió como esperabas.",
+            "body": (
+                "Esta cartera está diseñada para que entiendas cada decisión, "
+                "no para que confíes a ciegas. Va a ser conservadora porque "
+                "tu prioridad ahora es no volver a sentir esa frustración. "
+                "Cada activo tiene una explicación en lenguaje simple — "
+                "tomate el tiempo de leerlas."
+            ),
+        }
+    elif _was_burned:
+        _personal_msg = {
+            "icon": "🛡️",
+            "title": "Notamos que las caídas te incomodan, y eso está bien.",
+            "body": (
+                "La cartera prioriza estabilidad sobre rendimiento máximo. "
+                "Vas a ver el bloque <strong>'¿Qué pasó en crisis reales?'</strong> "
+                "más abajo — todos los mercados se recuperaron. "
+                "El objetivo es que vos también puedas mantener la calma cuando pase."
+            ),
+        }
+    elif _is_novice and _wants_protection:
+        _personal_msg = {
+            "icon": "🌱",
+            "title": "Es tu primer paso — y es la decisión correcta.",
+            "body": (
+                "No hace falta que entiendas todos los términos hoy. "
+                "Cada palabra técnica tiene un <strong>tooltip</strong> "
+                "(pasale el dedo por encima o tocala). "
+                "Y abajo a la derecha tenés a Lucas, el asesor IA, "
+                "para preguntarle cualquier duda en lenguaje normal."
+            ),
+        }
+    elif _is_novice:
+        _personal_msg = {
+            "icon": "🌱",
+            "title": "Es tu primera cartera — vamos a ir paso a paso.",
+            "body": (
+                "Cada activo de tu cartera tiene una explicación en lenguaje simple. "
+                "Los términos técnicos tienen tooltips (pasá el dedo o tocá). "
+                "Y si querés profundizar más, abrí el glosario desde el header."
+            ),
+        }
+
+    if _personal_msg:
+        st.markdown(f"""<div class="personal-msg">
+  <div class="pm-icon">{_personal_msg['icon']}</div>
+  <div class="pm-body">
+    <strong>{_personal_msg['title']}</strong>
+    <p>{_personal_msg['body']}</p>
+  </div>
+</div>""", unsafe_allow_html=True)
+
     # ── Panel de resumen rápido ───────────────────────────────────────────────
     st.markdown(f"""<div class="summary-panel">
 <div class="summary-top">

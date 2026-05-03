@@ -2423,6 +2423,52 @@ details.cat-exp[open] > summary .cat-l1-card { background: #f1f5f9 !important; b
     border-color: rgba(37,99,235,0.2) !important;
 }
 
+/* ── Mensaje personalizado para novato / lastimado ────────────── */
+.personal-msg {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    background: linear-gradient(135deg, rgba(34,197,94,0.07), rgba(79,163,255,0.05));
+    border: 1px solid rgba(34,197,94,0.22);
+    border-left: 3px solid #22c55e;
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin: 0 0 1.2rem;
+}
+.personal-msg .pm-icon {
+    font-size: 1.7rem;
+    flex-shrink: 0;
+    line-height: 1.3;
+}
+.personal-msg .pm-body { flex: 1; min-width: 0; }
+.personal-msg strong {
+    display: block;
+    color: #cbd5e1;
+    font-size: 0.97rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+.personal-msg p {
+    font-size: 0.86rem;
+    color: #94a3b8;
+    margin: 0;
+    line-height: 1.65;
+}
+.personal-msg p strong {
+    display: inline;
+    color: #cbd5e1;
+    font-weight: 600;
+    font-size: inherit;
+    margin: 0;
+}
+@media (max-width: 640px) {
+    .personal-msg { padding: 14px 16px; gap: 10px; }
+    .personal-msg .pm-icon { font-size: 1.4rem; }
+    .personal-msg strong { font-size: 0.88rem; }
+    .personal-msg p { font-size: 0.78rem; }
+}
+
 /* ── Bloque histórico de drawdowns ────────────────────────────── */
 .hist-block {
     background: rgba(148,163,184,0.04);
