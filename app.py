@@ -986,13 +986,17 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
     # Render del historial (si hay)
     if chat_history:
         import html as _html
-        for msg in chat_history:
-            is_user = msg["role"] == "user"
-            align   = "chat-user" if is_user else "chat-advisor"
-            label   = "Usted" if is_user else "Lucas · Asesor IA"
+        for i, msg in enumerate(chat_history):
+            is_last  = (i == len(chat_history) - 1)
+            is_user  = msg["role"] == "user"
+            align    = "chat-user" if is_user else "chat-advisor"
+            label    = "Usted" if is_user else "Lucas · Asesor IA"
             safe_content = _html.escape(msg["content"]).replace("\n", "<br>")
+            # ID en el último bubble para que el JS lo posicione en el centro del viewport
+            id_attr = ' id="last-message-anchor"' if is_last else ''
             st.markdown(
-                f'<div class="chat-bubble {align}"><div class="chat-label">{label}</div>'
+                f'<div class="chat-bubble {align}"{id_attr}>'
+                f'<div class="chat-label">{label}</div>'
                 f'<div class="chat-text">{safe_content}</div></div>',
                 unsafe_allow_html=True,
             )
@@ -1062,32 +1066,40 @@ border-radius:10px;margin:4px 0 20px 0;border:1px solid rgba(34,197,94,0.15);">
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # Anchor invisible al FINAL de toda la card — comportamiento chat real
-    # (input al fondo, último mensaje justo arriba)
-    st.markdown('<div id="chat-bottom-anchor"></div>', unsafe_allow_html=True)
-
     st.markdown('</div>', unsafe_allow_html=True)  # cierra .lucas-card
 
-    # ── Auto-scroll al fondo del chat tras un nuevo mensaje ──────────────────
-    # Comportamiento tipo WhatsApp/ChatGPT: scrollea al fondo de la card,
-    # con el input visible y la última respuesta inmediatamente arriba.
+    # ── Auto-scroll a la última respuesta tras un nuevo mensaje ──────────────
+    # Posiciona el último bubble (la respuesta de Lucas) en el CENTRO del
+    # viewport — más legible que 'end' que lo empujaba detrás de los chips.
+    # Doble setTimeout (300ms + 700ms) para cubrir los re-renders en fases
+    # típicos de Streamlit.
     if st.session_state.pop("_lucas_scroll_pending", False):
         components.html("""
 <script>
 (function() {
-    function tryScroll(attempts) {
-        if (attempts <= 0) return;
+    function scrollToLast() {
         try {
             const doc = window.parent.document;
-            const anchor = doc.getElementById('chat-bottom-anchor');
+            const anchor = doc.getElementById('last-message-anchor');
             if (anchor) {
-                anchor.scrollIntoView({ behavior: 'smooth', block: 'end' });
-                return;
+                anchor.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center',
+                    inline: 'nearest'
+                });
+            } else {
+                // Fallback: scroll al final completo de la página
+                window.parent.scrollTo({
+                    top: doc.body.scrollHeight,
+                    behavior: 'smooth'
+                });
             }
         } catch(e) { /* noop */ }
-        setTimeout(function() { tryScroll(attempts - 1); }, 150);
     }
-    setTimeout(function() { tryScroll(8); }, 300);
+    // Primer intento tras el primer paint
+    setTimeout(scrollToLast, 300);
+    // Retry por si Streamlit re-renderiza en una segunda fase
+    setTimeout(scrollToLast, 700);
 })();
 </script>
 """, height=0)
