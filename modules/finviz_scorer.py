@@ -40,9 +40,31 @@ SCOREABLE_TICKERS = [
     "BABA",
     # CEDEARs — utilities/energía renovable
     "NEE",
+    # Bancos/Finanzas adicional
+    "WFC", "C", "AXP", "COF", "SCHW", "BLK",
+    # Tech/SaaS/Cloud
+    "PLTR", "NOW", "CRWD", "PANW", "DDOG", "NET", "FTNT", "COIN", "SQ", "HOOD", "RBLX", "SNOW",
+    # Pharma/Biotech
+    "ABBV", "BMY", "GILD", "AMGN", "MRNA", "REGN", "VRTX",
+    # Consumo/Viajes
+    "LOW", "TJX", "ABNB", "BKNG", "MAR", "HLT", "CCL", "RCL", "DKNG", "EBAY",
+    # Media/Telecom
+    "SPOT", "T", "VZ", "CMCSA",
+    # Industrial/Defensa
+    "RTX", "LMT", "DE", "HON", "UPS", "FDX", "GE",
+    # Energía adicional
+    "OXY", "SLB", "COP",
+    # Semiconductores adicional
+    "ASML", "MU", "AMAT", "AVGO",
+    # Auto/EV
+    "F", "GM", "RIVN", "NIO",
+    # Utilities
+    "SO", "D",
+    # REITs
+    "AMT", "PLD", "O",
     # Acciones ARG (ADRs en NYSE/NASDAQ)
     "YPF",  "VIST", "GGAL", "LOMA", "TEO",  "PAM",  "BBAR",
-    "BMA",  "SUPV", "TGS",  "CEPU", "IRS",  "CRESY",
+    "BMA",  "SUPV", "TGS",  "CEPU", "IRS",  "CRESY", "EDN",
     # ETFs — NO van aquí; se scorean por el motor ETF estático en run_and_save()
 ]
 
@@ -120,6 +142,79 @@ ASSET_TO_FINVIZ = {
     "baba":    "BABA",
     # CEDEARs utilities/energía renovable
     "nee":     "NEE",
+    # Bancos/Finanzas adicional
+    "wfc":   "WFC",
+    "c":     "C",
+    "axp":   "AXP",
+    "cof":   "COF",
+    "schw":  "SCHW",
+    "blk":   "BLK",
+    # Tech/SaaS/Cloud
+    "pltr":  "PLTR",
+    "now":   "NOW",
+    "crwd":  "CRWD",
+    "panw":  "PANW",
+    "ddog":  "DDOG",
+    "net":   "NET",
+    "ftnt":  "FTNT",
+    "coin":  "COIN",
+    "sq":    "SQ",
+    "hood":  "HOOD",
+    "rblx":  "RBLX",
+    "snow":  "SNOW",
+    # Pharma/Biotech
+    "abbv":  "ABBV",
+    "bmy":   "BMY",
+    "gild":  "GILD",
+    "amgn":  "AMGN",
+    "mrna":  "MRNA",
+    "regn":  "REGN",
+    "vrtx":  "VRTX",
+    # Consumo/Viajes
+    "low":   "LOW",
+    "tjx":   "TJX",
+    "abnb":  "ABNB",
+    "bkng":  "BKNG",
+    "mar":   "MAR",
+    "hlt":   "HLT",
+    "ccl":   "CCL",
+    "rcl":   "RCL",
+    "dkng":  "DKNG",
+    "ebay":  "EBAY",
+    # Media/Telecom
+    "spot":  "SPOT",
+    "t":     "T",
+    "vz":    "VZ",
+    "cmcsa": "CMCSA",
+    # Industrial/Defensa
+    "rtx":   "RTX",
+    "lmt":   "LMT",
+    "de":    "DE",
+    "hon":   "HON",
+    "ups":   "UPS",
+    "fdx":   "FDX",
+    "ge":    "GE",
+    # Energía adicional
+    "oxy":   "OXY",
+    "slb":   "SLB",
+    "cop":   "COP",
+    # Semiconductores adicional
+    "asml":  "ASML",
+    "mu":    "MU",
+    "amat":  "AMAT",
+    "avgo":  "AVGO",
+    # Auto/EV
+    "f":     "F",
+    "gm":    "GM",
+    "rivn":  "RIVN",
+    "nio":   "NIO",
+    # Utilities
+    "so":    "SO",
+    "d":     "D",
+    # REITs
+    "amt":   "AMT",
+    "pld":   "PLD",
+    "o":     "O",
     # Acciones ARG
     "ypf":     "YPF",
     "vist":    "VIST",
@@ -134,6 +229,8 @@ ASSET_TO_FINVIZ = {
     "cepu":    "CEPU",
     "irsa":    "IRS",
     "cres":    "CRESY",
+    # ARG con ADR
+    "edn":   "EDN",
     # ETFs — mapeados para el motor ETF estático de run_and_save()
     "spy":     "SPY",
     "qqq":     "QQQ",

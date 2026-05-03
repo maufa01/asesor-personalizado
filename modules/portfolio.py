@@ -1141,13 +1141,13 @@ ASSET_UNIVERSE: List[Dict[str, Any]] = [
     },
     {
         "id": "alua",
-        "name": "Aluar (ALUA)",
+        "name": "Aluar Aluminio (ALUA)",
         "category": "Acciones ARG", "sub": "Industria ARG",
-        "ticker": "ALUA", "color": "#6b7280",
-        "expected_return": 0.15, "volatility": 0.45, "risk_level": "alto",
-        "description": "Único productor de aluminio primario de Argentina. Exporta el 70% de su producción. Beneficiado por precios internacionales del aluminio.",
+        "ticker": "ALUA", "color": "#64748b",
+        "expected_return": 0.18, "volatility": 0.45, "risk_level": "alto",
+        "description": "Mayor productora de aluminio de Argentina. Exporta gran parte de su producción. Se beneficia de la devaluación del peso al tener ingresos en dólares.",
         "currency": "ARS", "market": "BYMA",
-        "simple_desc": "Aluar: el único productor de aluminio de Argentina",
+        "simple_desc": "Mayor productora de aluminio de Argentina, con ingresos en dólares",
     },
     {
         "id": "irsa",
@@ -1170,6 +1170,610 @@ ASSET_UNIVERSE: List[Dict[str, Any]] = [
         "simple_desc": "Cresud: campos y agro en Argentina, Brasil, Bolivia y Paraguay",
     },
 
+    # ══ NUEVAS ACCIONES ARG — Panel Merval faltante ═══════════════════════════
+
+    {
+        "id": "edn", "name": "Edenor (EDN)", "category": "Acciones ARG",
+        "sub": "Utilities ARG", "ticker": "EDN", "color": "#f59e0b",
+        "expected_return": 0.20, "volatility": 0.50, "risk_level": "alto",
+        "description": "Distribuidora eléctrica más grande de Argentina. Se beneficia de la normalización tarifaria. Alto apalancamiento operativo con la economía local.",
+        "currency": "ARS", "market": "BYMA/NYSE",
+        "simple_desc": "La distribuidora eléctrica más grande de Argentina",
+    },
+    {
+        "id": "come", "name": "Comercial del Plata (COME)", "category": "Acciones ARG",
+        "sub": "Holding ARG", "ticker": "COME", "color": "#0ea5e9",
+        "expected_return": 0.18, "volatility": 0.48, "risk_level": "alto",
+        "description": "Holding diversificado con exposición a energía (Metrogas, Compañía General de Combustibles), real estate y servicios. Apuesta al crecimiento del mercado interno argentino.",
+        "currency": "ARS", "market": "BYMA",
+        "simple_desc": "Holding argentino con exposición a energía, real estate y servicios",
+    },
+    {
+        "id": "valo", "name": "Grupo Financiero Valores (VALO)", "category": "Acciones ARG",
+        "sub": "Financiero ARG", "ticker": "VALO", "color": "#6366f1",
+        "expected_return": 0.22, "volatility": 0.55, "risk_level": "alto",
+        "description": "Broker y banco digital argentino. Crece con el aumento del uso de instrumentos financieros en Argentina. Exposición directa al desarrollo del mercado de capitales local.",
+        "currency": "ARS", "market": "BYMA",
+        "simple_desc": "Broker y banco digital, crece con el mercado de capitales argentino",
+    },
+    {
+        "id": "harg", "name": "Holcim Argentina (HARG)", "category": "Acciones ARG",
+        "sub": "Construcción ARG", "ticker": "HARG", "color": "#78716c",
+        "expected_return": 0.16, "volatility": 0.42, "risk_level": "alto",
+        "description": "Productora de cemento y materiales de construcción. Se beneficia del crecimiento de la obra pública y privada. Filial argentina de Holcim, grupo global líder en materiales.",
+        "currency": "ARS", "market": "BYMA",
+        "simple_desc": "Productora de cemento, crece con la construcción argentina",
+    },
+    {
+        "id": "txar", "name": "Ternium Argentina (TXAR)", "category": "Acciones ARG",
+        "sub": "Industria ARG", "ticker": "TXAR", "color": "#6b7280",
+        "expected_return": 0.16, "volatility": 0.43, "risk_level": "alto",
+        "description": "Productora de acero plano en Argentina. Filial de Ternium, grupo siderúrgico regional. Abastece a la industria automotriz, la construcción y el campo.",
+        "currency": "ARS", "market": "BYMA",
+        "simple_desc": "Mayor productora de acero de Argentina, filial de Ternium",
+    },
+    {
+        "id": "mirg", "name": "Mirgor (MIRG)", "category": "Acciones ARG",
+        "sub": "Industria ARG", "ticker": "MIRG", "color": "#8b5cf6",
+        "expected_return": 0.20, "volatility": 0.55, "risk_level": "alto",
+        "description": "Fabrica equipos de climatización, electrónica y accesorios para autos en Tierra del Fuego. Se beneficia de la protección arancelaria y del crecimiento del consumo.",
+        "currency": "ARS", "market": "BYMA",
+        "simple_desc": "Fábrica de electrónica y climatización con protección arancelaria",
+    },
+    {
+        "id": "moli", "name": "Molinos Río de la Plata (MOLI)", "category": "Acciones ARG",
+        "sub": "Consumo ARG", "ticker": "MOLI", "color": "#a3a3a3",
+        "expected_return": 0.14, "volatility": 0.38, "risk_level": "medio-alto",
+        "description": "Empresa de alimentos: fideos (Matarazzo, Don Vicente), aceites (Cocinero, Lira) y arroz. Marca líder en consumo masivo, defensiva dentro del universo argentino.",
+        "currency": "ARS", "market": "BYMA",
+        "simple_desc": "Fideos Matarazzo y aceite Cocinero — consumo masivo argentino defensivo",
+    },
+    {
+        "id": "cvh", "name": "Cablevisión Holding (CVH)", "category": "Acciones ARG",
+        "sub": "Telecomunicaciones ARG", "ticker": "CVH", "color": "#22d3ee",
+        "expected_return": 0.15, "volatility": 0.40, "risk_level": "alto",
+        "description": "Holding controlante de Telecom Argentina (Fibertel, Personal, Flow). Exposición al crecimiento del mercado de telecomunicaciones e internet en Argentina.",
+        "currency": "ARS", "market": "BYMA",
+        "simple_desc": "Dueña de Telecom, Personal y Fibertel en Argentina",
+    },
+    {
+        "id": "metr", "name": "Metrogas (METR)", "category": "Acciones ARG",
+        "sub": "Utilities ARG", "ticker": "METR", "color": "#f97316",
+        "expected_return": 0.18, "volatility": 0.44, "risk_level": "alto",
+        "description": "Distribuidora de gas natural en el área metropolitana de Buenos Aires. Negocio regulado que se beneficia de la normalización tarifaria post-congelamiento.",
+        "currency": "ARS", "market": "BYMA",
+        "simple_desc": "Distribuidora de gas en Gran Buenos Aires, beneficiaria de la desregulación",
+    },
+
+    # ══ NUEVOS CEDEARs — Bancos y Finanzas ═══════════════════════════════════════
+
+    {
+        "id": "wfc", "name": "Wells Fargo (WFC)", "category": "CEDEARs",
+        "sub": "Bancos", "ticker": "WFC", "color": "#dc2626",
+        "expected_return": 0.10, "volatility": 0.28, "risk_level": "medio",
+        "description": "Tercer banco más grande de EE.UU. por activos. Foco en banca retail e hipotecas. Se beneficia de tasas altas y de la normalización regulatoria post-escándalo 2016.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Tercer banco más grande de EE.UU., foco en banca retail",
+    },
+    {
+        "id": "c", "name": "Citigroup (C)", "category": "CEDEARs",
+        "sub": "Bancos", "ticker": "C", "color": "#1d4ed8",
+        "expected_return": 0.11, "volatility": 0.30, "risk_level": "medio",
+        "description": "Banco global con presencia en más de 160 países. En proceso de reestructuración bajo la CEO Jane Fraser. Cotiza con descuento al valor libro — potencial de rerating.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Banco global en 160 países, cotiza con descuento al libro",
+    },
+    {
+        "id": "axp", "name": "American Express (AXP)", "category": "CEDEARs",
+        "sub": "Financiero", "ticker": "AXP", "color": "#0ea5e9",
+        "expected_return": 0.12, "volatility": 0.26, "risk_level": "medio",
+        "description": "Red de pagos y servicios financieros premium. A diferencia de Visa/Mastercard, también presta dinero a sus tarjetahabientes. Modelo de negocio único con altos márgenes.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "American Express: tarjetas premium con modelo de negocio único",
+    },
+    {
+        "id": "cof", "name": "Capital One (COF)", "category": "CEDEARs",
+        "sub": "Financiero", "ticker": "COF", "color": "#ef4444",
+        "expected_return": 0.12, "volatility": 0.32, "risk_level": "medio",
+        "description": "Banco digital y de tarjetas de crédito. Pionero en data analytics para crédito al consumo. Adquirió Discover Financial, creando el mayor emisor de tarjetas de crédito de EE.UU.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Banco digital líder en tarjetas, adquirió Discover Financial",
+    },
+    {
+        "id": "schw", "name": "Charles Schwab (SCHW)", "category": "CEDEARs",
+        "sub": "Financiero", "ticker": "SCHW", "color": "#2563eb",
+        "expected_return": 0.11, "volatility": 0.30, "risk_level": "medio",
+        "description": "Broker y banco de inversión para el mercado retail americano. Gestiona más de USD 8 billones en activos. Beneficiario directo del auge del inversor minorista.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Charles Schwab: el broker más grande de EE.UU. para inversores minoristas",
+    },
+    {
+        "id": "blk", "name": "BlackRock (BLK)", "category": "CEDEARs",
+        "sub": "Financiero", "ticker": "BLK", "color": "#1e293b",
+        "expected_return": 0.11, "volatility": 0.25, "risk_level": "medio",
+        "description": "La gestora de activos más grande del mundo con más de USD 10 billones bajo gestión. Creadores de iShares (los ETFs que usa todo el mundo). Ingresos recurrentes y escalables.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "La gestora de activos más grande del mundo — creadores de iShares",
+    },
+
+    # ══ NUEVOS CEDEARs — Tech/SaaS/Cloud ═════════════════════════════════════════
+
+    {
+        "id": "pltr", "name": "Palantir (PLTR)", "category": "CEDEARs",
+        "sub": "Tecnología", "ticker": "PLTR", "color": "#7c3aed",
+        "expected_return": 0.20, "volatility": 0.55, "risk_level": "alto",
+        "description": "Software de análisis de datos para gobiernos y empresas. Su plataforma AIP integra IA en operaciones críticas. Contratos con el Ejército de EE.UU. y grandes corporaciones.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Palantir: análisis de datos e IA para gobiernos y empresas grandes",
+    },
+    {
+        "id": "now", "name": "ServiceNow (NOW)", "category": "CEDEARs",
+        "sub": "Tecnología", "ticker": "NOW", "color": "#16a34a",
+        "expected_return": 0.16, "volatility": 0.30, "risk_level": "medio-alto",
+        "description": "Plataforma líder de automatización empresarial y gestión de servicios IT. Crece más del 20% anual con alta retención de clientes. El 'sistema operativo' de las grandes empresas.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "ServiceNow: el sistema operativo de automatización para empresas grandes",
+    },
+    {
+        "id": "crwd", "name": "CrowdStrike (CRWD)", "category": "CEDEARs",
+        "sub": "Tecnología", "ticker": "CRWD", "color": "#dc2626",
+        "expected_return": 0.18, "volatility": 0.40, "risk_level": "alto",
+        "description": "Líder en ciberseguridad basada en IA. Su plataforma Falcon protege endpoints de millones de dispositivos en tiempo real. El aumento de ciberataques impulsa su crecimiento estructural.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "CrowdStrike: líder en ciberseguridad con IA para empresas",
+    },
+    {
+        "id": "panw", "name": "Palo Alto Networks (PANW)", "category": "CEDEARs",
+        "sub": "Tecnología", "ticker": "PANW", "color": "#ea580c",
+        "expected_return": 0.16, "volatility": 0.35, "risk_level": "medio-alto",
+        "description": "Empresa de ciberseguridad integral: firewalls, cloud security y SIEM. Consolida el mercado fragmentado de seguridad IT. Transición a modelo de suscripción con ingresos recurrentes.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Palo Alto: plataforma integral de ciberseguridad para empresas",
+    },
+    {
+        "id": "ddog", "name": "Datadog (DDOG)", "category": "CEDEARs",
+        "sub": "Tecnología", "ticker": "DDOG", "color": "#854d0e",
+        "expected_return": 0.18, "volatility": 0.42, "risk_level": "alto",
+        "description": "Plataforma de monitoreo de infraestructura cloud y aplicaciones. Cada empresa que migra a la nube necesita Datadog para ver qué pasa. Crecimiento superior al 25% anual.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Datadog monitorea toda la infraestructura cloud de las empresas",
+    },
+    {
+        "id": "net", "name": "Cloudflare (NET)", "category": "CEDEARs",
+        "sub": "Tecnología", "ticker": "NET", "color": "#f97316",
+        "expected_return": 0.18, "volatility": 0.45, "risk_level": "alto",
+        "description": "Red de seguridad y rendimiento para internet. Protege y acelera millones de sitios web. Construyendo el 'sistema nervioso' de internet con más de 200 datacenters globales.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Cloudflare protege y acelera el tráfico de internet a escala global",
+    },
+    {
+        "id": "ftnt", "name": "Fortinet (FTNT)", "category": "CEDEARs",
+        "sub": "Tecnología", "ticker": "FTNT", "color": "#b45309",
+        "expected_return": 0.14, "volatility": 0.32, "risk_level": "medio-alto",
+        "description": "Proveedor de ciberseguridad para medianas y grandes empresas. FortiGate es el firewall más desplegado del mundo. Margen operativo superior al 25% con modelo de hardware+software.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Fortinet: el firewall más usado del mundo para empresas",
+    },
+    {
+        "id": "coin", "name": "Coinbase (COIN)", "category": "CEDEARs",
+        "sub": "Tecnología", "ticker": "COIN", "color": "#2563eb",
+        "expected_return": 0.25, "volatility": 0.70, "risk_level": "alto",
+        "description": "El exchange de criptomonedas más grande de EE.UU. regulado. Se beneficia de los ciclos alcistas de crypto y del avance de la regulación favorable. Alta volatilidad ligada al precio de Bitcoin.",
+        "currency": "USD", "market": "BYMA/NASDAQ",
+        "simple_desc": "Coinbase: el exchange de crypto más grande y regulado de EE.UU.",
+    },
+    {
+        "id": "sq", "name": "Block (SQ)", "category": "CEDEARs",
+        "sub": "Tecnología", "ticker": "SQ", "color": "#18181b",
+        "expected_return": 0.16, "volatility": 0.48, "risk_level": "alto",
+        "description": "Empresa de Jack Dorsey: Square (pagos para negocios), Cash App (pagos P2P), y TBD (bitcoin). Ecosistema financiero integrado para individuos y pequeños negocios.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Block (Square + Cash App): ecosistema de pagos para negocios y personas",
+    },
+    {
+        "id": "hood", "name": "Robinhood (HOOD)", "category": "CEDEARs",
+        "sub": "Financiero", "ticker": "HOOD", "color": "#16a34a",
+        "expected_return": 0.20, "volatility": 0.60, "risk_level": "alto",
+        "description": "App de inversión que democratizó el trading en EE.UU. con comisiones cero. Crece en criptomonedas y opciones. Alta volatilidad ligada al sentimiento del inversor retail.",
+        "currency": "USD", "market": "BYMA/NASDAQ",
+        "simple_desc": "Robinhood: la app que popularizó el trading gratuito en EE.UU.",
+    },
+    {
+        "id": "rblx", "name": "Roblox (RBLX)", "category": "CEDEARs",
+        "sub": "Tecnología", "ticker": "RBLX", "color": "#dc2626",
+        "expected_return": 0.18, "volatility": 0.55, "risk_level": "alto",
+        "description": "Plataforma de juegos y metaverso con 60+ millones de usuarios activos diarios, mayoritariamente menores de 17 años. Economía virtual con moneda propia (Robux).",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Roblox: plataforma de juegos y metaverso con 60M usuarios diarios",
+    },
+    {
+        "id": "snow", "name": "Snowflake (SNOW)", "category": "CEDEARs",
+        "sub": "Tecnología", "ticker": "SNOW", "color": "#38bdf8",
+        "expected_return": 0.18, "volatility": 0.50, "risk_level": "alto",
+        "description": "Plataforma de datos en la nube. Permite a las empresas almacenar, analizar y compartir datos entre nubes. El 'hub de datos' del ecosistema cloud empresarial.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Snowflake: la plataforma de datos en la nube para empresas grandes",
+    },
+
+    # ══ NUEVOS CEDEARs — Pharma / Biotech ════════════════════════════════════════
+
+    {
+        "id": "abbv", "name": "AbbVie (ABBV)", "category": "CEDEARs",
+        "sub": "Salud", "ticker": "ABBV", "color": "#7e22ce",
+        "expected_return": 0.11, "volatility": 0.22, "risk_level": "medio",
+        "description": "Gigante farmacéutico creador de Humira (el medicamento más vendido de la historia). Transición exitosa hacia Skyrizi y Rinvoq. Dividendo superior al 3% con 50+ años de incrementos.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "AbbVie fabrica Humira y paga dividendo superior al 3% hace décadas",
+    },
+    {
+        "id": "bmy", "name": "Bristol-Myers Squibb (BMY)", "category": "CEDEARs",
+        "sub": "Salud", "ticker": "BMY", "color": "#1d4ed8",
+        "expected_return": 0.09, "volatility": 0.22, "risk_level": "medio",
+        "description": "Empresa farmacéutica con foco en oncología e inmunología. Opdivo y Eliquis son sus productos estrella. Cotiza con descuento al sector por vencimientos de patentes.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Bristol-Myers: oncología e inmunología con descuento al sector",
+    },
+    {
+        "id": "gild", "name": "Gilead Sciences (GILD)", "category": "CEDEARs",
+        "sub": "Salud", "ticker": "GILD", "color": "#0f766e",
+        "expected_return": 0.10, "volatility": 0.22, "risk_level": "medio",
+        "description": "Líder en antivirales: inventó el tratamiento para el HIV y desarrolló Remdesivir para COVID. Pipeline sólido en oncología. Cotiza a múltiplos bajos con dividendo estable.",
+        "currency": "USD", "market": "BYMA/NASDAQ",
+        "simple_desc": "Gilead inventó el tratamiento del HIV — antivirales líderes con dividendo",
+    },
+    {
+        "id": "amgn", "name": "Amgen (AMGN)", "category": "CEDEARs",
+        "sub": "Salud", "ticker": "AMGN", "color": "#0369a1",
+        "expected_return": 0.10, "volatility": 0.22, "risk_level": "medio",
+        "description": "Pioneer en biotecnología. Produce medicamentos para cáncer, artritis y enfermedades cardiovasculares. MariTide, su candidato para obesidad, puede ser un catalizador enorme.",
+        "currency": "USD", "market": "BYMA/NASDAQ",
+        "simple_desc": "Amgen: biotecnología pionera con candidato para obesidad en pipeline",
+    },
+    {
+        "id": "mrna", "name": "Moderna (MRNA)", "category": "CEDEARs",
+        "sub": "Salud", "ticker": "MRNA", "color": "#0891b2",
+        "expected_return": 0.15, "volatility": 0.55, "risk_level": "alto",
+        "description": "Empresa de ARNm que revolucionó las vacunas con COVID-19. Desarrolla vacunas contra influenza, RSV, VIH y cáncer personalizado. Alto riesgo/retorno por pipeline no diversificado.",
+        "currency": "USD", "market": "BYMA/NASDAQ",
+        "simple_desc": "Moderna inventó las vacunas de ARNm y trabaja en cáncer personalizado",
+    },
+    {
+        "id": "regn", "name": "Regeneron (REGN)", "category": "CEDEARs",
+        "sub": "Salud", "ticker": "REGN", "color": "#4338ca",
+        "expected_return": 0.12, "volatility": 0.28, "risk_level": "medio",
+        "description": "Biotecnológica con Dupixent (biológico más vendido en dermatología y asma) y Eylea (oftalmología). Crecimiento sostenido con pipeline fuerte en oncología.",
+        "currency": "USD", "market": "BYMA/NASDAQ",
+        "simple_desc": "Regeneron hace Dupixent — el biológico más vendido en dermatología",
+    },
+    {
+        "id": "vrtx", "name": "Vertex Pharmaceuticals (VRTX)", "category": "CEDEARs",
+        "sub": "Salud", "ticker": "VRTX", "color": "#0e7490",
+        "expected_return": 0.13, "volatility": 0.26, "risk_level": "medio",
+        "description": "Monopolio en fibrosis quística con Trikafta. Expande hacia enfermedades renales, dolor y diabetes tipo 1. Sólida posición de caja sin deuda y con alta rentabilidad.",
+        "currency": "USD", "market": "BYMA/NASDAQ",
+        "simple_desc": "Vertex tiene monopolio en fibrosis quística y expande a nuevas enfermedades",
+    },
+
+    # ══ NUEVOS CEDEARs — Consumo / Viajes ════════════════════════════════════════
+
+    {
+        "id": "low", "name": "Lowe's (LOW)", "category": "CEDEARs",
+        "sub": "Consumo", "ticker": "LOW", "color": "#1d4ed8",
+        "expected_return": 0.11, "volatility": 0.24, "risk_level": "medio",
+        "description": "Segunda cadena de ferreterías y mejoras del hogar de EE.UU. tras Home Depot. Se beneficia del envejecimiento del parque habitacional americano y la cultura DIY.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Lowe's: la segunda ferretería más grande de EE.UU. — rival de Home Depot",
+    },
+    {
+        "id": "tjx", "name": "TJX Companies (TJX)", "category": "CEDEARs",
+        "sub": "Consumo", "ticker": "TJX", "color": "#dc2626",
+        "expected_return": 0.11, "volatility": 0.21, "risk_level": "bajo-medio",
+        "description": "Dueña de TJ Maxx, Marshalls y HomeGoods. Vende ropa y artículos para el hogar con descuento. Negocio contracíclico: crece más cuando la economía va mal.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "TJ Maxx y Marshalls: descuentos en ropa — negocio que crece en crisis",
+    },
+    {
+        "id": "abnb", "name": "Airbnb (ABNB)", "category": "CEDEARs",
+        "sub": "Consumo", "ticker": "ABNB", "color": "#f43f5e",
+        "expected_return": 0.14, "volatility": 0.40, "risk_level": "medio-alto",
+        "description": "Marketplace de alojamiento con 7 millones de propiedades en 220 países. Generó rentabilidad real por primera vez en 2022. Se beneficia del boom del turismo post-pandemia.",
+        "currency": "USD", "market": "BYMA/NASDAQ",
+        "simple_desc": "Airbnb: 7 millones de propiedades en 220 países — turismo global",
+    },
+    {
+        "id": "bkng", "name": "Booking Holdings (BKNG)", "category": "CEDEARs",
+        "sub": "Consumo", "ticker": "BKNG", "color": "#2563eb",
+        "expected_return": 0.13, "volatility": 0.28, "risk_level": "medio",
+        "description": "Dueña de Booking.com, Kayak y Priceline. Domina el mercado global de reservas online de hoteles con márgenes altísimos y flujo de caja predecible.",
+        "currency": "USD", "market": "BYMA/NASDAQ",
+        "simple_desc": "Booking.com y Kayak: dominan las reservas de viaje online en el mundo",
+    },
+    {
+        "id": "mar", "name": "Marriott International (MAR)", "category": "CEDEARs",
+        "sub": "Consumo", "ticker": "MAR", "color": "#991b1b",
+        "expected_return": 0.11, "volatility": 0.27, "risk_level": "medio",
+        "description": "La cadena hotelera más grande del mundo con 30 marcas (Marriott, Sheraton, W, Ritz-Carlton). Modelo de franquicia con ingresos recurrentes sin riesgo de propiedad.",
+        "currency": "USD", "market": "BYMA/NASDAQ",
+        "simple_desc": "Marriott tiene 30 marcas hoteleras — modelo de franquicia sin riesgo de propiedad",
+    },
+    {
+        "id": "hlt", "name": "Hilton (HLT)", "category": "CEDEARs",
+        "sub": "Consumo", "ticker": "HLT", "color": "#0369a1",
+        "expected_return": 0.11, "volatility": 0.26, "risk_level": "medio",
+        "description": "Segunda cadena hotelera del mundo con Hilton, Hampton y Conrad entre sus 18 marcas. Modelo asset-light de franquicias con alta generación de caja y programa de fidelidad líder.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Hilton: 18 marcas hoteleras con modelo de franquicia puro",
+    },
+    {
+        "id": "ccl", "name": "Carnival Corporation (CCL)", "category": "CEDEARs",
+        "sub": "Consumo", "ticker": "CCL", "color": "#0f766e",
+        "expected_return": 0.13, "volatility": 0.45, "risk_level": "alto",
+        "description": "La empresa de cruceros más grande del mundo con Carnival, Princess y Costa. En recuperación post-COVID con demanda récord. Endeudada pero generando caja positiva.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Carnival: la empresa de cruceros más grande del mundo, en recuperación",
+    },
+    {
+        "id": "rcl", "name": "Royal Caribbean (RCL)", "category": "CEDEARs",
+        "sub": "Consumo", "ticker": "RCL", "color": "#1e40af",
+        "expected_return": 0.14, "volatility": 0.45, "risk_level": "alto",
+        "description": "Segunda empresa de cruceros del mundo. Más premium que Carnival. Las reservas para 2024-2026 están en máximos históricos. Se beneficia del boom del turismo experiencial.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Royal Caribbean: cruceros premium con reservas en máximos históricos",
+    },
+    {
+        "id": "dkng", "name": "DraftKings (DKNG)", "category": "CEDEARs",
+        "sub": "Consumo", "ticker": "DKNG", "color": "#16a34a",
+        "expected_return": 0.18, "volatility": 0.55, "risk_level": "alto",
+        "description": "Líder en apuestas deportivas online en EE.UU. Se beneficia de la legalización progresiva en nuevos estados. Negocio con alto costo de adquisición pero retención fuerte.",
+        "currency": "USD", "market": "BYMA/NASDAQ",
+        "simple_desc": "DraftKings: líder en apuestas deportivas online en EE.UU.",
+    },
+    {
+        "id": "ebay", "name": "eBay (EBAY)", "category": "CEDEARs",
+        "sub": "Consumo", "ticker": "EBAY", "color": "#e11d48",
+        "expected_return": 0.09, "volatility": 0.25, "risk_level": "medio",
+        "description": "Marketplace de comercio electrónico C2C y B2C con 130 millones de compradores activos. Negocio maduro con alto flujo de caja y recompras agresivas. Alternativa defensiva al ecommerce.",
+        "currency": "USD", "market": "BYMA/NASDAQ",
+        "simple_desc": "eBay: marketplace maduro con 130M compradores y recompras agresivas",
+    },
+
+    # ══ NUEVOS CEDEARs — Media / Telecom ═════════════════════════════════════════
+
+    {
+        "id": "spot", "name": "Spotify (SPOT)", "category": "CEDEARs",
+        "sub": "Tecnología", "ticker": "SPOT", "color": "#16a34a",
+        "expected_return": 0.16, "volatility": 0.40, "risk_level": "alto",
+        "description": "La plataforma de música en streaming más grande del mundo con 600M usuarios. Expansión a podcasts y audiolibros. En transición hacia rentabilidad con mejora de márgenes.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Spotify: 600 millones de usuarios en música y podcasts, camino a la rentabilidad",
+    },
+    {
+        "id": "t", "name": "AT&T (T)", "category": "CEDEARs",
+        "sub": "Telecomunicaciones", "ticker": "T", "color": "#00a8e0",
+        "expected_return": 0.08, "volatility": 0.20, "risk_level": "bajo-medio",
+        "description": "Operadora de telecomunicaciones más grande de EE.UU. Dividendo superior al 5%. Post-desinversión de WarnerMedia, foco en conectividad con fuerte generación de caja.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "AT&T: el mayor operador de telecom de EE.UU. con dividendo superior al 5%",
+    },
+    {
+        "id": "vz", "name": "Verizon (VZ)", "category": "CEDEARs",
+        "sub": "Telecomunicaciones", "ticker": "VZ", "color": "#cd0000",
+        "expected_return": 0.08, "volatility": 0.18, "risk_level": "bajo-medio",
+        "description": "Segunda operadora de telecom de EE.UU. Red 5G más extensa del país. Dividendo superior al 6% con historial de 20 años consecutivos de pagos. Perfil defensivo.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Verizon: red 5G líder en EE.UU. con dividendo superior al 6%",
+    },
+    {
+        "id": "cmcsa", "name": "Comcast (CMCSA)", "category": "CEDEARs",
+        "sub": "Telecomunicaciones", "ticker": "CMCSA", "color": "#1d4ed8",
+        "expected_return": 0.09, "volatility": 0.22, "risk_level": "medio",
+        "description": "Cable, internet, NBC Universal y Sky (Europa). El proveedor de internet más grande de EE.UU. con ingresos muy predecibles. Dueño de Universal Studios y Peacock.",
+        "currency": "USD", "market": "BYMA/NASDAQ",
+        "simple_desc": "Comcast: el mayor proveedor de internet de EE.UU. más NBC Universal",
+    },
+
+    # ══ NUEVOS CEDEARs — Industrial / Defensa ════════════════════════════════════
+
+    {
+        "id": "rtx", "name": "RTX Corporation (RTX)", "category": "CEDEARs",
+        "sub": "Industrial", "ticker": "RTX", "color": "#1e3a5f",
+        "expected_return": 0.11, "volatility": 0.22, "risk_level": "medio",
+        "description": "Ex-Raytheon Technologies. Fabrica motores de aviones (Pratt & Whitney) y sistemas de defensa (misiles Patriot). Cartera de pedidos récord por el aumento del gasto militar global.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "RTX fabrica motores Pratt & Whitney y misiles Patriot — defensa récord",
+    },
+    {
+        "id": "lmt", "name": "Lockheed Martin (LMT)", "category": "CEDEARs",
+        "sub": "Industrial", "ticker": "LMT", "color": "#0f172a",
+        "expected_return": 0.10, "volatility": 0.20, "risk_level": "medio",
+        "description": "Mayor contratista de defensa del mundo. Fabrica el F-35, misiles y sistemas espaciales. El aumento del gasto en defensa de los países de la OTAN es un viento de cola estructural.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Lockheed: el mayor fabricante de defensa del mundo, F-35 y misiles",
+    },
+    {
+        "id": "de", "name": "John Deere (DE)", "category": "CEDEARs",
+        "sub": "Industrial", "ticker": "DE", "color": "#15803d",
+        "expected_return": 0.11, "volatility": 0.24, "risk_level": "medio",
+        "description": "Líder mundial en maquinaria agrícola y de construcción. Integra IA y autonomía en sus tractores. Dominio de mercado en EE.UU. con ciclo favorable para el agro global.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "John Deere: tractores inteligentes con IA — domina el agro mundial",
+    },
+    {
+        "id": "hon", "name": "Honeywell (HON)", "category": "CEDEARs",
+        "sub": "Industrial", "ticker": "HON", "color": "#dc2626",
+        "expected_return": 0.10, "volatility": 0.21, "risk_level": "medio",
+        "description": "Conglomerado industrial en automatización, aeroespacial y materiales de rendimiento. Ingresos muy diversificados y predecibles. Dividendo creciente desde hace décadas.",
+        "currency": "USD", "market": "BYMA/NASDAQ",
+        "simple_desc": "Honeywell: automatización e industrial diversificado con dividendo estable",
+    },
+    {
+        "id": "ups", "name": "UPS (UPS)", "category": "CEDEARs",
+        "sub": "Industrial", "ticker": "UPS", "color": "#78350f",
+        "expected_return": 0.09, "volatility": 0.22, "risk_level": "medio",
+        "description": "Mayor empresa de logística y mensajería del mundo. Dividendo superior al 4%. En transformación hacia paquetes de mayor valor con margen. Infraestructura imposible de replicar.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "UPS: logística mundial con dividendo superior al 4%",
+    },
+    {
+        "id": "fdx", "name": "FedEx (FDX)", "category": "CEDEARs",
+        "sub": "Industrial", "ticker": "FDX", "color": "#7c3aed",
+        "expected_return": 0.11, "volatility": 0.26, "risk_level": "medio",
+        "description": "Red de mensajería express y logística global. En proceso de reestructuración post-COVID para mejorar márgenes. Se beneficia del e-commerce y del comercio internacional.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "FedEx: logística express global — se beneficia del e-commerce",
+    },
+    {
+        "id": "ge", "name": "GE Aerospace (GE)", "category": "CEDEARs",
+        "sub": "Industrial", "ticker": "GE", "color": "#2563eb",
+        "expected_return": 0.13, "volatility": 0.28, "risk_level": "medio",
+        "description": "GE enfocada en motores de aviación civil y militar tras la ruptura del conglomerado. Cartera de pedidos histórica con el boom del tráfico aéreo post-pandemia.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "GE Aerospace: motores de aviación con cartera de pedidos histórica",
+    },
+
+    # ══ NUEVOS CEDEARs — Energía ══════════════════════════════════════════════════
+
+    {
+        "id": "oxy", "name": "Occidental Petroleum (OXY)", "category": "CEDEARs",
+        "sub": "Energía", "ticker": "OXY", "color": "#ea580c",
+        "expected_return": 0.12, "volatility": 0.35, "risk_level": "medio-alto",
+        "description": "Productora de petróleo y gas con exposición directa a Permian Basin. La acción favorita de Warren Buffett en energía — Berkshire acumuló más del 27% del capital.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Occidental Petroleum: la apuesta energética favorita de Warren Buffett",
+    },
+    {
+        "id": "slb", "name": "SLB (SLB)", "category": "CEDEARs",
+        "sub": "Energía", "ticker": "SLB", "color": "#a16207",
+        "expected_return": 0.12, "volatility": 0.30, "risk_level": "medio",
+        "description": "La mayor empresa de servicios para la industria petrolera del mundo. Provee tecnología y servicios de perforación a productores en todo el mundo. Se beneficia del superciclo de inversión en energía.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "SLB: la mayor empresa de servicios de perforación petrolera del mundo",
+    },
+    {
+        "id": "cop", "name": "ConocoPhillips (COP)", "category": "CEDEARs",
+        "sub": "Energía", "ticker": "COP", "color": "#92400e",
+        "expected_return": 0.11, "volatility": 0.30, "risk_level": "medio",
+        "description": "La mayor productora independiente de petróleo y gas de EE.UU. Bajo costo de producción, dividendo variable ligado al precio del crudo, y balance sólido sin deuda excesiva.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "ConocoPhillips: mayor productora independiente de petróleo de EE.UU.",
+    },
+
+    # ══ NUEVOS CEDEARs — Semiconductores ═════════════════════════════════════════
+
+    {
+        "id": "asml", "name": "ASML (ASML)", "category": "CEDEARs",
+        "sub": "Tecnología", "ticker": "ASML", "color": "#0c4a6e",
+        "expected_return": 0.15, "volatility": 0.30, "risk_level": "medio-alto",
+        "description": "Monopolio absoluto en litografía EUV para chips avanzados. Sin ASML no existe ningún chip de última generación. TSMC, Samsung e Intel son clientes cautivos. Barreras de entrada imposibles.",
+        "currency": "USD", "market": "BYMA/NASDAQ",
+        "simple_desc": "ASML: el único proveedor de máquinas que hacen chips avanzados — monopolio absoluto",
+    },
+    {
+        "id": "mu", "name": "Micron Technology (MU)", "category": "CEDEARs",
+        "sub": "Tecnología", "ticker": "MU", "color": "#1d4ed8",
+        "expected_return": 0.14, "volatility": 0.40, "risk_level": "alto",
+        "description": "Mayor productor de memoria DRAM y NAND de EE.UU. Ciclo altamente volátil ligado a la demanda de semiconductores. El boom de IA aumenta la demanda de HBM3 (memoria para GPUs).",
+        "currency": "USD", "market": "BYMA/NASDAQ",
+        "simple_desc": "Micron: memoria RAM para IA y data centers — ciclo volátil pero alcista",
+    },
+    {
+        "id": "amat", "name": "Applied Materials (AMAT)", "category": "CEDEARs",
+        "sub": "Tecnología", "ticker": "AMAT", "color": "#4f46e5",
+        "expected_return": 0.13, "volatility": 0.30, "risk_level": "medio-alto",
+        "description": "Equipos para la fabricación de semiconductores: deposición, grabado y metrología. Junto con ASML y Lam Research, domina el segmento de equipos que nadie puede reemplazar.",
+        "currency": "USD", "market": "BYMA/NASDAQ",
+        "simple_desc": "Applied Materials: máquinas indispensables para fabricar semiconductores",
+    },
+    {
+        "id": "avgo", "name": "Broadcom (AVGO)", "category": "CEDEARs",
+        "sub": "Tecnología", "ticker": "AVGO", "color": "#c2410c",
+        "expected_return": 0.14, "volatility": 0.30, "risk_level": "medio-alto",
+        "description": "Semiconductor y software de infraestructura. Fabrica chips de red, WiFi y conectividad para Apple e hyperscalers. VMware (adquirida) convierte a Broadcom en lider de infraestructura cloud.",
+        "currency": "USD", "market": "BYMA/NASDAQ",
+        "simple_desc": "Broadcom: chips para Apple y data centers + VMware para la nube empresarial",
+    },
+
+    # ══ NUEVOS CEDEARs — Auto / EV ════════════════════════════════════════════════
+
+    {
+        "id": "f", "name": "Ford Motor (F)", "category": "CEDEARs",
+        "sub": "Industrial", "ticker": "F", "color": "#1d4ed8",
+        "expected_return": 0.10, "volatility": 0.35, "risk_level": "medio-alto",
+        "description": "Fabricante de autos con fuerte posición en pickup trucks (F-Series, el auto más vendido de EE.UU.). Transición hacia eléctricos con Ford Pro (camionetas comerciales) como punta de lanza.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Ford: el F-150 es el auto más vendido de EE.UU. — transición a eléctricos",
+    },
+    {
+        "id": "gm", "name": "General Motors (GM)", "category": "CEDEARs",
+        "sub": "Industrial", "ticker": "GM", "color": "#1e293b",
+        "expected_return": 0.11, "volatility": 0.32, "risk_level": "medio-alto",
+        "description": "Fabricante de autos con Chevrolet, GMC, Cadillac y Buick. Cotiza con múltiplos de empresa en quiebra a pesar de ganancias récord. Cruze Robotaxi y el pipeline EV son los catalizadores.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "GM: Chevrolet y Cadillac — cotiza barato con Cruise y EVs como catalizadores",
+    },
+    {
+        "id": "rivn", "name": "Rivian (RIVN)", "category": "CEDEARs",
+        "sub": "Tecnología", "ticker": "RIVN", "color": "#16a34a",
+        "expected_return": 0.20, "volatility": 0.65, "risk_level": "alto",
+        "description": "Startup de vehículos eléctricos con pickup R1T, SUV R1S y furgonetas para Amazon. Alta volatilidad de empresa pre-rentabilidad. Amazon posee ~16% y es su mayor cliente comercial.",
+        "currency": "USD", "market": "BYMA/NASDAQ",
+        "simple_desc": "Rivian: pickups y SUVs eléctricos — Amazon como socio estratégico",
+    },
+    {
+        "id": "nio", "name": "NIO (NIO)", "category": "CEDEARs",
+        "sub": "Tecnología", "ticker": "NIO", "color": "#ef4444",
+        "expected_return": 0.20, "volatility": 0.70, "risk_level": "alto",
+        "description": "Fabricante chino de EVs de lujo. Tecnología de batería intercambiable (battery swap) diferencial. Alto riesgo por competencia de BYD, quema de caja y geopolítica China-EE.UU.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "NIO: EVs de lujo chinos con tecnología de batería intercambiable",
+    },
+
+    # ══ NUEVOS CEDEARs — Utilities ════════════════════════════════════════════════
+
+    {
+        "id": "so", "name": "Southern Company (SO)", "category": "CEDEARs",
+        "sub": "Utilities", "ticker": "SO", "color": "#d97706",
+        "expected_return": 0.08, "volatility": 0.16, "risk_level": "bajo",
+        "description": "Eléctrica regulada en el sur de EE.UU. Dividendo superior al 3.5% con 75+ años de pagos ininterrumpidos. Primera utilidad americana en operar una planta nuclear nueva en décadas.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Southern Company: eléctrica regulada con 75 años de dividendos ininterrumpidos",
+    },
+    {
+        "id": "d", "name": "Dominion Energy (D)", "category": "CEDEARs",
+        "sub": "Utilities", "ticker": "D", "color": "#0369a1",
+        "expected_return": 0.08, "volatility": 0.17, "risk_level": "bajo",
+        "description": "Eléctrica y gasífera regulada en Virginia y Carolina del Norte. Dividendo superior al 4.5%. En proceso de simplificación del portfolio. Proveedor crítico de data centers en Virginia.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Dominion Energy: utilities en Virginia con dividendo 4.5% y data centers",
+    },
+
+    # ══ NUEVOS CEDEARs — REITs ════════════════════════════════════════════════════
+
+    {
+        "id": "amt", "name": "American Tower (AMT)", "category": "CEDEARs",
+        "sub": "Real Estate", "ticker": "AMT", "color": "#7c3aed",
+        "expected_return": 0.10, "volatility": 0.22, "risk_level": "medio",
+        "description": "El mayor REIT de infraestructura de comunicaciones del mundo con 220.000+ torres de telecom. Contratos a largo plazo con AT&T, Verizon y T-Mobile con escaladores de inflación.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "American Tower: dueño de 220.000 torres de celular — alquiler garantizado",
+    },
+    {
+        "id": "pld", "name": "Prologis (PLD)", "category": "CEDEARs",
+        "sub": "Real Estate", "ticker": "PLD", "color": "#0369a1",
+        "expected_return": 0.10, "volatility": 0.24, "risk_level": "medio",
+        "description": "Mayor REIT de logística del mundo con 1.000 millones de m² de depósitos. Clientes: Amazon, FedEx, DHL. Los depósitos cerca de ciudades son el activo más escaso del e-commerce.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Prologis: 1.000M m² de depósitos para Amazon y el e-commerce global",
+    },
+    {
+        "id": "o", "name": "Realty Income (O)", "category": "CEDEARs",
+        "sub": "Real Estate", "ticker": "O", "color": "#15803d",
+        "expected_return": 0.09, "volatility": 0.18, "risk_level": "bajo-medio",
+        "description": "El REIT de dividendo mensual más conocido del mundo. 'The Monthly Dividend Company' — 30 años de dividendos crecientes pagados cada mes. Inquilinos como Walmart, 7-Eleven y Dollar General.",
+        "currency": "USD", "market": "BYMA/NYSE",
+        "simple_desc": "Realty Income paga dividendo mensual hace 30 años — inquilinos son Walmart y 7-Eleven",
+    },
+
 ]
 
 # ─── Índice por ID ─────────────────────────────────────────────────────────────
@@ -1189,6 +1793,7 @@ _LIQUIDITY_LEVELS = {
         # CEDEARs de alto volumen en BYMA
         "spy","qqq","aapl","meli","ypf","galicia","bma","msft","nvda","v","ma",
         "intc","tsm","pg",
+        "wfc","c","axp","abbv","amgn","avgo","asml","ge","rtx","lmt","de","cop","oxy","ups","vz","t",
     },
     "media": {
         # Soberanos con algo menos de volumen
@@ -1204,6 +1809,13 @@ _LIQUIDITY_LEVELS = {
         "qcom","shop","pypl","pm","sbux","tgt","ba","cat","baba","nee",
         # Acciones ARG de liquidez media en BYMA
         "tgs","cepu","alua","bbar","loma","pampa","vist","teco2","supv",
+        # CEDEARs nuevos
+        "cof","schw","blk","pltr","now","crwd","panw","ddog","net","ftnt","coin","sq",
+        "hood","rblx","snow","bmy","gild","mrna","regn","vrtx","low","tjx","abnb","bkng",
+        "mar","hlt","ccl","rcl","dkng","ebay","spot","cmcsa","hon","fdx","slb",
+        "mu","amat","f","gm","rivn","nio","so","d","amt","pld","o",
+        # ARG nuevas
+        "edn","come","valo","harg","txar","mirg","moli","cvh","metr",
     },
 }
 for _a in ASSET_UNIVERSE:
@@ -1340,10 +1952,13 @@ _BUCKET_DEFS: Dict[str, list] = {
         {"id": "equity_global", "target": 0.18, "max_pos": 1, "score_src": "equity",
          "candidates": ["nvda", "amd", "msft", "meta", "googl", "amzn", "aapl",
                          "tsm", "v", "ma", "unh", "lly", "cost", "nflx", "orcl",
-                         "crm", "qcom", "pg", "pm", "cat"]},
+                         "crm", "qcom", "pg", "pm", "cat",
+                         "wfc", "c", "axp", "abbv", "amgn", "avgo", "asml", "ge", "rtx", "lmt", "de", "cop",
+                         "now", "crwd", "panw", "vrtx", "regn", "low", "tjx", "bkng", "mar", "vz", "t", "hon", "ups", "blk"]},
         {"id": "equity_arg",    "target": 0.10, "max_pos": 1, "score_src": "equity",
          "candidates": ["ypf", "galicia", "bma", "tgs", "cepu", "pampa",
-                         "vist", "meli", "alua", "irsa"]},
+                         "vist", "meli", "alua", "irsa",
+                         "edn", "come", "metr", "moli", "harg", "txar"]},
     ],
     "agresivo": [
         # 8 posiciones
@@ -1358,11 +1973,18 @@ _BUCKET_DEFS: Dict[str, list] = {
          "candidates": ["nvda", "amd", "msft", "meta", "googl", "amzn", "meli",
                          "aapl", "tsla", "nflx", "v", "ma", "unh", "lly",
                          "crm", "adbe", "uber", "glob", "gs", "cost",
-                         "tsm", "qcom", "shop", "pypl", "baba", "cat", "intc"]},
+                         "tsm", "qcom", "shop", "pypl", "baba", "cat", "intc",
+                         "wfc", "c", "axp", "cof", "schw", "blk", "pltr", "now", "crwd", "panw", "ddog", "net",
+                         "ftnt", "coin", "sq", "rblx", "snow", "abbv", "amgn", "mrna", "regn", "vrtx", "bmy",
+                         "low", "tjx", "abnb", "bkng", "mar", "hlt", "ccl", "rcl", "dkng", "spot",
+                         "rtx", "lmt", "de", "hon", "ge", "fdx", "ups", "oxy", "slb", "cop",
+                         "asml", "mu", "amat", "avgo", "f", "gm", "rivn", "nio", "amt", "pld", "o",
+                         "vz", "t", "cmcsa", "ebay"]},
         {"id": "equity_arg",    "target": 0.20, "max_pos": 2, "score_src": "equity",
          "candidates": ["ypf", "galicia", "bma", "supv", "tgs", "cepu",
                          "pampa", "vist", "bbar", "alua", "irsa", "cres",
-                         "loma", "teco2"]},
+                         "loma", "teco2",
+                         "edn", "come", "valo", "harg", "txar", "mirg", "moli", "cvh", "metr"]},
     ],
 }
 
@@ -1530,6 +2152,7 @@ _ETF_IDS     = {"spy", "qqq", "vti", "iau", "gld", "eem"}
 _ARG_INDIVIDUAL_IDS = {
     "ypf", "vist", "galicia", "bma", "bbar", "supv", "pampa",
     "tgs", "cepu", "loma", "teco2", "irsa", "cres", "alua",
+    "edn", "come", "valo", "harg", "txar", "mirg", "moli", "cvh", "metr",
 }
 
 
@@ -1545,7 +2168,12 @@ def get_max_weight(score: int | None, profile: str, asset_id: str) -> float:
     AGRESIVO:    score>=70→20%, 50-69→12%, 40-49→5%, <40→0%; individual cap 15%; ETF cap 25%
     """
     if score is None:
-        return 1.0  # no scorable → sin límite por score
+        if asset_id in _ARG_INDIVIDUAL_IDS:
+            if profile == "conservador": return 0.0
+            if profile == "estable":     return 0.03
+            if profile == "moderado":    return 0.05
+            if profile == "agresivo":    return 0.08
+        return 1.0  # bonos, MM, MEP — sin límite por score
 
     is_etf        = asset_id in _ETF_IDS
     is_arg_ind    = asset_id in _ARG_INDIVIDUAL_IDS
@@ -1938,6 +2566,90 @@ def _razon_en_cartera(asset_id: str, risk: str, horizon: int) -> str:
         "on_tgs":  "Bono TGS en dólares — monopolio natural de gasoductos respaldando la deuda",
         "on_macro":"Bono Banco Macro en dólares — banco argentino sólido con buen historial de pago",
         "on_corp": "ONs corporativas en dólares (YPF, TGS, Tecpetrol) — empresas privadas con mejor historial de pago que el Estado",
+        # ARG nuevas
+        "alua":  "Aluar produce el aluminio que exporta Argentina — ingresos en dólares protegen del peso",
+        "edn":   "Edenor distribuye electricidad en Buenos Aires — beneficiaria directa de la normalización tarifaria",
+        "come":  "Holding argentino diversificado en energía y real estate — exposición amplia al mercado interno",
+        "valo":  "Grupo Financiero Valores crece con el mercado de capitales argentino en pleno desarrollo",
+        "harg":  "Holcim produce el cemento de la obra pública y privada argentina — crece con la construcción",
+        "txar":  "Ternium Argentina produce el acero para la industria automotriz y la construcción local",
+        "mirg":  "Mirgor fabrica en Tierra del Fuego con protección arancelaria — crece con el consumo local",
+        "moli":  "Molinos (Matarazzo, Cocinero) — consumo masivo defensivo dentro del universo argentino",
+        "cvh":   "Cablevisión Holding controla Telecom y Personal — telecomunicaciones esenciales en Argentina",
+        "metr":  "Metrogas distribuye gas en el área metropolitana — normalización tarifaria como catalizador",
+        # CEDEARs nuevos — Bancos
+        "wfc":   "Wells Fargo es el tercer banco más grande de EE.UU. y se beneficia de tasas altas",
+        "c":     "Citigroup opera en 160 países — cotiza con descuento al libro con potencial de rerating",
+        "axp":   "American Express cobra comisiones premium en cada compra — clientes de alta renta no cancelan",
+        "cof":   "Capital One adquirió Discover — creando el mayor emisor de tarjetas de crédito de EE.UU.",
+        "schw":  "Charles Schwab gestiona USD 8 billones — crece con cada inversor que abre su primera cuenta",
+        "blk":   "BlackRock gestiona más de USD 10 billones — los ETFs iShares son los más usados del mundo",
+        # CEDEARs nuevos — Tech/Cloud
+        "pltr":  "Palantir es el software de análisis que usa el Ejército de EE.UU. y las grandes corporaciones",
+        "now":   "ServiceNow automatiza los procesos internos de las grandes empresas — retención de clientes casi perfecta",
+        "crwd":  "CrowdStrike protege contra ciberataques con IA — cada empresa grande necesita su plataforma",
+        "panw":  "Palo Alto Networks es el firewall empresarial más completo — consolida el mercado de seguridad",
+        "ddog":  "Datadog monitorea toda la infraestructura cloud — indispensable cuando las empresas migran a la nube",
+        "net":   "Cloudflare protege y acelera millones de sitios web — la autopista de internet más eficiente",
+        "ftnt":  "Fortinet tiene el firewall más desplegado del mundo en empresas medianas y grandes",
+        "coin":  "Coinbase es el exchange de crypto más regulado de EE.UU. — crece con cada ciclo alcista de Bitcoin",
+        "sq":    "Block (Square + Cash App) conecta negocios y personas en un ecosistema de pagos integrado",
+        "hood":  "Robinhood popularizó el trading gratuito en EE.UU. — crece con crypto y opciones",
+        "rblx":  "Roblox tiene 60 millones de usuarios diarios — la plataforma donde juegan las nuevas generaciones",
+        "snow":  "Snowflake es el hub de datos en la nube que todas las grandes empresas necesitan hoy",
+        # CEDEARs nuevos — Pharma
+        "abbv":  "AbbVie hace Humira y paga dividendo superior al 3% — farmacéutica defensiva con pipeline sólido",
+        "bmy":   "Bristol-Myers tiene Opdivo y Eliquis — oncología e inmunología con descuento al sector",
+        "gild":  "Gilead inventó el tratamiento del HIV y desarrolla antivirales de nueva generación",
+        "amgn":  "Amgen es pionera en biotecnología con pipeline en obesidad que puede ser el próximo catalizador",
+        "mrna":  "Moderna inventó las vacunas de ARNm — trabaja en cáncer personalizado y otras enfermedades",
+        "regn":  "Regeneron hace Dupixent, el biológico más vendido en dermatología y asma — crecimiento sostenido",
+        "vrtx":  "Vertex tiene monopolio en fibrosis quística y expande a diabetes y enfermedades renales",
+        # CEDEARs nuevos — Consumo/Viajes
+        "low":   "Lowe's vende materiales de construcción a millones de hogares americanos que mejoran su casa",
+        "tjx":   "TJ Maxx vende ropa con descuento — negocio que crece más en crisis que en épocas de bonanza",
+        "abnb":  "Airbnb conecta 7 millones de propiedades con viajeros en 220 países — el hotel sin hoteles",
+        "bkng":  "Booking.com domina las reservas de viaje online con márgenes altísimos y flujo de caja predecible",
+        "mar":   "Marriott cobra royalties a 30 marcas hoteleras sin arriesgar capital propio — franquicia pura",
+        "hlt":   "Hilton opera 18 marcas sin tener que comprar los hoteles — el modelo de franquicia más eficiente",
+        "ccl":   "Carnival tiene la flota de cruceros más grande del mundo y reservas en máximos históricos",
+        "rcl":   "Royal Caribbean ofrece cruceros premium con experiencias que la gente no deja de reservar",
+        "dkng":  "DraftKings lidera las apuestas deportivas online a medida que cada estado americano las legaliza",
+        "ebay":  "eBay tiene 130 millones de compradores activos y recompra sus acciones de forma agresiva",
+        # CEDEARs nuevos — Media/Telecom
+        "spot":  "Spotify tiene 600 millones de usuarios y está en camino a márgenes de software puro",
+        "t":     "AT&T es el mayor operador de EE.UU. con dividendo superior al 5% después de vender WarnerMedia",
+        "vz":    "Verizon tiene la red 5G más extensa de EE.UU. y paga dividendo superior al 6% hace décadas",
+        "cmcsa": "Comcast provee internet a millones de hogares americanos y es dueño de Universal Studios",
+        # CEDEARs nuevos — Industrial/Defensa
+        "rtx":   "RTX fabrica motores Pratt & Whitney y misiles Patriot — el gasto militar global es un viento de cola",
+        "lmt":   "Lockheed es el mayor fabricante de defensa del mundo — cada país de la OTAN es su cliente",
+        "de":    "John Deere pone IA en tractores — el agro mundial no puede funcionar sin sus máquinas",
+        "hon":   "Honeywell automatiza fábricas y aviones con tecnología que nadie más puede reemplazar",
+        "ups":   "UPS entrega millones de paquetes al día con una red que tardó 100 años en construirse",
+        "fdx":   "FedEx conecta empresas con clientes en todo el mundo — la columna vertebral del e-commerce",
+        "ge":    "GE Aerospace fabrica los motores de avión con la mayor cartera de pedidos de su historia",
+        # CEDEARs nuevos — Energía
+        "oxy":   "Occidental Petroleum produce petróleo barato en Permian — Warren Buffett acumuló más del 27%",
+        "slb":   "SLB provee la tecnología de perforación que la industria petrolera necesita para extraer crudo",
+        "cop":   "ConocoPhillips es la mayor productora independiente de petróleo de EE.UU. sin deuda excesiva",
+        # CEDEARs nuevos — Semis
+        "asml":  "ASML es el único proveedor de máquinas para chips avanzados — monopolio que nadie puede romper",
+        "mu":    "Micron fabrica la memoria para GPUs de IA — el boom de inteligencia artificial impulsa su demanda",
+        "amat":  "Applied Materials fabrica equipos para hacer semiconductores — sin ellos no hay chips nuevos",
+        "avgo":  "Broadcom hace chips para Apple y data centers — más VMware, el sistema de toda nube empresarial",
+        # CEDEARs nuevos — Auto/EV
+        "f":     "Ford vende más pickups que nadie en EE.UU. y transiciona hacia eléctricos comerciales",
+        "gm":    "General Motors cotiza como si fuera a quebrar pero genera ganancias récord — descuento extremo",
+        "rivn":  "Rivian hace las furgonetas eléctricas de Amazon — apuesta de alto riesgo/retorno en EVs",
+        "nio":   "NIO fabrica EVs de lujo en China con tecnología de batería única — alto riesgo geopolítico",
+        # CEDEARs nuevos — Utilities
+        "so":    "Southern Company lleva electricidad a millones de hogares del sur de EE.UU. hace 75 años",
+        "d":     "Dominion Energy provee electricidad a los data centers de Virginia — demanda que no para de crecer",
+        # CEDEARs nuevos — REITs
+        "amt":   "American Tower alquila torres de celular a AT&T y Verizon — cada 5G instalado paga más renta",
+        "pld":   "Prologis alquila depósitos a Amazon y FedEx — la escasez de espacio logístico es estructural",
+        "o":     "Realty Income paga dividendo mensual hace 30 años — el 'bono con upside' del inversor conservador",
     }
     base = _RAZONES.get(asset_id)
     if base:
