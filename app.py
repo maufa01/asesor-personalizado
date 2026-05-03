@@ -268,12 +268,27 @@ if _last_step is not None and _last_step != step:
 <script>
 (function() {
     function toTop() {
-        try { window.parent.scrollTo({ top: 0, behavior: 'instant' }); } catch(e) {}
+        try {
+            const doc = window.parent.document;
+            // Anchor primero (más confiable que scrollTo(0) puro)
+            const anchor = doc.getElementById('results-top-anchor');
+            if (anchor) {
+                anchor.scrollIntoView({ block: 'start', behavior: 'instant' });
+            }
+            // Triple fallback
+            window.parent.scrollTo({ top: 0, behavior: 'instant' });
+            doc.documentElement.scrollTop = 0;
+            doc.body.scrollTop = 0;
+        } catch(e) {}
     }
-    // Inmediato + 4 reintentos con delays crecientes para sobrescribir cualquier
-    // scroll automático que Streamlit dispare al renderizar widgets posteriores.
+    // Streamlit puede tardar varios segundos en renderizar widgets pesados
+    // (charts, formularios, etc.). Re-scrolleamos hasta los 4s para ganarle a
+    // cualquier scroll automático tardío disparado por algún widget que se
+    // monta después.
     toTop();
-    [50, 200, 500, 1000].forEach(function(d) { setTimeout(toTop, d); });
+    [50, 150, 300, 600, 1000, 1500, 2200, 3000, 4000].forEach(function(d) {
+        setTimeout(toTop, d);
+    });
 })();
 </script>
 """, height=0)
@@ -358,6 +373,11 @@ elif step == "profiling":
 # RESULTADOS
 # ══════════════════════════════════════════════════════════════════════════════
 elif step == "results":
+    # Anchor invisible al tope de la pantalla de resultados.
+    # El JS de scroll-on-step-change lo usa como target seguro vs scrollTo(0)
+    # que a veces es interceptado por widgets que renderizan después.
+    st.markdown('<div id="results-top-anchor"></div>', unsafe_allow_html=True)
+
     profile    = st.session_state.profile
     portfolio  = st.session_state.portfolio
     simulation = st.session_state.simulation
