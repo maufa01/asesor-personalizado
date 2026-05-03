@@ -164,6 +164,42 @@ def init_state():
 
 init_state()
 
+
+def _render_risk_scenarios_tab(risk_scenarios: list) -> None:
+    if not risk_scenarios:
+        st.info("No se identificaron riesgos específicos para esta cartera en el contexto de mercado actual.")
+        return
+    st.markdown(
+        '<p style="font-size:0.88rem;color:#94a3b8;margin-bottom:1rem;">'
+        'Estos escenarios son relevantes para <strong>esta cartera en particular</strong> '
+        'según su composición actual y el contexto de mercado. '
+        'No son predicciones — son riesgos a tener presentes al tomar la decisión de invertir.'
+        '</p>',
+        unsafe_allow_html=True,
+    )
+    _sev_colors = {"bajo": "#60a5fa", "medio": "#f59e0b", "alto": "#ef4444"}
+    _sev_labels = {"bajo": "BAJO", "medio": "MEDIO", "alto": "ALTO"}
+    for _sc in risk_scenarios:
+        _sev = _sc.get("severity", "medio")
+        _col = _sev_colors.get(_sev, "#f59e0b")
+        _lbl = _sev_labels.get(_sev, "MEDIO")
+        st.markdown(f"""<div style="background:rgba(255,255,255,0.03);border-left:3px solid {_col};
+border-radius:10px;padding:14px 18px;margin-bottom:12px;">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+    <span style="font-size:1.1rem;">{_sc['icon']}</span>
+    <span style="font-weight:700;color:#e2e8f0;font-size:0.95rem;">{_sc['title']}</span>
+    <span style="font-size:0.67rem;font-weight:700;letter-spacing:0.06em;
+          background:{_col}22;color:{_col};border:1px solid {_col}44;
+          padding:2px 8px;border-radius:999px;">{_lbl}</span>
+  </div>
+  <p style="font-size:0.84rem;color:#94a3b8;line-height:1.65;margin:0 0 8px 0;">{_sc['body']}</p>
+  <p style="font-size:0.8rem;color:#64748b;margin:0;">
+    <strong style="color:#94a3b8;">Mitigación:</strong> {_sc['tip']}
+  </p>
+</div>""", unsafe_allow_html=True)
+    st.caption("Análisis basado en la composición de la cartera y datos de mercado actuales. No constituye asesoramiento financiero regulado.")
+
+
 # ── Auto-actualización de scores (una sola vez por sesión) ───────────────────
 if not st.session_state.auto_update_checked:
     st.session_state.auto_update_checked = True
@@ -700,47 +736,15 @@ border-radius:12px;padding:14px 18px;margin-bottom:1rem;display:flex;gap:12px;al
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # ── Riesgos específicos de esta cartera ──────────────────────────────────
+    # ── Riesgos (se muestran en pestaña de Análisis IA) ──────────────────────
     _risk_scenarios = generate_risk_scenarios(portfolio, portfolio.get("market_context"))
-    if _risk_scenarios:
-        st.markdown('<div class="big-expander-wrap big-expander-red"></div>', unsafe_allow_html=True)
-        with st.expander("⚠️ Riesgos específicos de esta cartera", expanded=False):
-            st.markdown(
-                '<p style="font-size:0.88rem;color:#94a3b8;margin-bottom:1rem;">'
-                'Estos escenarios son relevantes para <strong>esta cartera en particular</strong> '
-                'según su composición actual y el contexto de mercado. '
-                'No son predicciones — son riesgos a tener presentes al tomar la decisión de invertir.'
-                '</p>',
-                unsafe_allow_html=True,
-            )
-            _sev_colors = {"bajo": "#60a5fa", "medio": "#f59e0b", "alto": "#ef4444"}
-            _sev_labels = {"bajo": "BAJO", "medio": "MEDIO", "alto": "ALTO"}
-            for _sc in _risk_scenarios:
-                _sev = _sc.get("severity", "medio")
-                _col = _sev_colors.get(_sev, "#f59e0b")
-                _lbl = _sev_labels.get(_sev, "MEDIO")
-                st.markdown(f"""<div style="background:rgba(255,255,255,0.03);border-left:3px solid {_col};
-border-radius:10px;padding:14px 18px;margin-bottom:12px;">
-  <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-    <span style="font-size:1.1rem;">{_sc['icon']}</span>
-    <span style="font-weight:700;color:#e2e8f0;font-size:0.95rem;">{_sc['title']}</span>
-    <span style="font-size:0.67rem;font-weight:700;letter-spacing:0.06em;
-          background:{_col}22;color:{_col};border:1px solid {_col}44;
-          padding:2px 8px;border-radius:999px;">{_lbl}</span>
-  </div>
-  <p style="font-size:0.84rem;color:#94a3b8;line-height:1.65;margin:0 0 8px 0;">{_sc['body']}</p>
-  <p style="font-size:0.8rem;color:#64748b;margin:0;">
-    <strong style="color:#94a3b8;">Mitigación:</strong> {_sc['tip']}
-  </p>
-</div>""", unsafe_allow_html=True)
-            st.caption("Análisis basado en la composición de la cartera y datos de mercado actuales. No constituye asesoramiento financiero regulado.")
 
-    st.markdown("<br>", unsafe_allow_html=True)
+    # ── Simulaciones ─────────────────────────────────────────────────────────
+    with st.expander("📊 Simulaciones: ¿qué pasa con su dinero?", expanded=False):
+        _sim_tab1, _sim_tab2 = st.tabs(["📉 Si no invierto", "💰 Si aporto mensualmente"])
 
-    # ── Costo de oportunidad ─────────────────────────────────────────────────
-    st.markdown('<div class="big-expander-wrap big-expander-orange"></div>', unsafe_allow_html=True)
-    with st.expander("📊 ¿Qué ocurre con su capital si no lo invierte?", expanded=False):
-        st.markdown(f"""
+        with _sim_tab1:
+            st.markdown(f"""
 <div style="background:rgba(255,255,255,0.04);border-radius:12px;padding:18px 22px;margin-bottom:20px;border-left:3px solid #f59e0b;">
   <div style="font-size:1rem;font-weight:700;color:#e2e8f0;margin-bottom:8px;">¿Qué es el costo de oportunidad?</div>
   <div style="font-size:0.9rem;color:#94a3b8;line-height:1.6;">
@@ -755,28 +759,27 @@ border-radius:10px;padding:14px 18px;margin-bottom:12px;">
 </div>
 """, unsafe_allow_html=True)
 
-        # ── Backtest histórico (5 años reales en USD) ─────────────────────────
-        @st.cache_data(ttl=86_400, show_spinner=False)
-        def _cached_backtest(positions_frozen: tuple, cap: float) -> dict | None:
-            positions_list = [{"id": pid, "weight": pw} for pid, pw in positions_frozen]
-            return run_backtest(positions_list, cap)
+            # ── Backtest histórico (5 años reales en USD) ─────────────────────
+            @st.cache_data(ttl=86_400, show_spinner=False)
+            def _cached_backtest(positions_frozen: tuple, cap: float) -> dict | None:
+                positions_list = [{"id": pid, "weight": pw} for pid, pw in positions_frozen]
+                return run_backtest(positions_list, cap)
 
-        _pos_frozen = tuple(sorted((p["id"], p["weight"]) for p in portfolio["positions"]))
-        _bt = _cached_backtest(_pos_frozen, _capital_usd)
+            _pos_frozen = tuple(sorted((p["id"], p["weight"]) for p in portfolio["positions"]))
+            _bt = _cached_backtest(_pos_frozen, _capital_usd)
 
-        if _bt:
-            # Métricas históricas reales
-            _bt_port = _bt["port_final"] * _disp_factor
-            _bt_pf   = _bt["pf_final"]   * _disp_factor
-            _bt_usd  = _bt["capital"]    * _disp_factor
-            _bt_diff = _bt["diff"]       * _disp_factor
-            _bt_gp   = _bt["gain_port"] * 100
-            _bt_gpf  = _bt["gain_pf"]   * 100
-            _bt_sign = "+" if _bt_gp >= 0 else ""
-            _pf_sign = "+" if _bt_gpf >= 0 else ""
-            _pf_color = "#22c55e" if _bt_gpf >= 0 else "#ef4444"
+            if _bt:
+                _bt_port = _bt["port_final"] * _disp_factor
+                _bt_pf   = _bt["pf_final"]   * _disp_factor
+                _bt_usd  = _bt["capital"]    * _disp_factor
+                _bt_diff = _bt["diff"]       * _disp_factor
+                _bt_gp   = _bt["gain_port"] * 100
+                _bt_gpf  = _bt["gain_pf"]   * 100
+                _bt_sign = "+" if _bt_gp >= 0 else ""
+                _pf_sign = "+" if _bt_gpf >= 0 else ""
+                _pf_color = "#22c55e" if _bt_gpf >= 0 else "#ef4444"
 
-            st.markdown(f"""<div class="metrics-grid">
+                st.markdown(f"""<div class="metrics-grid">
 <div class="metric-card">
   <div class="metric-label">Esta cartera — últimos 5 años</div>
   <div class="metric-value" style="color:#22c55e;">{_disp_prefix}{_bt_port:,.0f}{_disp_suffix}</div>
@@ -799,58 +802,57 @@ border-radius:10px;padding:14px 18px;margin-bottom:12px;">
 </div>
 </div>""", unsafe_allow_html=True)
 
-            if _bt.get("skipped"):
-                _skip_str = ", ".join(a.upper() for a in _bt["skipped"])
-                st.caption(f"Activos excluidos del backtest (sin historial limpio post-reestructuración 2020): {_skip_str}. Su peso se redistribuyó entre los demás activos.")
+                if _bt.get("skipped"):
+                    _skip_str = ", ".join(a.upper() for a in _bt["skipped"])
+                    st.caption(f"Activos excluidos del backtest (sin historial limpio post-reestructuración 2020): {_skip_str}. Su peso se redistribuyó entre los demás activos.")
 
-            try:
-                import plotly.graph_objects as _go
-                _fig_bt = _go.Figure()
-                _bt_port_d = [v * _disp_factor for v in _bt["portfolio"]]
-                _bt_pf_d   = [v * _disp_factor for v in _bt["pf"]]
-                _bt_usd_d  = [v * _disp_factor for v in _bt["usd_held"]]
-                _fig_bt.add_trace(_go.Scatter(
-                    x=_bt["dates"], y=_bt_port_d, name="Esta cartera",
-                    line=dict(color="#22c55e", width=3), mode="lines",
-                    hovertemplate=f"{_disp_prefix}%{{y:,.0f}}{_disp_suffix}<extra>Esta cartera</extra>",
-                ))
-                _fig_bt.add_trace(_go.Scatter(
-                    x=_bt["dates"], y=_bt_pf_d, name="Plazo fijo (TNA real)",
-                    line=dict(color="#f59e0b", width=2, dash="dot"), mode="lines",
-                    hovertemplate=f"{_disp_prefix}%{{y:,.0f}}{_disp_suffix}<extra>Plazo fijo</extra>",
-                ))
-                _fig_bt.add_trace(_go.Scatter(
-                    x=_bt["dates"], y=_bt_usd_d, name="Dólares guardados",
-                    line=dict(color="#64748b", width=2, dash="dash"), mode="lines",
-                    hovertemplate=f"{_disp_prefix}%{{y:,.0f}}{_disp_suffix}<extra>USD guardados</extra>",
-                ))
-                _y_min = min(min(_bt_pf_d), min(_bt_usd_d)) * 0.95
-                _y_max = max(_bt_port_d) * 1.05
-                _fig_bt.update_layout(
-                    paper_bgcolor="#0f172a", plot_bgcolor="#0f172a",
-                    font=dict(color="#94a3b8", size=12),
-                    xaxis=dict(title="", gridcolor="#1e293b", zerolinecolor="#1e293b",
-                               tickangle=-30),
-                    yaxis=dict(title=f"USD", range=[_y_min, _y_max],
-                               gridcolor="#1e293b", zerolinecolor="#1e293b", tickformat=",.0f"),
-                    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0,
-                                bgcolor="rgba(0,0,0,0)"),
-                    margin=dict(l=0, r=0, t=40, b=0), hovermode="x unified",
-                )
-                st.plotly_chart(_fig_bt, use_container_width=True)
-            except Exception:
-                pass
+                try:
+                    import plotly.graph_objects as _go
+                    _fig_bt = _go.Figure()
+                    _bt_port_d = [v * _disp_factor for v in _bt["portfolio"]]
+                    _bt_pf_d   = [v * _disp_factor for v in _bt["pf"]]
+                    _bt_usd_d  = [v * _disp_factor for v in _bt["usd_held"]]
+                    _fig_bt.add_trace(_go.Scatter(
+                        x=_bt["dates"], y=_bt_port_d, name="Esta cartera",
+                        line=dict(color="#22c55e", width=3), mode="lines",
+                        hovertemplate=f"{_disp_prefix}%{{y:,.0f}}{_disp_suffix}<extra>Esta cartera</extra>",
+                    ))
+                    _fig_bt.add_trace(_go.Scatter(
+                        x=_bt["dates"], y=_bt_pf_d, name="Plazo fijo (TNA real)",
+                        line=dict(color="#f59e0b", width=2, dash="dot"), mode="lines",
+                        hovertemplate=f"{_disp_prefix}%{{y:,.0f}}{_disp_suffix}<extra>Plazo fijo</extra>",
+                    ))
+                    _fig_bt.add_trace(_go.Scatter(
+                        x=_bt["dates"], y=_bt_usd_d, name="Dólares guardados",
+                        line=dict(color="#64748b", width=2, dash="dash"), mode="lines",
+                        hovertemplate=f"{_disp_prefix}%{{y:,.0f}}{_disp_suffix}<extra>USD guardados</extra>",
+                    ))
+                    _y_min = min(min(_bt_pf_d), min(_bt_usd_d)) * 0.95
+                    _y_max = max(_bt_port_d) * 1.05
+                    _fig_bt.update_layout(
+                        paper_bgcolor="#0f172a", plot_bgcolor="#0f172a",
+                        font=dict(color="#94a3b8", size=12),
+                        xaxis=dict(title="", gridcolor="#1e293b", zerolinecolor="#1e293b",
+                                   tickangle=-30),
+                        yaxis=dict(title=f"USD", range=[_y_min, _y_max],
+                                   gridcolor="#1e293b", zerolinecolor="#1e293b", tickformat=",.0f"),
+                        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0,
+                                    bgcolor="rgba(0,0,0,0)"),
+                        margin=dict(l=0, r=0, t=40, b=0), hovermode="x unified",
+                    )
+                    st.plotly_chart(_fig_bt, use_container_width=True)
+                except Exception:
+                    pass
 
-            st.caption(f"Backtest histórico {_bt['n_months']} meses — datos reales: TNA BCRA, tipo de cambio MEP y precios de mercado internacionales. No garantiza rendimientos futuros.")
+                st.caption(f"Backtest histórico {_bt['n_months']} meses — datos reales: TNA BCRA, tipo de cambio MEP y precios de mercado internacionales. No garantiza rendimientos futuros.")
 
-        else:
-            # Fallback: proyección estática si no hay datos de API
-            _comp = comparar_vs_alternativas(_capital_usd, profile["horizon"], portfolio["expected_cagr"])
-            _cp_f    = _comp["portfolio_final"] * _disp_factor
-            _cp_pf   = _comp["pf_final"]        * _disp_factor
-            _cp_col  = _comp["colchon_final"]   * _disp_factor
-            _dif_col = _comp["diferencia_vs_colchon"] * _disp_factor
-            st.markdown(f"""<div class="metrics-grid">
+            else:
+                _comp = comparar_vs_alternativas(_capital_usd, profile["horizon"], portfolio["expected_cagr"])
+                _cp_f    = _comp["portfolio_final"] * _disp_factor
+                _cp_pf   = _comp["pf_final"]        * _disp_factor
+                _cp_col  = _comp["colchon_final"]   * _disp_factor
+                _dif_col = _comp["diferencia_vs_colchon"] * _disp_factor
+                st.markdown(f"""<div class="metrics-grid">
 <div class="metric-card">
   <div class="metric-label">Esta cartera en {profile['horizon']} años</div>
   <div class="metric-value" style="color:#22c55e;">{_disp_prefix}{_cp_f:,.0f}{_disp_suffix}</div>
@@ -872,128 +874,96 @@ border-radius:10px;padding:14px 18px;margin-bottom:12px;">
   <div class="metric-sub">Diferencia real a {profile['horizon']} años</div>
 </div>
 </div>""", unsafe_allow_html=True)
-            try:
-                import plotly.graph_objects as _go
-                _years_ax  = _comp["years"]
-                _port_vals = [v * _disp_factor for v in _comp["portfolio"]]
-                _pf_vals   = [v * _disp_factor for v in _comp["pf"]]
-                _col_vals  = [v * _disp_factor for v in _comp["colchon"]]
-                _fig_comp  = _go.Figure()
-                _fig_comp.add_trace(_go.Scatter(x=_years_ax, y=_port_vals, name="Esta cartera",
-                    line=dict(color="#22c55e", width=3), mode="lines"))
-                _fig_comp.add_trace(_go.Scatter(x=_years_ax, y=_pf_vals, name="Plazo fijo",
-                    line=dict(color="#f59e0b", width=2, dash="dot"), mode="lines"))
-                _fig_comp.add_trace(_go.Scatter(x=_years_ax, y=_col_vals, name="Dólares guardados",
-                    line=dict(color="#64748b", width=2, dash="dash"), mode="lines"))
-                _fig_comp.update_layout(
-                    paper_bgcolor="#0f172a", plot_bgcolor="#0f172a",
-                    font=dict(color="#94a3b8", size=12),
-                    xaxis=dict(title="Años", tickmode="linear", dtick=1,
-                               gridcolor="#1e293b", zerolinecolor="#1e293b"),
-                    yaxis=dict(title=_disp_curr,
-                               range=[min(_col_vals)*0.97, max(_port_vals)*1.03],
-                               gridcolor="#1e293b", zerolinecolor="#1e293b", tickformat=",.0f"),
-                    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0,
-                                bgcolor="rgba(0,0,0,0)"),
-                    margin=dict(l=0, r=0, t=40, b=0), hovermode="x unified",
-                )
-                st.plotly_chart(_fig_comp, use_container_width=True)
-            except Exception:
-                pass
+                try:
+                    import plotly.graph_objects as _go
+                    _years_ax  = _comp["years"]
+                    _port_vals = [v * _disp_factor for v in _comp["portfolio"]]
+                    _pf_vals   = [v * _disp_factor for v in _comp["pf"]]
+                    _col_vals  = [v * _disp_factor for v in _comp["colchon"]]
+                    _fig_comp  = _go.Figure()
+                    _fig_comp.add_trace(_go.Scatter(x=_years_ax, y=_port_vals, name="Esta cartera",
+                        line=dict(color="#22c55e", width=3), mode="lines"))
+                    _fig_comp.add_trace(_go.Scatter(x=_years_ax, y=_pf_vals, name="Plazo fijo",
+                        line=dict(color="#f59e0b", width=2, dash="dot"), mode="lines"))
+                    _fig_comp.add_trace(_go.Scatter(x=_years_ax, y=_col_vals, name="Dólares guardados",
+                        line=dict(color="#64748b", width=2, dash="dash"), mode="lines"))
+                    _fig_comp.update_layout(
+                        paper_bgcolor="#0f172a", plot_bgcolor="#0f172a",
+                        font=dict(color="#94a3b8", size=12),
+                        xaxis=dict(title="Años", tickmode="linear", dtick=1,
+                                   gridcolor="#1e293b", zerolinecolor="#1e293b"),
+                        yaxis=dict(title=_disp_curr,
+                                   range=[min(_col_vals)*0.97, max(_port_vals)*1.03],
+                                   gridcolor="#1e293b", zerolinecolor="#1e293b", tickformat=",.0f"),
+                        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0,
+                                    bgcolor="rgba(0,0,0,0)"),
+                        margin=dict(l=0, r=0, t=40, b=0), hovermode="x unified",
+                    )
+                    st.plotly_chart(_fig_comp, use_container_width=True)
+                except Exception:
+                    pass
 
-    # ── Si agregás algo todos los meses ──────────────────────────────────────
-    st.markdown('<div class="big-expander-wrap big-expander-green"></div>', unsafe_allow_html=True)
-    with st.expander("💰 ¿Qué ocurre si realiza aportes mensuales?", expanded=False):
-        st.caption("El patrimonio no se construye de una vez — se consolida mes a mes. Incluso montos pequeños generan una diferencia significativa a largo plazo.")
+        with _sim_tab2:
+            st.caption("El patrimonio no se construye de una vez — se consolida mes a mes. Incluso montos pequeños generan una diferencia significativa a largo plazo.")
 
-        _aporte_key = "aporte_mensual_usd"
-        _col_aporte, _col_slider = st.columns([1, 2])
-        with _col_aporte:
-            if _currency_in == "ARS":
-                _aporte_ars = st.number_input(
-                    "Aporte mensual en ARS (≈ USD al MEP)", min_value=0, max_value=50_000_000,
-                    value=st.session_state.get(_aporte_key + "_ars", 50_000),
-                    step=50_000, key=_aporte_key + "_ars",
-                )
-                _aporte_usd_val = _aporte_ars / _MEP_RATE
-            else:
-                _aporte_usd_val = st.number_input(
-                    "Aporte mensual en USD", min_value=0, max_value=500_000,
-                    value=st.session_state.get(_aporte_key, 100),
-                    step=100, key=_aporte_key,
-                )
+            _aporte_key = "aporte_mensual_usd"
+            _col_aporte, _col_slider = st.columns([1, 2])
+            with _col_aporte:
+                if _currency_in == "ARS":
+                    _aporte_ars = st.number_input(
+                        "Aporte mensual en ARS (≈ USD al MEP)", min_value=0, max_value=50_000_000,
+                        value=st.session_state.get(_aporte_key + "_ars", 50_000),
+                        step=50_000, key=_aporte_key + "_ars",
+                    )
+                    _aporte_usd_val = _aporte_ars / _MEP_RATE
+                else:
+                    _aporte_usd_val = st.number_input(
+                        "Aporte mensual en USD", min_value=0, max_value=500_000,
+                        value=st.session_state.get(_aporte_key, 100),
+                        step=100, key=_aporte_key,
+                    )
 
-        _proy     = proyectar_con_aportes(_capital_usd, _aporte_usd_val, profile["horizon"], portfolio["expected_cagr"])
-        _proy_sin = _proy["final_sin"]      * _disp_factor
-        _proy_con = _proy["final_con"]      * _disp_factor
-        _proy_ext = _proy["ganancia_extra"] * _disp_factor
+            _proy     = proyectar_con_aportes(_capital_usd, _aporte_usd_val, profile["horizon"], portfolio["expected_cagr"])
+            _proy_sin = _proy["final_sin"]      * _disp_factor
+            _proy_con = _proy["final_con"]      * _disp_factor
+            _proy_ext = _proy["ganancia_extra"] * _disp_factor
 
-        with _col_slider:
-            if _aporte_usd_val > 0:
-                st.markdown(f"""<div style="padding:16px;background:rgba(34,197,94,0.08);border-radius:12px;border:1px solid rgba(34,197,94,0.2);">
+            with _col_slider:
+                if _aporte_usd_val > 0:
+                    st.markdown(f"""<div style="padding:16px;background:rgba(34,197,94,0.08);border-radius:12px;border:1px solid rgba(34,197,94,0.2);">
 <div style="font-size:0.85rem;opacity:0.7;">Aportando {_disp_prefix}{_aporte_usd_val*_disp_factor:,.0f}{_disp_suffix}/mes durante {profile['horizon']} años:</div>
 <div style="font-size:1.6rem;font-weight:800;color:#22c55e;">{_disp_prefix}{_proy_con:,.0f}{_disp_suffix}</div>
 <div style="font-size:0.8rem;opacity:0.6;">vs {_disp_prefix}{_proy_sin:,.0f}{_disp_suffix} sin aportar · ganancia extra: {_disp_prefix}{_proy_ext:,.0f}{_disp_suffix}</div>
 </div>""", unsafe_allow_html=True)
-            else:
-                st.info("Ingrese un monto mensual para ver el impacto")
+                else:
+                    st.info("Ingrese un monto mensual para ver el impacto")
 
-        if _aporte_usd_val > 0:
-            try:
-                import plotly.graph_objects as _go2
-                _ap_años = _proy["años"]
-                _ap_con  = [v * _disp_factor for v in _proy["con_aporte"]]
-                _ap_sin  = [v * _disp_factor for v in _proy["sin_aporte"]]
-                _fig_ap  = _go2.Figure()
-                _fig_ap.add_trace(_go2.Scatter(x=_ap_años, y=_ap_con, name="Con aportes mensuales",
-                    line=dict(color="#22c55e", width=3), mode="lines",
-                    fill="tonexty", fillcolor="rgba(34,197,94,0.08)"))
-                _fig_ap.add_trace(_go2.Scatter(x=_ap_años, y=_ap_sin, name="Sin aportes",
-                    line=dict(color="#60a5fa", width=2, dash="dot"), mode="lines"))
-                _fig_ap.update_layout(
-                    paper_bgcolor="#0f172a", plot_bgcolor="#0f172a",
-                    font=dict(color="#94a3b8", size=12),
-                    xaxis=dict(title="Años", tickmode="linear", dtick=1,
-                               gridcolor="#1e293b", zerolinecolor="#1e293b"),
-                    yaxis=dict(title=_disp_curr, range=[min(_ap_sin)*0.97, max(_ap_con)*1.03],
-                               gridcolor="#1e293b", zerolinecolor="#1e293b", tickformat=",.0f"),
-                    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0,
-                                bgcolor="rgba(0,0,0,0)"),
-                    margin=dict(l=0, r=0, t=40, b=0), hovermode="x unified",
-                )
-                st.plotly_chart(_fig_ap, use_container_width=True)
-            except Exception:
-                pass
-
-    # ── ¿Qué pasa si necesito el dinero antes? ───────────────────────────────
-    st.markdown('<div class="big-expander-wrap big-expander-blue"></div>', unsafe_allow_html=True)
-    with st.expander("❓ ¿Qué pasa si necesita el dinero antes de tiempo?", expanded=False):
-        st.markdown("""
-<div style="font-size:0.95rem;color:#cbd5e1;line-height:1.75;">
-<p>Esta es una de las preguntas más importantes antes de invertir. La respuesta depende del instrumento:</p>
-
-<div style="background:rgba(56,189,248,0.07);border-left:3px solid #38bdf8;border-radius:8px;padding:14px 18px;margin:12px 0;">
-  <strong style="color:#38bdf8;">💧 LIQUIDEZ INMEDIATA — retiro en el día</strong><br>
-  · Fondo Money Market: rescate en 24 hs hábiles<br>
-  · Dólar MEP: venta en 48 hs hábiles
-</div>
-
-<div style="background:rgba(245,158,11,0.07);border-left:3px solid #f59e0b;border-radius:8px;padding:14px 18px;margin:12px 0;">
-  <strong style="color:#f59e0b;">📅 LIQUIDEZ MEDIA — 1 a 5 días hábiles</strong><br>
-  · LECAPs y bonos soberanos: se pueden vender en el mercado secundario cualquier día hábil, aunque el precio puede variar<br>
-  · ONs Corporativas: misma lógica, mercado secundario disponible
-</div>
-
-<div style="background:rgba(16,217,138,0.07);border-left:3px solid #10d98a;border-radius:8px;padding:14px 18px;margin:12px 0;">
-  <strong style="color:#10d98a;">📈 LIQUIDEZ CONDICIONADA — conviene esperar</strong><br>
-  · CEDEARs y ETFs: se pueden vender cualquier día hábil, pero si el mercado está bajo puede implicar una pérdida. Lo ideal es respetar el horizonte sugerido.
-</div>
-
-<div style="background:rgba(167,139,250,0.07);border-left:3px solid #a78bfa;border-radius:8px;padding:14px 18px;margin:12px 0;">
-  <strong style="color:#a78bfa;">📌 Recomendación</strong><br>
-  Antes de invertir, asegúrese de tener un fondo de emergencia separado equivalente a 3–6 meses de gastos. Ese dinero nunca debe invertirse — su función es protegerlo ante imprevistos sin necesidad de vender sus inversiones en un mal momento.
-</div>
-</div>""", unsafe_allow_html=True)
+            if _aporte_usd_val > 0:
+                try:
+                    import plotly.graph_objects as _go2
+                    _ap_años = _proy["años"]
+                    _ap_con  = [v * _disp_factor for v in _proy["con_aporte"]]
+                    _ap_sin  = [v * _disp_factor for v in _proy["sin_aporte"]]
+                    _fig_ap  = _go2.Figure()
+                    _fig_ap.add_trace(_go2.Scatter(x=_ap_años, y=_ap_con, name="Con aportes mensuales",
+                        line=dict(color="#22c55e", width=3), mode="lines",
+                        fill="tonexty", fillcolor="rgba(34,197,94,0.08)"))
+                    _fig_ap.add_trace(_go2.Scatter(x=_ap_años, y=_ap_sin, name="Sin aportes",
+                        line=dict(color="#60a5fa", width=2, dash="dot"), mode="lines"))
+                    _fig_ap.update_layout(
+                        paper_bgcolor="#0f172a", plot_bgcolor="#0f172a",
+                        font=dict(color="#94a3b8", size=12),
+                        xaxis=dict(title="Años", tickmode="linear", dtick=1,
+                                   gridcolor="#1e293b", zerolinecolor="#1e293b"),
+                        yaxis=dict(title=_disp_curr, range=[min(_ap_sin)*0.97, max(_ap_con)*1.03],
+                                   gridcolor="#1e293b", zerolinecolor="#1e293b", tickformat=",.0f"),
+                        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0,
+                                    bgcolor="rgba(0,0,0,0)"),
+                        margin=dict(l=0, r=0, t=40, b=0), hovermode="x unified",
+                    )
+                    st.plotly_chart(_fig_ap, use_container_width=True)
+                except Exception:
+                    pass
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -1008,7 +978,7 @@ border-radius:10px;padding:14px 18px;margin-bottom:12px;">
                 st.rerun()
 
         analysis = st.session_state.ai_analysis
-        tabs = st.tabs(["📝 Por qué esta cartera", "⚠️ Alertas de riesgo", "🔄 Cuándo rebalancear", "💡 Consejos"])
+        tabs = st.tabs(["📝 Por qué esta cartera", "⚠️ Alertas de riesgo", "🔄 Cuándo rebalancear", "💡 Consejos", "🎯 Riesgos"])
 
         with tabs[0]:
             st.markdown(f'<div class="ai-response">{analysis["justification"]}</div>', unsafe_allow_html=True)
@@ -1028,8 +998,14 @@ border-radius:10px;padding:14px 18px;margin-bottom:12px;">
             st.markdown(f'<div class="ai-response">{analysis["rebalancing"]}</div>', unsafe_allow_html=True)
         with tabs[3]:
             st.markdown(f'<div class="ai-response">{analysis["tips"]}</div>', unsafe_allow_html=True)
+        with tabs[4]:
+            _render_risk_scenarios_tab(_risk_scenarios)
     else:
-        st.markdown("""<div class="ai-empty-state">
+        _empty_tabs = st.tabs(["📝 Por qué esta cartera", "⚠️ Alertas de riesgo", "🔄 Cuándo rebalancear", "💡 Consejos", "🎯 Riesgos"])
+        with _empty_tabs[4]:
+            _render_risk_scenarios_tab(_risk_scenarios)
+        with _empty_tabs[0]:
+            st.markdown("""<div class="ai-empty-state">
 <div class="ai-empty-icon">✨</div>
 <p class="ai-empty-title">El análisis profesional de su cartera está disponible</p>
 <div class="ai-empty-bullets">
@@ -1071,6 +1047,15 @@ border-radius:10px;padding:14px 18px;margin-bottom:12px;">
       • Desde $50.000 ARS puede armar una cartera básica con 2 o 3 instrumentos<br>
       • Con $200.000 ARS o más puede replicar la cartera sugerida completa<br>
       Lo importante es empezar, aunque sea con poco.</div>
+    </details>
+    <details class="action-step-help"><summary>¿Qué pasa si necesito el dinero antes de tiempo?</summary>
+      <div style="line-height:1.7;">
+        La liquidez depende del instrumento:<br><br>
+        <strong style="color:#38bdf8;">💧 Retiro en el día:</strong> Fondo Money Market (24 hs) · Dólar MEP (48 hs)<br>
+        <strong style="color:#f59e0b;">📅 1–5 días hábiles:</strong> LECAPs, bonos soberanos, ONs corporativas — venta en mercado secundario<br>
+        <strong style="color:#10d98a;">📈 Conviene esperar:</strong> CEDEARs y ETFs se pueden vender cualquier día, pero si el mercado está bajo puede implicar una pérdida<br><br>
+        <strong style="color:#a78bfa;">Recomendación:</strong> antes de invertir, asegúrese de tener un fondo de emergencia equivalente a 3–6 meses de gastos. Ese dinero nunca debe invertirse.
+      </div>
     </details>
   </div>
 </div>
