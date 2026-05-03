@@ -2798,7 +2798,9 @@ form[data-testid="stForm"] [data-baseweb="input"]:focus-within,
 
 def render_header():
     theme = st.session_state.get("theme", "dark")
-    col_logo, col_nav = st.columns([3, 3])
+    # Layout top-level: 4 columnas. La última (toggle) es la más angosta y queda
+    # alineada a la derecha al lado de "Cómo funciona".
+    col_logo, col_glos, col_meto, col_theme = st.columns([4, 1.5, 1.5, 0.7])
     with col_logo:
         st.markdown("""
         <div class="app-header">
@@ -2806,30 +2808,29 @@ def render_header():
             <div class="app-badge">Asesoramiento Financiero Digital</div>
         </div>
         """, unsafe_allow_html=True)
-    with col_nav:
+    with col_glos:
         st.markdown('<div class="header-nav-spacer"></div>', unsafe_allow_html=True)
-        # 3 columnas: Glosario | Cómo funciona | Toggle de tema (alineado a la derecha)
-        _btn_c1, _btn_c2, _btn_c3 = st.columns([3, 3, 1.2])
-        with _btn_c1:
-            if st.button("📚 Glosario", key="header_glosario", use_container_width=True):
-                st.session_state._prev_step = st.session_state.get("step", "intro")
-                st.session_state.step = "glosario"
-                st.rerun()
-        with _btn_c2:
-            if st.button("ℹ️ Cómo funciona", key="header_metodologia", use_container_width=True):
-                st.session_state._prev_step = st.session_state.get("step", "intro")
-                st.session_state.step = "como_funciona"
-                st.rerun()
-        with _btn_c3:
-            # Toggle 🌙 [toggle] ☀️ alineado verticalmente con los botones
-            st.markdown('<div class="header-theme-wrap">', unsafe_allow_html=True)
-            _is_light = st.toggle(
-                "Modo claro",
-                value=(theme == "light"),
-                key="theme_toggle_widget",
-                label_visibility="collapsed",
-            )
-            st.markdown('</div>', unsafe_allow_html=True)
+        if st.button("📚 Glosario", key="header_glosario", use_container_width=True):
+            st.session_state._prev_step = st.session_state.get("step", "intro")
+            st.session_state.step = "glosario"
+            st.rerun()
+    with col_meto:
+        st.markdown('<div class="header-nav-spacer"></div>', unsafe_allow_html=True)
+        if st.button("ℹ️ Cómo funciona", key="header_metodologia", use_container_width=True):
+            st.session_state._prev_step = st.session_state.get("step", "intro")
+            st.session_state.step = "como_funciona"
+            st.rerun()
+    with col_theme:
+        # Spacer para alinear verticalmente con los botones
+        st.markdown('<div class="header-nav-spacer"></div>', unsafe_allow_html=True)
+        st.markdown('<div class="header-theme-wrap">', unsafe_allow_html=True)
+        _is_light = st.toggle(
+            "Modo claro",
+            value=(theme == "light"),
+            key="theme_toggle_widget",
+            label_visibility="collapsed",
+        )
+        st.markdown('</div>', unsafe_allow_html=True)
         if _is_light != (theme == "light"):
             st.session_state.theme = "light" if _is_light else "dark"
             st.rerun()
