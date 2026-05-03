@@ -2448,6 +2448,26 @@ details.cat-exp[open] > summary .cat-l1-card { background: #f1f5f9 !important; b
     .personal-msg p { font-size: 0.78rem; }
 }
 
+/* ── Chat form: ocultar helper de Streamlit + borde normalizado ─ */
+/* "Press Enter to submit form" — texto default de st.form */
+[data-testid="InputInstructions"],
+[data-testid="stFormInputInstruction"],
+.stForm small,
+form[data-testid="stForm"] small {
+    display: none !important;
+}
+/* Borde rojo default del text_input dentro del form */
+form[data-testid="stForm"] .stTextInput input,
+form[data-testid="stForm"] [data-baseweb="input"] {
+    border-color: var(--border) !important;
+    box-shadow: none !important;
+}
+form[data-testid="stForm"] .stTextInput input:focus,
+form[data-testid="stForm"] [data-baseweb="input"]:focus-within {
+    border-color: rgba(79,163,255,0.6) !important;
+    box-shadow: 0 0 0 1px rgba(79,163,255,0.2) !important;
+}
+
 /* ── Tooltips inline del glosario ─────────────────────────────── */
 .term-tip {
     border-bottom: 1px dotted rgba(79,163,255,0.55);
