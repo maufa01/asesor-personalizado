@@ -758,90 +758,150 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # ── Peor año histórico de esta cartera ───────────────────────────────────
-    # Datos basados en drawdowns reales de cada activo durante eventos históricos.
-    # Ponderados según composición típica de cada perfil.
+    # ── ¿Qué pasó en crisis reales? ──────────────────────────────────────────
+    # Datos basados en drawdowns reales ponderados al perfil. Foco en la
+    # recuperación + crecimiento post-crisis, no solo en la caída.
     _HISTORICAL_SCENARIOS = {
         "conservador": [
             {"year": "2018", "event": "Crisis cambiaria argentina",
              "drawdown": -8, "recovery": "8 meses",
-             "context": "El peso se devaluó 100% y los bonos argentinos cayeron fuerte. Su cartera, mayormente en USD/MEP y money market, sufrió poco."},
+             "post_growth": "+12% en los 2 años siguientes",
+             "story": "Su cartera, mayormente en USD/MEP y money market, casi no sintió la devaluación. Recuperó el capital en menos de un año y siguió creciendo en términos reales."},
             {"year": "2020", "event": "COVID-19 (marzo)",
              "drawdown": -6, "recovery": "5 meses",
-             "context": "El S&P 500 cayó 34% en 4 semanas. La parte mínima de equity en su cartera la sintió, pero MEP y bonos USD aguantaron."},
+             "post_growth": "+18% al año siguiente",
+             "story": "Mientras el S&P 500 caía 34% en 4 semanas, su cartera apenas sintió el golpe. La parte de equity recuperó rápido y 2021 fue un año excepcional."},
             {"year": "2022", "event": "Suba de tasas global",
              "drawdown": -4, "recovery": "6 meses",
-             "context": "La Fed subió tasas agresivamente y bonos largos cayeron. Su exposición corta en bonos limitó el daño."},
+             "post_growth": "+15% en 2023",
+             "story": "Los bonos largos sufrieron globalmente, pero su exposición es corta. El golpe fue mínimo y el rebote en 2023 superó cualquier pérdida temporal."},
         ],
         "estable": [
             {"year": "2018", "event": "Crisis cambiaria argentina",
              "drawdown": -15, "recovery": "14 meses",
-             "context": "La parte de bonos soberanos ARG y acciones argentinas sufrió. La cobertura en USD/MEP redujo el impacto general."},
+             "post_growth": "+22% en los 2 años siguientes",
+             "story": "Bonos ARG y acciones locales cayeron, pero la cobertura en USD/MEP amortiguó. A los 14 meses ya estaba en máximos, y los 2 años siguientes generaron retornos sólidos."},
             {"year": "2020", "event": "COVID-19 (marzo)",
              "drawdown": -12, "recovery": "7 meses",
-             "context": "Caída brusca pero recuperación rápida — la diversificación geográfica funcionó como amortiguador."},
+             "post_growth": "+24% en 2021",
+             "story": "La diversificación geográfica funcionó como amortiguador. Recuperación V-shape en 7 meses, y 2021 fue uno de los mejores años para carteras balanceadas."},
             {"year": "2022", "event": "Suba de tasas global",
              "drawdown": -10, "recovery": "10 meses",
-             "context": "Equity global cayó 19% pero los bonos en USD compensaron parcialmente."},
+             "post_growth": "+20% en 2023-2024",
+             "story": "El equity global cayó 19% pero los bonos USD compensaron. Para fines de 2023 ya estaba en máximos, y 2024 fue otro año de crecimiento sostenido."},
         ],
         "moderado": [
             {"year": "2008", "event": "Crisis financiera global",
              "drawdown": -28, "recovery": "22 meses",
-             "context": "El S&P 500 cayó 37% y los bonos argentinos sufrieron. La parte de bonos USD aguantó mejor."},
+             "post_growth": "+85% entre 2010-2014",
+             "story": "El S&P 500 cayó 37% pero quien mantuvo la cartera (sin vender en pánico) recuperó todo a fines de 2010 y vivió uno de los bull markets más largos de la historia. Quien aportó en la baja, multiplicó su capital."},
             {"year": "2018", "event": "Crisis cambiaria argentina",
              "drawdown": -22, "recovery": "20 meses",
-             "context": "Acciones ARG cayeron 50% en USD. La diversificación global limitó el daño total."},
+             "post_growth": "+30% en 2020-2021",
+             "story": "Acciones ARG cayeron 50% en USD. La diversificación global limitó el daño y los CEDEARs dolarizaron las pérdidas. Recuperación completa antes de fin de 2020."},
             {"year": "2020", "event": "COVID-19 (marzo)",
              "drawdown": -20, "recovery": "8 meses",
-             "context": "Caída brusca pero V-shape recovery: el equity global recuperó máximos en 6 meses."},
+             "post_growth": "+28% en 2021",
+             "story": "V-shape recovery histórica: el equity global recuperó máximos en 6 meses. Quien no vendió y siguió aportando, terminó 2021 con la mejor cartera de su vida."},
         ],
         "agresivo": [
             {"year": "2008", "event": "Crisis financiera global",
              "drawdown": -42, "recovery": "30 meses",
-             "context": "S&P 500 cayó 37% en 18 meses. Acciones tech cayeron más del 50%. Los que aguantaron y aportaron en la baja triplicaron capital al recuperarse."},
+             "post_growth": "+200% entre 2010-2017",
+             "story": "Acciones tech cayeron más del 50%. Pero quien mantuvo la cartera y aportó durante 2009-2010 vivió uno de los bull markets más largos: el S&P 500 triplicó valor en los 7 años siguientes."},
             {"year": "2018", "event": "Crisis cambiaria argentina",
              "drawdown": -35, "recovery": "26 meses",
-             "context": "Acciones ARG cayeron 50% en USD; bonos GD30 cayeron 40%. La parte global limitó el daño parcialmente."},
+             "post_growth": "+45% en 2020-2021",
+             "story": "Acciones ARG cayeron 50% y bonos GD30 cayeron 40%. La parte global aguantó mejor. Para fines de 2020, la cartera ya estaba recuperada y siguió creciendo."},
             {"year": "2022", "event": "Bear market global",
              "drawdown": -25, "recovery": "13 meses",
-             "context": "Tech cayó 33%, S&P cayó 19%. El mercado recuperó máximos en 2024."},
+             "post_growth": "+50% en 2023-2024",
+             "story": "Tech cayó 33%, S&P cayó 19%. Pero NVIDIA, AMD y los semiconductores explotaron en 2023 con la ola de IA. Quien aguantó vio retornos extraordinarios."},
         ],
     }
     _scenarios = _HISTORICAL_SCENARIOS.get(profile["risk_profile"], [])
     if _scenarios:
+        # Estilos inline para garantizar render dentro del st.expander
+        _CARD_STYLE = (
+            "background:rgba(255,255,255,0.03);"
+            "border:1px solid rgba(148,163,184,0.18);"
+            "border-radius:10px;padding:14px 16px;margin-bottom:12px;"
+        )
+        _HEADER_STYLE = (
+            "display:flex;align-items:baseline;gap:10px;"
+            "margin-bottom:12px;padding-bottom:10px;"
+            "border-bottom:1px solid rgba(148,163,184,0.12);"
+        )
+        _STAT_GRID = "display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;"
+        _STAT_DOWN = (
+            "background:rgba(239,68,68,0.08);border-left:3px solid #ef4444;"
+            "border-radius:6px;padding:8px 12px;"
+        )
+        _STAT_UP = (
+            "background:rgba(34,197,94,0.08);border-left:3px solid #22c55e;"
+            "border-radius:6px;padding:8px 12px;"
+        )
+        _STAT_LABEL = "font-size:0.7rem;color:#94a3b8;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:3px;"
+        _STAT_VALUE_DOWN = "font-family:'Space Grotesk',sans-serif;font-size:1.15rem;font-weight:700;color:#ef4444;"
+        _STAT_VALUE_UP   = "font-family:'Space Grotesk',sans-serif;font-size:1.15rem;font-weight:700;color:#22c55e;"
+        _STORY_STYLE = (
+            "font-size:0.85rem;color:#cbd5e1;line-height:1.6;margin:0;"
+            "padding:10px 12px;background:rgba(34,197,94,0.05);"
+            "border-left:2px solid rgba(34,197,94,0.4);border-radius:4px;"
+        )
+        _GROWTH_STYLE = (
+            "display:inline-block;font-size:0.78rem;font-weight:600;color:#22c55e;"
+            "background:rgba(34,197,94,0.1);padding:2px 8px;border-radius:999px;"
+            "margin-top:8px;"
+        )
+
         _scenarios_html = "".join(
-            f'<div class="hist-card">'
-            f'  <div class="hist-card-header">'
-            f'    <span class="hist-year">{s["year"]}</span>'
-            f'    <span class="hist-event">{s["event"]}</span>'
+            f'<div style="{_CARD_STYLE}">'
+            f'  <div style="{_HEADER_STYLE}">'
+            f'    <span style="font-family:\'Space Grotesk\',sans-serif;font-size:1.25rem;font-weight:700;color:#f59e0b;">{s["year"]}</span>'
+            f'    <span style="font-size:0.92rem;font-weight:600;color:#cbd5e1;">{s["event"]}</span>'
             f'  </div>'
-            f'  <div class="hist-stats">'
-            f'    <div class="hist-stat">'
-            f'      <div class="hist-stat-label">Caída máxima</div>'
-            f'      <div class="hist-stat-value" style="color:#ef4444;">{s["drawdown"]}%</div>'
+            f'  <div style="{_STAT_GRID}">'
+            f'    <div style="{_STAT_DOWN}">'
+            f'      <div style="{_STAT_LABEL}">Caída máxima</div>'
+            f'      <div style="{_STAT_VALUE_DOWN}">{s["drawdown"]}%</div>'
             f'    </div>'
-            f'    <div class="hist-stat">'
-            f'      <div class="hist-stat-label">Tiempo de recuperación</div>'
-            f'      <div class="hist-stat-value" style="color:#22c55e;">{s["recovery"]}</div>'
+            f'    <div style="{_STAT_UP}">'
+            f'      <div style="{_STAT_LABEL}">Recuperación</div>'
+            f'      <div style="{_STAT_VALUE_UP}">{s["recovery"]}</div>'
             f'    </div>'
             f'  </div>'
-            f'  <p class="hist-context">{s["context"]}</p>'
+            f'  <p style="{_STORY_STYLE}">{s["story"]}</p>'
+            f'  <span style="{_GROWTH_STYLE}">📈 {s["post_growth"]}</span>'
             f'</div>'
             for s in _scenarios
         )
+
         with st.expander("📉 ¿Qué pasó con esta cartera en crisis reales?", expanded=False):
-            st.markdown(f"""<div class="hist-body">
-  <p class="hist-intro">
-    Estas son simulaciones basadas en datos históricos reales de cada activo.
-    <strong>Lo importante: en todas las crisis, los mercados se recuperaron.</strong>
-    El tiempo y la diversificación son sus aliados.
-  </p>
-  {_scenarios_html}
-  <p class="hist-footer">
-    💡 Quien aportó capital adicional durante las caídas obtuvo retornos
-    significativamente superiores en la recuperación. La paciencia paga.
-  </p>
-</div>""", unsafe_allow_html=True)
+            st.markdown(
+                '<p style="font-size:0.86rem;color:#94a3b8;line-height:1.6;'
+                'margin:8px 0 14px;padding:10px 14px;'
+                'background:rgba(79,163,255,0.05);border-left:3px solid #4fa3ff;'
+                'border-radius:6px;">'
+                'Datos históricos reales aplicados a su perfil. '
+                '<strong style="color:#cbd5e1;">En todas las crisis los mercados se recuperaron — '
+                'y los años siguientes generaron retornos significativos.</strong> '
+                'El tiempo y mantenerse invertido son sus mejores aliados.'
+                '</p>',
+                unsafe_allow_html=True,
+            )
+            st.markdown(_scenarios_html, unsafe_allow_html=True)
+            st.markdown(
+                '<p style="font-size:0.86rem;color:#cbd5e1;line-height:1.6;'
+                'margin:14px 0 4px;padding:12px 16px;'
+                'background:rgba(240,180,41,0.07);border-left:3px solid #f0b429;'
+                'border-radius:6px;">'
+                '💡 <strong>Lección clave:</strong> quien vendió en pánico cristalizó la pérdida. '
+                'Quien mantuvo la cartera recuperó todo. Quien además <strong>aportó durante la baja</strong> '
+                'multiplicó su capital al recuperarse el mercado.'
+                '</p>',
+                unsafe_allow_html=True,
+            )
 
         st.markdown("<br>", unsafe_allow_html=True)
 
