@@ -55,15 +55,21 @@ def _generate_with_retry(contents, config: types.GenerateContentConfig, retries:
             except Exception as e:
                 last_err = e
                 msg = str(e)
+                msg_lower = msg.lower()
                 is_429 = "429" in msg or "RESOURCE_EXHAUSTED" in msg
                 is_503 = "503" in msg or "UNAVAILABLE" in msg
-                is_403 = "403" in msg or "PERMISSION_DENIED" in msg or "API_KEY" in msg.upper() or "api key" in msg.lower()
+                is_403 = "403" in msg or "PERMISSION_DENIED" in msg or "API_KEY" in msg.upper() or "api key" in msg_lower
+                # 400 con quota o 'exceeded' también es cuota agotada (Google a veces
+                # devuelve 400 en lugar de 429 cuando se acabó la cuota diaria del free tier)
+                is_quota_400 = ("400" in msg) and (
+                    "quota" in msg_lower or "exceeded" in msg_lower or "limit" in msg_lower
+                )
 
                 if is_403:
                     raise ApiKeyError(msg)
-                if is_429:
+                if is_429 or is_quota_400:
                     quota_errors += 1
-                    if attempt < retries:
+                    if attempt < retries and is_429:
                         time.sleep(8)  # espera breve antes de reintentar mismo modelo
                         continue
                     break  # agoté reintentos en este modelo → probar el siguiente
@@ -72,7 +78,7 @@ def _generate_with_retry(contents, config: types.GenerateContentConfig, retries:
                     continue
                 break  # error no recuperable → probar modelo siguiente
 
-    if quota_errors == len(_MODELS) * (retries + 1):
+    if quota_errors > 0 and quota_errors >= len(_MODELS):
         raise QuotaExhaustedError(str(last_err))
     raise last_err
 
@@ -276,6 +282,10 @@ Recordá:
                 system_instruction=_SYSTEM_PROMPT,
                 response_mime_type="application/json",
                 temperature=0.85,
+                # gemini-2.5-flash usa "thinking" por default que puede consumir
+                # tokens del max_output_tokens y truncar el JSON. Lo desactivamos
+                # para garantizar que toda la respuesta sea JSON válido.
+                thinking_config=types.ThinkingConfig(thinking_budget=0),
                 max_output_tokens=8192,
             ),
         )
@@ -289,9 +299,16 @@ Recordá:
         }
 
     except json.JSONDecodeError:
+        # Posibles causas: respuesta truncada por límite de tokens, safety filter,
+        # o cuota cercana al límite. Mostramos mensaje útil con próximos pasos.
+        msg_decode = (
+            "La IA devolvió una respuesta incompleta. Esto suele pasar cuando la "
+            "cuota gratuita está cerca del límite diario. Esperá unos minutos e "
+            "intentá de nuevo, o regenerá la cartera."
+        )
         return {
-            "justification": "<p>Hubo un problema al procesar la respuesta de la IA. Por favor, intente de nuevo en unos segundos.</p>",
-            "alerts": [{"title": "Error temporal", "message": "No se pudo leer la respuesta. Por favor, intente de nuevo.", "severity": "medium"}],
+            "justification": f"<p>⏳ {_e(msg_decode)}</p>",
+            "alerts": [{"title": "Respuesta incompleta", "message": msg_decode, "severity": "medium"}],
             "rebalancing": "<p>No disponible.</p>",
             "tips": "<p>No disponible.</p>",
         }
