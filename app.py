@@ -528,7 +528,7 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
 </div>
 <div class="metric-card">
   <div class="metric-label">¿Cuánto puede bajar?</div>
-  <div class="metric-value" style="color:#f59e0b;">Hasta un {vol*100:.0f}% en un mal año</div>
+  <div class="metric-value" style="color:#f59e0b;">−{vol*100:.0f}%</div>
   <div class="metric-sub">Caída máxima probable en un mal año</div>
 </div>
 <div class="metric-card">
