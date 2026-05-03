@@ -2423,6 +2423,144 @@ details.cat-exp[open] > summary .cat-l1-card { background: #f1f5f9 !important; b
     border-color: rgba(37,99,235,0.2) !important;
 }
 
+/* ── Bloque histórico de drawdowns ────────────────────────────── */
+.hist-block {
+    background: rgba(148,163,184,0.04);
+    border: 1px solid rgba(148,163,184,0.18);
+    border-radius: 10px;
+    margin: 1rem 0;
+    overflow: hidden;
+}
+.hist-summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    transition: background 0.15s;
+}
+.hist-summary::-webkit-details-marker,
+.hist-summary::marker { display: none; content: ''; }
+.hist-summary:hover { background: rgba(148,163,184,0.06); }
+.hist-icon { font-size: 1.4rem; flex-shrink: 0; }
+.hist-summary-text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.hist-summary-text strong {
+    color: #cbd5e1;
+    font-size: 0.93rem;
+    font-weight: 600;
+}
+.hist-summary-sub {
+    color: #94a3b8;
+    font-size: 0.78rem;
+}
+.hist-toggle {
+    flex-shrink: 0;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #4fa3ff;
+    background: rgba(79,163,255,0.1);
+    padding: 4px 10px;
+    border-radius: 999px;
+}
+.hist-block[open] .hist-toggle::after { content: " ↑"; }
+.hist-block:not([open]) .hist-toggle::after { content: " ↓"; }
+
+.hist-body {
+    padding: 0 18px 16px;
+    border-top: 1px solid rgba(148,163,184,0.12);
+}
+.hist-intro {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    line-height: 1.6;
+    margin: 12px 0 16px;
+    padding-left: 12px;
+    border-left: 3px solid rgba(79,163,255,0.4);
+}
+.hist-intro strong { color: #cbd5e1; font-weight: 600; }
+
+.hist-card {
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(148,163,184,0.12);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+}
+.hist-card-header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.hist-year {
+    font-family: var(--font-numbers);
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #f59e0b;
+    letter-spacing: -0.02em;
+}
+.hist-event {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #cbd5e1;
+}
+.hist-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+.hist-stat-label {
+    font-size: 0.7rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 2px;
+}
+.hist-stat-value {
+    font-family: var(--font-numbers);
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+.hist-context {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    line-height: 1.55;
+    margin: 0;
+}
+.hist-footer {
+    font-size: 0.83rem;
+    color: #cbd5e1;
+    background: rgba(34,197,94,0.06);
+    border-left: 3px solid #22c55e;
+    padding: 10px 14px;
+    border-radius: 6px;
+    margin: 12px 0 0;
+    line-height: 1.55;
+}
+@media (max-width: 640px) {
+    .hist-summary { padding: 12px 14px; gap: 10px; }
+    .hist-summary-text strong { font-size: 0.85rem; }
+    .hist-summary-sub { font-size: 0.72rem; }
+    .hist-toggle { font-size: 0.65rem; padding: 3px 8px; }
+    .hist-body { padding: 0 14px 14px; }
+    .hist-intro { font-size: 0.78rem; }
+    .hist-card { padding: 10px 12px; }
+    .hist-year { font-size: 1.05rem; }
+    .hist-event { font-size: 0.82rem; }
+    .hist-stat-value { font-size: 1rem; }
+    .hist-context { font-size: 0.74rem; }
+    .hist-footer { font-size: 0.76rem; }
+}
+
 /* ── Tooltips inline del glosario ─────────────────────────────── */
 .term-tip {
     border-bottom: 1px dotted rgba(79,163,255,0.55);

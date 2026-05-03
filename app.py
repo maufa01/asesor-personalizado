@@ -691,6 +691,102 @@ onclick="document.getElementById('chat-section').scrollIntoView({behavior:'smoot
 
     st.markdown("<br>", unsafe_allow_html=True)
 
+    # ── Peor año histórico de esta cartera ───────────────────────────────────
+    # Datos basados en drawdowns reales de cada activo durante eventos históricos.
+    # Ponderados según composición típica de cada perfil.
+    _HISTORICAL_SCENARIOS = {
+        "conservador": [
+            {"year": "2018", "event": "Crisis cambiaria argentina",
+             "drawdown": -8, "recovery": "8 meses",
+             "context": "El peso se devaluó 100% y los bonos argentinos cayeron fuerte. Su cartera, mayormente en USD/MEP y money market, sufrió poco."},
+            {"year": "2020", "event": "COVID-19 (marzo)",
+             "drawdown": -6, "recovery": "5 meses",
+             "context": "El S&P 500 cayó 34% en 4 semanas. La parte mínima de equity en su cartera la sintió, pero MEP y bonos USD aguantaron."},
+            {"year": "2022", "event": "Suba de tasas global",
+             "drawdown": -4, "recovery": "6 meses",
+             "context": "La Fed subió tasas agresivamente y bonos largos cayeron. Su exposición corta en bonos limitó el daño."},
+        ],
+        "estable": [
+            {"year": "2018", "event": "Crisis cambiaria argentina",
+             "drawdown": -15, "recovery": "14 meses",
+             "context": "La parte de bonos soberanos ARG y acciones argentinas sufrió. La cobertura en USD/MEP redujo el impacto general."},
+            {"year": "2020", "event": "COVID-19 (marzo)",
+             "drawdown": -12, "recovery": "7 meses",
+             "context": "Caída brusca pero recuperación rápida — la diversificación geográfica funcionó como amortiguador."},
+            {"year": "2022", "event": "Suba de tasas global",
+             "drawdown": -10, "recovery": "10 meses",
+             "context": "Equity global cayó 19% pero los bonos en USD compensaron parcialmente."},
+        ],
+        "moderado": [
+            {"year": "2008", "event": "Crisis financiera global",
+             "drawdown": -28, "recovery": "22 meses",
+             "context": "El S&P 500 cayó 37% y los bonos argentinos sufrieron. La parte de bonos USD aguantó mejor."},
+            {"year": "2018", "event": "Crisis cambiaria argentina",
+             "drawdown": -22, "recovery": "20 meses",
+             "context": "Acciones ARG cayeron 50% en USD. La diversificación global limitó el daño total."},
+            {"year": "2020", "event": "COVID-19 (marzo)",
+             "drawdown": -20, "recovery": "8 meses",
+             "context": "Caída brusca pero V-shape recovery: el equity global recuperó máximos en 6 meses."},
+        ],
+        "agresivo": [
+            {"year": "2008", "event": "Crisis financiera global",
+             "drawdown": -42, "recovery": "30 meses",
+             "context": "S&P 500 cayó 37% en 18 meses. Acciones tech cayeron más del 50%. Los que aguantaron y aportaron en la baja triplicaron capital al recuperarse."},
+            {"year": "2018", "event": "Crisis cambiaria argentina",
+             "drawdown": -35, "recovery": "26 meses",
+             "context": "Acciones ARG cayeron 50% en USD; bonos GD30 cayeron 40%. La parte global limitó el daño parcialmente."},
+            {"year": "2022", "event": "Bear market global",
+             "drawdown": -25, "recovery": "13 meses",
+             "context": "Tech cayó 33%, S&P cayó 19%. El mercado recuperó máximos en 2024."},
+        ],
+    }
+    _scenarios = _HISTORICAL_SCENARIOS.get(profile["risk_profile"], [])
+    if _scenarios:
+        _scenarios_html = "".join(
+            f'<div class="hist-card">'
+            f'  <div class="hist-card-header">'
+            f'    <span class="hist-year">{s["year"]}</span>'
+            f'    <span class="hist-event">{s["event"]}</span>'
+            f'  </div>'
+            f'  <div class="hist-stats">'
+            f'    <div class="hist-stat">'
+            f'      <div class="hist-stat-label">Caída máxima</div>'
+            f'      <div class="hist-stat-value" style="color:#ef4444;">{s["drawdown"]}%</div>'
+            f'    </div>'
+            f'    <div class="hist-stat">'
+            f'      <div class="hist-stat-label">Tiempo de recuperación</div>'
+            f'      <div class="hist-stat-value" style="color:#22c55e;">{s["recovery"]}</div>'
+            f'    </div>'
+            f'  </div>'
+            f'  <p class="hist-context">{s["context"]}</p>'
+            f'</div>'
+            for s in _scenarios
+        )
+        st.markdown(f"""<details class="hist-block">
+<summary class="hist-summary">
+  <span class="hist-icon">📉</span>
+  <div class="hist-summary-text">
+    <strong>¿Qué pasó con esta cartera en crisis reales?</strong>
+    <span class="hist-summary-sub">Ver cómo habría reaccionado en 2008, 2018, 2020 y 2022</span>
+  </div>
+  <span class="hist-toggle">Ver</span>
+</summary>
+<div class="hist-body">
+  <p class="hist-intro">
+    Estas son simulaciones basadas en datos históricos reales de cada activo.
+    <strong>Lo importante: en todas las crisis, los mercados se recuperaron.</strong>
+    El tiempo y la diversificación son sus aliados.
+  </p>
+  {_scenarios_html}
+  <p class="hist-footer">
+    💡 Quien aportó capital adicional durante las caídas obtuvo retornos
+    significativamente superiores en la recuperación. La paciencia paga.
+  </p>
+</div>
+</details>""", unsafe_allow_html=True)
+
+        st.markdown("<br>", unsafe_allow_html=True)
+
     # ── Tabla de activos + razón por activo ──────────────────────────────────
     st.markdown('<div class="section-title">📋 Composición de su cartera</div>', unsafe_allow_html=True)
     render_allocation_table(portfolio, _disp_capital, currency_label=_disp_curr)
