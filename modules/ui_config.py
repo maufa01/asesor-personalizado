@@ -1896,6 +1896,7 @@ html, body, #root, .stApp {
         line-height: 1.7;
         max-width: 600px;
         margin: 0 auto;
+        text-align: center;
     }
 
     .glosario-cat-header {
