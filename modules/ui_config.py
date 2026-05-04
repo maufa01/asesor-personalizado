@@ -1878,6 +1878,9 @@ html, body, #root, .stApp {
 
     /* ── Glosario ─────────────────────────────────────────────────── */
     .glosario-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         text-align: center;
         padding: 2.5rem 1rem 1.5rem;
     }
@@ -3282,16 +3285,24 @@ def render_header():
                 _trigger_reset_confirm("profiling")
                 st.rerun()
 
+    # Pantallas secundarias: si el usuario navega entre ellas (ej. Glosario →
+    # Cómo funciona), NO sobreescribimos _prev_step para que el botón "Volver"
+    # siempre regrese a la pantalla "main" original (results, intro, etc.).
+    _SECONDARY_SCREENS = {"glosario", "metodologia", "como_funciona"}
+    _current_step = st.session_state.get("step", "intro")
+
     with col_glos:
         st.markdown('<div class="header-nav-spacer"></div>', unsafe_allow_html=True)
         if st.button("📚 Glosario", key="header_glosario", use_container_width=True):
-            st.session_state._prev_step = st.session_state.get("step", "intro")
+            if _current_step not in _SECONDARY_SCREENS:
+                st.session_state._prev_step = _current_step
             st.session_state.step = "glosario"
             st.rerun()
     with col_meto:
         st.markdown('<div class="header-nav-spacer"></div>', unsafe_allow_html=True)
         if st.button("ℹ️ Cómo funciona", key="header_metodologia", use_container_width=True):
-            st.session_state._prev_step = st.session_state.get("step", "intro")
+            if _current_step not in _SECONDARY_SCREENS:
+                st.session_state._prev_step = _current_step
             st.session_state.step = "como_funciona"
             st.rerun()
     with col_theme:
